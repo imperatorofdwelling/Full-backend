@@ -8,14 +8,14 @@ package di
 
 import (
 	"database/sql"
-	"github.com/imperatorofdwelling/Website-backend/internal/api"
-	"github.com/imperatorofdwelling/Website-backend/internal/providers/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/api"
+	"github.com/imperatorofdwelling/Full-backend/internal/providers/user"
 )
 
 // Injectors from wire.go:
 
-func Wire(db *sql.DB) *api.ServerHTTP {
-	repository := user.ProvideRepository(db)
+func Wire(sqlDB *sql.DB) *api.ServerHTTP {
+	repository := user.ProvideRepository(sqlDB)
 	service := user.ProvideService(repository)
 	handler := user.ProvideHandler(service)
 	serverHTTP := api.NewServerHTTP(handler)

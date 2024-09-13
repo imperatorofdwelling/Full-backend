@@ -7,17 +7,37 @@
 package di
 
 import (
-	"database/sql"
-	"github.com/imperatorofdwelling/Full-backend/internal/api"
-	"github.com/imperatorofdwelling/Full-backend/internal/providers/user"
+	"context"
+	http "github.com/imperatorofdwelling/Website-backend/internal/api"
+	"github.com/imperatorofdwelling/Website-backend/internal/api/handler"
+	config "github.com/imperatorofdwelling/Website-backend/internal/config/db"
+	"github.com/imperatorofdwelling/Website-backend/internal/db"
+	"github.com/imperatorofdwelling/Website-backend/internal/repo/account"
+	"github.com/imperatorofdwelling/Website-backend/internal/service"
+	"log/slog"
 )
 
 // Injectors from wire.go:
+func InitializeAPI(cfg config.DataBase, log *slog.Logger) (*http.ServerHTTP, error) {
+	bd, err := db.ConnectToBD(cfg)
+	if err != nil {
+		return nil, err
+	}
+	log.Info("DB connected")
+	// Repository
+	accountRepository := account.NewAccountDataBase(bd)
+	//service - logic
+	userService := service.NewService(accountRepository)
 
-func Wire(sqlDB *sql.DB) *api.ServerHTTP {
-	repository := user.ProvideRepository(sqlDB)
-	service := user.ProvideService(repository)
-	handler := user.ProvideHandler(service)
-	serverHTTP := api.NewServerHTTP(handler)
-	return serverHTTP
+	// Init Migrate
+	err = userService.Migrate(context.Background(), log)
+	if err != nil {
+		return nil, err
+	}
+
+	userHandler := handler.NewHandler(userService)
+	log.Info("handler initialized")
+	serverHTTP := http.NewServerHTTP(userHandler, log)
+	log.Info("server http initialized", *serverHTTP)
+	return serverHTTP, nil
 }

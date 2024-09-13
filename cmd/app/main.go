@@ -1,21 +1,19 @@
 package main
 
 import (
-	"github.com/imperatorofdwelling/Full-backend/internal/config"
-	"github.com/imperatorofdwelling/Full-backend/internal/db"
-	"github.com/imperatorofdwelling/Full-backend/internal/di"
-	"log"
+	"github.com/imperatorofdwelling/Website-backend/internal/config"
+	"github.com/imperatorofdwelling/Website-backend/internal/di"
+	"github.com/imperatorofdwelling/Website-backend/pkg/logger"
 )
 
 func main() {
-	cfg := config.MustLoad()
+	cfg := config.LoadConfig()
+	log := logger.New(logger.EnvLocal)
 
-	storage, err := db.NewStorage(cfg)
-	if err != nil {
-		log.Fatal(err)
+	server, diErr := di.InitializeAPI(cfg.Db, log)
+	if diErr != nil {
+		log.Error("cannot start server: ", diErr)
+	} else {
+		server.Start(cfg.Host, log)
 	}
-
-	srv := di.Wire(storage.DB)
-
-	srv.Start(cfg)
 }

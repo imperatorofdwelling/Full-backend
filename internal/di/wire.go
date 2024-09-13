@@ -1,17 +1,15 @@
 //go:build wireinject
+// +build wireinject
 
 package di
 
 import (
-	"database/sql"
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Full-backend/internal/api"
-	"github.com/imperatorofdwelling/Full-backend/internal/providers/user"
+	"log/slog"
 )
 
-func Wire(sqlDB *sql.DB) *api.ServerHTTP {
-	panic(wire.Build(
-		user.ProviderSet,
-		api.NewServerHTTP,
-	))
+func InitializeAPI(cfg config.Config, log *slog.Logger) (*http.ServerHTTP, error) {
+	wire.Build(db.ConnectToBD, service.NewService, handler.NewHandler, http.NewServerHTTP)
+
+	return &http.ServerHTTP{}, nil
 }

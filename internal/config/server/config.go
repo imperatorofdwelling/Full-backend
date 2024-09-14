@@ -1,14 +1,27 @@
 package config
 
-import "os"
+import (
+	"os"
+	"time"
+)
 
-type Host struct {
-	IP   string
-	Port string
+type Server struct {
+	Addr         string        `env-default:"localhost"`
+	Port         string        `env-default:"8080"`
+	ReadTimeout  time.Duration `env-default:"5s"`
+	WriteTimeout time.Duration `env-default:"10s"`
+	IdleTimeout  time.Duration `env-default:"60s"`
 }
 
-func (h *Host) Init() Host {
-	h.IP = os.Getenv("IP")
-	h.Port = os.Getenv("PORT")
-	return *h
+// import "os"
+//
+//	type Host struct {
+//		IP   string
+//		Port string
+//	}
+func InitServerConfig() Server {
+	return Server{
+		Addr: os.Getenv("SERVER_ADDR"),
+		Port: os.Getenv("SERVER_PORT"),
+	}
 }

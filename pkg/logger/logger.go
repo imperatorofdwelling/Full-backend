@@ -2,12 +2,10 @@ package logger
 
 import (
 	"errors"
+	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogpretty"
 	"log"
-	"os"
-
 	"log/slog"
-
-	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogpretty"
+	"os"
 )
 
 const (

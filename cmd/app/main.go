@@ -10,10 +10,7 @@ func main() {
 	cfg := config.LoadConfig()
 	log := logger.New(logger.EnvLocal)
 
-	server, diErr := di.InitializeAPI(cfg.Db, log)
-	if diErr != nil {
-		log.Error("cannot start server: ", diErr)
-	} else {
-		server.Start(cfg.Host, log)
+	if server, err := di.InitializeAPI(cfg, log); err == nil {
+		server.Start(cfg, log)
 	}
 }

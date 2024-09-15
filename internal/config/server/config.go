@@ -13,12 +13,6 @@ type Server struct {
 	IdleTimeout  time.Duration `env-default:"60s"`
 }
 
-// import "os"
-//
-//	type Host struct {
-//		IP   string
-//		Port string
-//	}
 func InitServerConfig() Server {
 	return Server{
 		Addr: os.Getenv("SERVER_ADDR"),

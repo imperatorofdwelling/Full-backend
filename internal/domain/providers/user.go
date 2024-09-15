@@ -3,22 +3,22 @@ package providers
 import (
 	"database/sql"
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler"
+	user3 "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	repository "github.com/imperatorofdwelling/Website-backend/internal/repo"
-	"github.com/imperatorofdwelling/Website-backend/internal/service"
+	user2 "github.com/imperatorofdwelling/Website-backend/internal/repo/user"
+	"github.com/imperatorofdwelling/Website-backend/internal/service/user"
 	"log/slog"
 	"sync"
 )
 
 var (
-	hdl     *handler.UserHandler
+	hdl     *user3.UserHandler
 	hdlOnce sync.Once
 
-	svc     *service.UserService
+	svc     *user.Service
 	svcOnce sync.Once
 
-	repo     *repository.UserRepository
+	repo     *user2.Repository
 	repoOnce sync.Once
 )
 
@@ -27,14 +27,14 @@ var UserProviderSet wire.ProviderSet = wire.NewSet(
 	ProvideUserService,
 	ProvideUserRepository,
 
-	wire.Bind(new(interfaces.UserHandler), new(*handler.UserHandler)),
-	wire.Bind(new(interfaces.UserService), new(*service.UserService)),
-	wire.Bind(new(interfaces.UserRepository), new(*repository.UserRepository)),
+	wire.Bind(new(interfaces.UserHandler), new(*user3.UserHandler)),
+	wire.Bind(new(interfaces.UserService), new(*user.Service)),
+	wire.Bind(new(interfaces.UserRepository), new(*user2.Repository)),
 )
 
-func ProvideUserHandler(svc interfaces.UserService, log *slog.Logger) *handler.UserHandler {
+func ProvideUserHandler(svc interfaces.UserService, log *slog.Logger) *user3.UserHandler {
 	hdlOnce.Do(func() {
-		hdl = &handler.UserHandler{
+		hdl = &user3.UserHandler{
 			Svc: svc,
 			Log: log,
 		}
@@ -43,9 +43,9 @@ func ProvideUserHandler(svc interfaces.UserService, log *slog.Logger) *handler.U
 	return hdl
 }
 
-func ProvideUserService(repo interfaces.UserRepository) *service.UserService {
+func ProvideUserService(repo interfaces.UserRepository) *user.Service {
 	svcOnce.Do(func() {
-		svc = &service.UserService{
+		svc = &user.Service{
 			Repo: repo,
 		}
 	})
@@ -53,9 +53,9 @@ func ProvideUserService(repo interfaces.UserRepository) *service.UserService {
 	return svc
 }
 
-func ProvideUserRepository(db *sql.DB) *repository.UserRepository {
+func ProvideUserRepository(db *sql.DB) *user2.Repository {
 	repoOnce.Do(func() {
-		repo = &repository.UserRepository{
+		repo = &user2.Repository{
 			Db: db,
 		}
 	})

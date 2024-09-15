@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler"
+	"github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
 	"log/slog"
 	"net/http"
@@ -16,7 +16,7 @@ type ServerHTTP struct {
 	router *chi.Mux
 }
 
-func NewServerHTTP(userHandler *handler.UserHandler, log *slog.Logger, db *sql.DB) *ServerHTTP {
+func NewServerHTTP(userHandler *user.UserHandler, log *slog.Logger, db *sql.DB) *ServerHTTP {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)

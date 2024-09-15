@@ -7,6 +7,7 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
 	repository "github.com/imperatorofdwelling/Website-backend/internal/repo"
 	"github.com/imperatorofdwelling/Website-backend/internal/service"
+	"log/slog"
 	"sync"
 )
 
@@ -31,10 +32,11 @@ var UserProviderSet wire.ProviderSet = wire.NewSet(
 	wire.Bind(new(interfaces.UserRepository), new(*repository.UserRepository)),
 )
 
-func ProvideUserHandler(svc interfaces.UserService) *handler.UserHandler {
+func ProvideUserHandler(svc interfaces.UserService, log *slog.Logger) *handler.UserHandler {
 	hdlOnce.Do(func() {
 		hdl = &handler.UserHandler{
 			Svc: svc,
+			Log: log,
 		}
 	})
 

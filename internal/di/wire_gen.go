@@ -23,7 +23,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	}
 	userRepository := providers.ProvideUserRepository(sqlDB)
 	userService := providers.ProvideUserService(userRepository)
-	userHandler := providers.ProvideUserHandler(userService)
+	userHandler := providers.ProvideUserHandler(userService, log)
 	serverHTTP := api.NewServerHTTP(userHandler, log, sqlDB)
 	return serverHTTP, nil
 }

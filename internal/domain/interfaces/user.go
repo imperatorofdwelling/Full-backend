@@ -16,6 +16,7 @@ type (
 	}
 
 	UserHandler interface {
+		CreateUser(http.ResponseWriter, *http.Request)
 		FetchByUsername() http.HandlerFunc
 	}
 )

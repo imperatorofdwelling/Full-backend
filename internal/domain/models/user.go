@@ -8,8 +8,8 @@ type (
 		Password  string `json:"password"`
 		Phone     string `json:"phone"`
 		BirthDate string `json:"birthDate"`
-		National  string `json:"national"`
-		Gender    string `json:"gender"`
+		National  string `json:"national,omitempty"`
+		Gender    string `json:"gender,omitempty"`
 	}
 
 	User struct {

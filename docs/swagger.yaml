@@ -1,0 +1,84 @@
+basePath: /api/v1
+definitions:
+  models.Location:
+    properties:
+      city:
+        type: string
+      createdAt:
+        type: string
+      federal_district:
+        type: string
+      fias_id:
+        type: string
+      id:
+        type: integer
+      kladr_id:
+        type: string
+      lat:
+        type: string
+      lon:
+        type: string
+      okato:
+        type: string
+      oktmo:
+        type: string
+      population:
+        type: number
+      region_iso_code:
+        type: string
+      region_name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  responseApi.ResponseError:
+    properties:
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: IOD App API
+  version: "1.0"
+paths:
+  /locations/{locationName}:
+    get:
+      consumes:
+      - application/json
+      description: Find city by matching name
+      parameters:
+      - description: location name match
+        in: path
+        name: locationName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/models.Location'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Find city by name
+      tags:
+      - locations
+swagger: "2.0"

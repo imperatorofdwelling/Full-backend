@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	handler "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
+	locHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
+	usrHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log/slog"
@@ -19,9 +19,8 @@ type ServerHTTP struct {
 
 func NewServerHTTP(
 	cfg *config.Config,
-	userHandler *user.UserHandler,
-	locationHandler *handler.LocationHandler,
-	log *slog.Logger,
+	userHandler *usrHdl.UserHandler,
+	locationHandler *locHdl.LocationHandler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 

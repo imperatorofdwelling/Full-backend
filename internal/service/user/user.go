@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"context"
@@ -9,11 +9,11 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/internal/service"
 )
 
-type Service struct {
+type UserService struct {
 	Repo interfaces.UserRepository
 }
 
-func (s *Service) CreateUser(ctx context.Context, user *models.UserEntity) (*models.User, error) {
+func (s *UserService) CreateUser(ctx context.Context, user *models.UserEntity) (*models.User, error) {
 	const op = "service.user.CreateUser"
 
 	userExists, err := s.Repo.CheckUserExists(ctx, user.Email)

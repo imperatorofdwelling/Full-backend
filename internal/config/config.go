@@ -13,7 +13,6 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-
 	err := loadDotEnv("")
 	if err != nil {
 		log.Fatal(err)

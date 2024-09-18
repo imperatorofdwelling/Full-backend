@@ -14,23 +14,15 @@ services:
 #      - '8080'
 #    ports:
 #      - '8080:8080'
-
   db:
     image: postgres
-    env_file:
-      - ./.env
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=db
     networks:
       - proxynet
     ports:
-      - '5432:5432'
+      - '5433:5432'
+    env_file: .env
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
-
-
 
 volumes:
   local_postgres_data:

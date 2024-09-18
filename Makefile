@@ -2,7 +2,7 @@ run: build
 	./bin/app
 build: wire
 	go build -o bin/app cmd/app/main.go
-wire: swag
+wire:
 	wire ./internal/di
 swag:
 	swag init -g cmd/app/main.go

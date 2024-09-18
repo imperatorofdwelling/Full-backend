@@ -1,10 +1,10 @@
 package main
 
 import (
-	_ "github.com/imperatorofdwelling/Website-backend/docs"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
-	"github.com/imperatorofdwelling/Website-backend/internal/di"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger"
+	_ "github.com/imperatorofdwelling/Full-backend/docs"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	"github.com/imperatorofdwelling/Full-backend/internal/di"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 )
 
 // @title IOD App API

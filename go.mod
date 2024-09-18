@@ -1,12 +1,12 @@
-module github.com/imperatorofdwelling/Website-backend
+module github.com/imperatorofdwelling/Full-backend
 
 go 1.23.1
 
 require (
+	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/fatih/color v1.17.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/render v1.0.3
-	github.com/go-playground/assert/v2 v2.2.0
 	github.com/go-playground/validator/v10 v10.22.1
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.17.1
@@ -29,6 +29,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/google/subcommands v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
@@ -49,7 +50,9 @@ require (
 	github.com/swaggo/files v1.0.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.29.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 	golang.org/x/tools v0.25.0 // indirect

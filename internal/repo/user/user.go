@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 )
 
 type UserRepository struct {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
-	"github.com/imperatorofdwelling/Website-backend/internal/service"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/service"
 )
 
 type UserService struct {

@@ -3,14 +3,15 @@ package handler
 import (
 	"context"
 	"errors"
+	jwt "github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
-	"github.com/imperatorofdwelling/Website-backend/internal/service"
-	"github.com/imperatorofdwelling/Website-backend/internal/utils/response"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
 	"time"
@@ -76,7 +77,7 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  result,
+		"id":  userID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
 	})
 	tokenString, err := token.SignedString([]byte("your-secret-key"))

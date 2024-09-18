@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
-	db2 "github.com/imperatorofdwelling/Website-backend/internal/db"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	db2 "github.com/imperatorofdwelling/Full-backend/internal/db"
 	"log"
 	"os"
 )

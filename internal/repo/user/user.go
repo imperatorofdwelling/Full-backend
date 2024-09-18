@@ -32,7 +32,7 @@ func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (boo
 	return exists, nil
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, user *user.Entity) (uuid.UUID, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user *user.Registration) (uuid.UUID, error) {
 	const op = "repo.user.CreateUser"
 
 	stmt, err := r.Db.PrepareContext(ctx,
@@ -55,18 +55,17 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *user.Entity) (uui
 		user.Name,
 		user.Email,
 		user.Password,
-		user.Phone,
-		user.BirthDate,
-		user.National,
-		user.Gender,
-		user.Country,
-		user.City,
 	)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return userID, nil
+}
+
+func (r *UserRepository) Login(ctx context.Context, user *user.Login) (int64, error) {
+	const op = "repo.user.Login"
+
 }
 
 func (r *UserRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*user.User, error) {

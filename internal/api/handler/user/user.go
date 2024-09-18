@@ -35,20 +35,19 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var user user.Entity
-
-	if err := render.DecodeJSON(r.Body, &user); err != nil {
+	var userCurrent user.Registration
+	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 	}
 
-	userCreated, err := h.Svc.CreateUser(context.Background(), &user)
+	userCreated, err := h.Svc.CreateUser(context.Background(), &userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrUserNotFound) {
-			responseApi.WriteJson(w, r, http.StatusBadRequest, slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 			return
 		}
 
-		responseApi.WriteJson(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -61,5 +60,12 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
+
+	var userCurrent user.Login
+	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+		h.Log.Error("failed to decode request body", slogError.Err(err))
+	}
+
+	userID, err := h.Svc.Login(context.Background(), &userCurrent)
 
 }

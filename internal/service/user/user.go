@@ -1,9 +1,9 @@
-package service
+package user
 
 import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 )
 
-type UserService struct {
+type Service struct {
 	Repo interfaces.UserRepository
 }

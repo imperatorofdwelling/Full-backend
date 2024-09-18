@@ -3,7 +3,7 @@ run: build
 build: wire
 	go build -o bin/app cmd/app/main.go
 wire:
-	wire ./internal/di
+	google-wire ./internal/di
 swag:
 	swag init -g cmd/app/main.go
 migration-create:

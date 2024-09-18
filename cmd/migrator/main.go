@@ -30,7 +30,7 @@ func main() {
 		panic(err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://cmd/migrator/migrations", "postgres", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://cmd/migrator/migrations", cfg.DB.DbName, driver)
 	if err != nil {
 		panic(err)
 	}

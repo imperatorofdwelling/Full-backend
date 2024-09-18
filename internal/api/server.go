@@ -34,9 +34,9 @@ func NewServerHTTP(
 	r.Route("/api/v1/", func(r chi.Router) {
 		authHandler.NewAuthHandler(r)
 	})
-
-	r.Use(authHandler.JWTMiddleware)
-	r.Route("/api/v1", func(r chi.Router) {
+	// Маршруты защищенные JWTMiddleware
+	r.Group(func(r chi.Router) {
+		r.Use(authHandler.JWTMiddleware)
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
 	})

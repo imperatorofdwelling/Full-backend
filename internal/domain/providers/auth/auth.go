@@ -15,21 +15,21 @@ var (
 	hdl     *authHdl.AuthHandler
 	hdlOnce sync.Once
 
-	svc     *authSvc.AuthService
+	svc     *authSvc.Service
 	svcOnce sync.Once
 
-	repo     *authRepo.AuthRepository
+	repo     *authRepo.Repository
 	repoOnce sync.Once
 )
 
-var AuthProviderSet wire.ProviderSet = wire.NewSet(
+var ProviderSet wire.ProviderSet = wire.NewSet(
 	ProvideAuthHandler,
 	ProvideAuthService,
 	ProvideAuthRepository,
 
 	wire.Bind(new(interfaces.AuthHandler), new(*authHdl.AuthHandler)),
-	wire.Bind(new(interfaces.AuthService), new(*authSvc.AuthService)),
-	wire.Bind(new(interfaces.AuthRepository), new(*authRepo.AuthRepository)),
+	wire.Bind(new(interfaces.AuthService), new(*authSvc.Service)),
+	wire.Bind(new(interfaces.AuthRepository), new(*authRepo.Repository)),
 )
 
 func ProvideAuthHandler(svc interfaces.AuthService, log *slog.Logger) *authHdl.AuthHandler {
@@ -43,9 +43,9 @@ func ProvideAuthHandler(svc interfaces.AuthService, log *slog.Logger) *authHdl.A
 	return hdl
 }
 
-func ProvideAuthService(authRepo interfaces.AuthRepository, userRepo interfaces.UserRepository) *authSvc.AuthService {
+func ProvideAuthService(authRepo interfaces.AuthRepository, userRepo interfaces.UserRepository) *authSvc.Service {
 	svcOnce.Do(func() {
-		svc = &authSvc.AuthService{
+		svc = &authSvc.Service{
 			AuthRepo: authRepo,
 			UserRepo: userRepo,
 		}
@@ -54,9 +54,9 @@ func ProvideAuthService(authRepo interfaces.AuthRepository, userRepo interfaces.
 	return svc
 }
 
-func ProvideAuthRepository(db *sql.DB) *authRepo.AuthRepository {
+func ProvideAuthRepository(db *sql.DB) *authRepo.Repository {
 	repoOnce.Do(func() {
-		repo = &authRepo.AuthRepository{
+		repo = &authRepo.Repository{
 			Db: db,
 		}
 	})

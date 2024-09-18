@@ -9,11 +9,11 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 )
 
-type AuthRepository struct {
+type Repository struct {
 	Db *sql.DB
 }
 
-func (r *AuthRepository) Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
+func (r *Repository) Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
 	const op = "repo.user.Registration"
 
 	stmt, err := r.Db.PrepareContext(ctx,
@@ -44,7 +44,7 @@ func (r *AuthRepository) Registration(ctx context.Context, user *auth.Registrati
 	return userID, nil
 }
 
-func (r *AuthRepository) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
+func (r *Repository) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
 	const op = "repo.user.Login"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = ? AND password = ?")

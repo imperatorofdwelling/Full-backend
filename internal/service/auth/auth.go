@@ -9,12 +9,12 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 )
 
-type AuthService struct {
+type Service struct {
 	AuthRepo interfaces.AuthRepository
 	UserRepo interfaces.UserRepository
 }
 
-func (s *AuthService) Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
+func (s *Service) Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
 	const op = "service.user.Registration"
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
@@ -43,7 +43,7 @@ func (s *AuthService) Registration(ctx context.Context, user *auth.Registration)
 	return userFound.ID, nil
 }
 
-func (s *AuthService) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
 	const op = "service.user.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {

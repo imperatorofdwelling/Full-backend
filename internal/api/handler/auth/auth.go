@@ -24,11 +24,11 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) NewAuthHandler(r chi.Router) {
-	r.Post("/registration", h.CreateUser)
+	r.Post("/registration", h.Registration)
 	r.Post("/login", h.LoginUser)
 }
 
-func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.Registration"
 
 	h.Log = h.Log.With(

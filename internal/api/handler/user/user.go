@@ -13,6 +13,7 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 type UserHandler struct {
@@ -46,7 +47,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 			return
 		}
-
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -67,5 +67,31 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID, err := h.Svc.Login(context.Background(), &userCurrent)
+	if err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
+			return
+		}
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":  result,
+		"exp": time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+	})
+	tokenString, err := token.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		http.Error(w, `{"error": "Failed to generate token"}`, http.StatusInternalServerError)
+		return
+	}
 
+	// Set token as a cookie
+	cookie := &http.Cookie{
+		Name:     "jwt-token",
+		Value:    tokenString,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HttpOnly: true,
+	}
+	http.SetCookie(w, cookie)
+	responseApi.WriteJson(w, r, http.StatusOK, userID)
 }

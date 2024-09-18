@@ -42,16 +42,21 @@ func (s *UserService) CreateUser(ctx context.Context, user *user.Registration) (
 	return userFound, nil
 }
 
-func (s *UserService) Login(ctx context.Context, user *user.Login) (*user.User, error) {
+func (s *UserService) Login(ctx context.Context, user *user.Login) (uuid.UUID, error) {
 	const op = "service.user.Login"
 	userExists, err := s.Repo.CheckUserExists(ctx, user.Email)
 	if err != nil {
-		return nil, err
+		return uuid.Nil, err
 	}
 
 	if !userExists {
-		return nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
 	}
 
 	id, err := s.Repo.Login(ctx, user)
+	if err != nil {
+		return id, err
+	}
+
+	return id, err
 }

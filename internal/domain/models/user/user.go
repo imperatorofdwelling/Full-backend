@@ -1,4 +1,4 @@
-package models
+package user
 
 import (
 	"github.com/gofrs/uuid"
@@ -6,7 +6,7 @@ import (
 )
 
 type (
-	UserEntity struct {
+	Entity struct {
 		ID        uuid.UUID `json:"id"`
 		Name      string    `json:"name"`
 		Email     string    `json:"email"`
@@ -33,5 +33,10 @@ type (
 		City      string    `json:"city"`
 		CreatedAt time.Time `json:"createdAt"`
 		UpdatedAt time.Time `json:"updatedAt"`
+	}
+	Registration struct {
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 )

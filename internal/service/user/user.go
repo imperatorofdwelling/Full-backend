@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/service"
 )
 
@@ -13,7 +13,7 @@ type UserService struct {
 	Repo interfaces.UserRepository
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user *models.UserEntity) (*models.User, error) {
+func (s *UserService) CreateUser(ctx context.Context, user *user.Entity) (*user.User, error) {
 	const op = "service.user.CreateUser"
 
 	userExists, err := s.Repo.CheckUserExists(ctx, user.Email)

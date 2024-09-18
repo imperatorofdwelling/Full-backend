@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/service"
 	"github.com/imperatorofdwelling/Website-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
@@ -22,7 +22,8 @@ type UserHandler struct {
 
 func (h *UserHandler) NewUserHandler(r chi.Router) {
 	r.Route("/user", func(r chi.Router) {
-		r.Post("/create", h.CreateUser)
+		r.Post("/registration", h.CreateUser)
+		r.Post("/login", h.LoginUser)
 	})
 }
 
@@ -34,7 +35,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var user models.UserEntity
+	var user user.Entity
 
 	if err := render.DecodeJSON(r.Body, &user); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
@@ -52,4 +53,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusCreated, userCreated)
+}
+
+func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.LoginUser"
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 }

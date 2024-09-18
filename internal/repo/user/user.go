@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Website-backend/internal/domain/models/user"
 )
 
 type UserRepository struct {
@@ -32,7 +32,7 @@ func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (boo
 	return exists, nil
 }
 
-func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserEntity) (uuid.UUID, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user *user.Entity) (uuid.UUID, error) {
 	const op = "repo.user.CreateUser"
 
 	stmt, err := r.Db.PrepareContext(ctx,
@@ -69,7 +69,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserEntity
 	return userID, nil
 }
 
-func (r *UserRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+func (r *UserRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*user.User, error) {
 	const op = "repo.user.FindUserByID"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM users WHERE id = ?")
@@ -79,7 +79,7 @@ func (r *UserRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*model
 
 	defer stmt.Close()
 
-	var user models.User
+	var user user.User
 
 	err = stmt.QueryRowContext(ctx, id).Scan(
 		&user.ID,

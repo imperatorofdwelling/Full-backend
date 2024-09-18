@@ -1,12 +1,13 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
+	locHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
+	usrHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log/slog"
 	"net/http"
 	"time"
@@ -16,7 +17,11 @@ type ServerHTTP struct {
 	router *chi.Mux
 }
 
-func NewServerHTTP(userHandler *user.UserHandler, log *slog.Logger, db *sql.DB) *ServerHTTP {
+func NewServerHTTP(
+	cfg *config.Config,
+	userHandler *usrHdl.UserHandler,
+	locationHandler *locHdl.LocationHandler,
+) *ServerHTTP {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -26,7 +31,12 @@ func NewServerHTTP(userHandler *user.UserHandler, log *slog.Logger, db *sql.DB) 
 
 	r.Route("/api/v1", func(r chi.Router) {
 		userHandler.NewUserHandler(r)
+		locationHandler.NewLocationHandler(r)
 	})
+
+	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Addr, cfg.Server.Port)),
+	))
 
 	return &ServerHTTP{router: r}
 }

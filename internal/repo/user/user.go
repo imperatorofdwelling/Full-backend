@@ -1,4 +1,4 @@
-package user
+package repo
 
 import (
 	"context"
@@ -8,11 +8,11 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
 )
 
-type Repository struct {
+type UserRepository struct {
 	Db *sql.DB
 }
 
-func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, error) {
+func (r *UserRepository) CheckUserExists(ctx context.Context, email string) (bool, error) {
 	const op = "repo.user.CheckUserIfExists"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = ?)")
@@ -32,7 +32,7 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 	return exists, nil
 }
 
-func (r *Repository) CreateUser(ctx context.Context, user *models.UserEntity) (uuid.UUID, error) {
+func (r *UserRepository) CreateUser(ctx context.Context, user *models.UserEntity) (uuid.UUID, error) {
 	const op = "repo.user.CreateUser"
 
 	stmt, err := r.Db.PrepareContext(ctx,
@@ -69,7 +69,7 @@ func (r *Repository) CreateUser(ctx context.Context, user *models.UserEntity) (u
 	return userID, nil
 }
 
-func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+func (r *UserRepository) FindUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	const op = "repo.user.FindUserByID"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM users WHERE id = ?")

@@ -8,13 +8,15 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/internal/api"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
 	"github.com/imperatorofdwelling/Website-backend/internal/db"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/providers"
+	locProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
+	usrProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
 	"log/slog"
 )
 
 func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error) {
 	panic(wire.Build(
-		providers.UserProviderSet,
+		usrProvider.UserProviderSet,
+		locProvider.LocationProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

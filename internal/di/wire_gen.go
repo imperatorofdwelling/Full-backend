@@ -10,7 +10,8 @@ import (
 	"github.com/imperatorofdwelling/Website-backend/internal/api"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
 	"github.com/imperatorofdwelling/Website-backend/internal/db"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/providers"
+	providers2 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
+	"github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
 	"log/slog"
 )
 
@@ -24,6 +25,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	userRepository := providers.ProvideUserRepository(sqlDB)
 	userService := providers.ProvideUserService(userRepository)
 	userHandler := providers.ProvideUserHandler(userService, log)
-	serverHTTP := api.NewServerHTTP(userHandler, log, sqlDB)
+	locationRepo := providers2.ProvideLocationRepository(sqlDB)
+	locationService := providers2.ProvideLocationService(locationRepo)
+	locationHandler := providers2.ProvideLocationHandler(locationService, log)
+	serverHTTP := api.NewServerHTTP(cfg, userHandler, locationHandler)
 	return serverHTTP, nil
 }

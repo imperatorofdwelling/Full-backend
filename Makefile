@@ -1,9 +1,11 @@
 run: build
 	./bin/app
-build: wire
+build: swag
 	go build -o bin/app cmd/app/main.go
-wire: swag
-	wire ./internal/di
+swag: wire
+	swag init -g cmd/app/main.go
+wire:
+	google-wire ./internal/di
 swag:
 	swag init -g cmd/app/main.go
 migration-create:

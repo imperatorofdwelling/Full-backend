@@ -11,7 +11,7 @@ definitions:
       fias_id:
         type: string
       id:
-        type: integer
+        type: string
       kladr_id:
         type: string
       lat:

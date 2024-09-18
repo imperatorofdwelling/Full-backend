@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +28,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	t.Run("should be correct response", func(t *testing.T) {
 		r := httptest.NewRecorder()
 		payload := "алейск"
-		expected := []models.Location{
+		expected := []location.Location{
 			{
 				City:            "Алейск",
 				FederalDistrict: "Сибирский",
@@ -55,7 +55,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual []models.Location
+		var actual []location.Location
 
 		err = json.Unmarshal(r.Body.Bytes(), &actual)
 

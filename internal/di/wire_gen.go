@@ -10,8 +10,9 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
-	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
+	authProviders "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	locationProviders "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	userProviders "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 	"log/slog"
 )
 
@@ -22,12 +23,15 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	if err != nil {
 		return nil, err
 	}
-	userRepository := providers.ProvideUserRepository(sqlDB)
-	userService := providers.ProvideUserService(userRepository)
-	userHandler := providers.ProvideUserHandler(userService, log)
-	locationRepo := providers2.ProvideLocationRepository(sqlDB)
-	locationService := providers2.ProvideLocationService(locationRepo)
-	locationHandler := providers2.ProvideLocationHandler(locationService, log)
-	serverHTTP := api.NewServerHTTP(cfg, userHandler, locationHandler)
+	userRepository := userProviders.ProvideUserRepository(sqlDB)
+	userService := userProviders.ProvideUserService(userRepository)
+	userHandler := userProviders.ProvideUserHandler(userService, log)
+	authRepository := authProviders.ProvideAuthRepository(sqlDB)
+	authService := authProviders.ProvideAuthService(authRepository, userRepository)
+	authHandler := authProviders.ProvideAuthHandler(authService, log)
+	locationRepo := locationProviders.ProvideLocationRepository(sqlDB)
+	locationService := locationProviders.ProvideLocationService(locationRepo)
+	locationHandler := locationProviders.ProvideLocationHandler(locationService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, locationHandler)
 	return serverHTTP, nil
 }

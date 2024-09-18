@@ -17,7 +17,7 @@ func (r *Repository) Registration(ctx context.Context, user *auth.Registration) 
 	const op = "repo.user.Registration"
 
 	stmt, err := r.Db.PrepareContext(ctx,
-		"INSERT INTO users (id, name, email, password, phone, birth_date, national, gender, country, city) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"INSERT INTO users (name, email, password) VALUES ($1, $2, $3, $4), user.name, user.email, user.password",
 	)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("%s: %w", op, err)

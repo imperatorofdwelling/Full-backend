@@ -34,9 +34,25 @@ type (
 		CreatedAt time.Time `json:"createdAt"`
 		UpdatedAt time.Time `json:"updatedAt"`
 	}
+
+	Info struct {
+		ID        int64  `json:"id"`
+		Name      string `json:"name"`
+		Email     string `json:"email"`
+		Phone     string `json:"phone"`
+		BirthDate string `json:"birthDate"`
+		National  string `json:"national"`
+		Gender    string `json:"gender"`
+	}
+
+	Login struct {
+		Email    string `json:"email" validate:"required, email"`
+		Password string `json:"password" validate:"required" `
+	}
+
 	Registration struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Name     string `json:"name" validate:"required"`
+		Email    string `json:"email" validate:"required,email"`
+		Password string `json:"password" validate:"required" `
 	}
 )

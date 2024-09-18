@@ -9,12 +9,12 @@ import (
 
 type (
 	AuthRepository interface {
-		Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
+		Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user *auth.Login) (uuid.UUID, error)
 	}
 
 	AuthService interface {
-		Registration(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
+		Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user *auth.Login) (uuid.UUID, error)
 	}
 

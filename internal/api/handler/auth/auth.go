@@ -43,7 +43,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userCreated, err := h.Svc.Register(context.Background(), &userCurrent)
+	userCreated, err := h.Svc.Register(context.Background(), userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrUserNotFound) {
 			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
@@ -74,10 +74,14 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 	}
 
-	userID, err := h.Svc.Login(context.Background(), &userCurrent)
+	userID, err := h.Svc.Login(context.Background(), userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrUserNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
+			return
+		}
+		if errors.Is(err, service.ErrValid) {
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 			return
 		}
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))

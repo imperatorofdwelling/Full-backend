@@ -14,7 +14,7 @@ type Repository struct {
 	Db *sql.DB
 }
 
-func (r *Repository) Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
+func (r *Repository) Register(ctx context.Context, user auth.Registration) (uuid.UUID, error) {
 	// Create a new UUID for the user
 	id, err := uuid.NewV4()
 	if err != nil {
@@ -34,7 +34,7 @@ func (r *Repository) Register(ctx context.Context, user *auth.Registration) (uui
 	return id, nil
 }
 
-func (r *Repository) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
+func (r *Repository) Login(ctx context.Context, user auth.Login) (uuid.UUID, error) {
 	const op = "repo.user.Login"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1 AND password = $2")

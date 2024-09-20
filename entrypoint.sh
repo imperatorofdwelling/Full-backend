@@ -1,12 +1,17 @@
 #!/bin/bash
 
-echo "Waiting for postgres..."
-echo $DATABASE_HOST
-echo $DATABASE_PORT
-while ! nc -z $DATABASE_HOST $DATABASE_PORT; do
-  sleep 0.1
-done
+# Путь к файлу конфигурации PostgreSQL
+POSTGRES_CONF="/var/lib/postgresql/data/postgresql.conf"
 
-echo "PostgreSQL started for fintech_trader"
+# Новый порт
+NEW_PORT="5433"
 
-exec "$@"
+# Изменение конфигурационного файла
+if grep -q "^port" "$POSTGRES_CONF"; then
+  sed -i "s/^port.*/port = $NEW_PORT/" "$POSTGRES_CONF"
+else
+  echo "port = $NEW_PORT" >> "$POSTGRES_CONF"
+fi
+
+# Перезапуск PostgreSQL
+pg_ctl reload

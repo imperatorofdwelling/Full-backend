@@ -8,6 +8,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"net/mail"
+	"strings"
 )
 
 type Service struct {
@@ -15,7 +16,7 @@ type Service struct {
 	UserRepo interfaces.UserRepository
 }
 
-func (s *Service) Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error) {
+func (s *Service) Register(ctx context.Context, user auth.Registration) (uuid.UUID, error) {
 	const op = "service.user.Registration"
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
@@ -26,8 +27,8 @@ func (s *Service) Register(ctx context.Context, user *auth.Registration) (uuid.U
 	if userExists {
 		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserAlreadyExists)
 	}
-	if !s.validEmail(user.Email) {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrValidEmail)
+	if !s.validate(user) {
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrValid)
 	}
 
 	id, err := s.AuthRepo.Register(ctx, user)
@@ -47,7 +48,7 @@ func (s *Service) Register(ctx context.Context, user *auth.Registration) (uuid.U
 	return userFound.ID, nil
 }
 
-func (s *Service) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user auth.Login) (uuid.UUID, error) {
 	const op = "service.user.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
@@ -66,7 +67,11 @@ func (s *Service) Login(ctx context.Context, user *auth.Login) (uuid.UUID, error
 	return id, err
 }
 
-func (s *Service) validEmail(email string) bool {
-	_, err := mail.ParseAddress(email)
+func (s *Service) validate(user auth.Registration) bool {
+	if strings.TrimSpace(user.Name) == "" || strings.TrimSpace(user.Email) == "" {
+		return false
+	}
+
+	_, err := mail.ParseAddress(user.Email)
 	return err == nil
 }

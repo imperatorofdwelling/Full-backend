@@ -9,13 +9,13 @@ import (
 
 type (
 	AuthRepository interface {
-		Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
-		Login(ctx context.Context, user *auth.Login) (uuid.UUID, error)
+		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
+		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	}
 
 	AuthService interface {
-		Register(ctx context.Context, user *auth.Registration) (uuid.UUID, error)
-		Login(ctx context.Context, user *auth.Login) (uuid.UUID, error)
+		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
+		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	}
 
 	AuthHandler interface {

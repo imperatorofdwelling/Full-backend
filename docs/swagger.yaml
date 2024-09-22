@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  models.Advantage:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   models.Location:
     properties:
       city:
@@ -50,6 +63,130 @@ info:
   title: IOD App API
   version: "1.0"
 paths:
+  /advantages/{advantageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete advantage by id
+      parameters:
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Advantage
+      tags:
+      - advantages
+    patch:
+      consumes:
+      - application/json
+      description: Update advantage by id
+      parameters:
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/models.Advantage'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Advantage
+      tags:
+      - advantages
+  /advantages/all:
+    get:
+      consumes:
+      - application/json
+      description: Get all advantages
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/models.Advantage'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get advantages
+      tags:
+      - advantages
+  /advantages/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create advantage
+      parameters:
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            $ref: '#/definitions/models.Advantage'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Advantage
+      tags:
+      - advantages
   /locations/{locationName}:
     get:
       consumes:

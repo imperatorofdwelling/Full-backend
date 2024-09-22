@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	advHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/advantage"
 	locHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
 	usrHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
@@ -21,17 +22,20 @@ func NewServerHTTP(
 	cfg *config.Config,
 	userHandler *usrHdl.UserHandler,
 	locationHandler *locHdl.LocationHandler,
+	advantageHandler *advHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.DefaultLogger)
 	r.Use(middleware.Recoverer)
+
 	r.Use(middleware.Timeout(10 * time.Second))
 
 	r.Route("/api/v1", func(r chi.Router) {
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
+		advantageHandler.NewAdvantageHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

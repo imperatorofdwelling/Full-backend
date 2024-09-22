@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
 	responseApi "github.com/imperatorofdwelling/Website-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
@@ -36,6 +37,11 @@ func (h *LocationHandler) NewLocationHandler(r chi.Router) {
 //	@Router			/locations/{locationName} [get]
 func (h *LocationHandler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.FindByNameMatch"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
 
 	locationName := chi.URLParam(r, "locationName")
 

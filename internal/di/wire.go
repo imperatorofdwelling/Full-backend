@@ -11,6 +11,7 @@ import (
 	advProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/advantage"
 	flProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/file"
 	locProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
+	staysProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/stays"
 	usrProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
 	"log/slog"
 )
@@ -21,6 +22,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		locProvider.LocationProviderSet,
 		advProvider.AdvantageProviderSet,
 		flProvider.FileProviderSet,
+		staysProvider.StaysProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

@@ -1,4 +1,4 @@
-package handler
+package location
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 	"net/http"
 )
 
-type LocationHandler struct {
+type Handler struct {
 	Svc interfaces.LocationService
 	Log *slog.Logger
 }
 
-func (h *LocationHandler) NewLocationHandler(r chi.Router) {
+func (h *Handler) NewLocationHandler(r chi.Router) {
 	r.Route("/locations", func(r chi.Router) {
 		r.Get("/{locationName}", h.FindByNameMatch)
 	})
@@ -35,7 +35,7 @@ func (h *LocationHandler) NewLocationHandler(r chi.Router) {
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/locations/{locationName} [get]
-func (h *LocationHandler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.FindByNameMatch"
 
 	h.Log = h.Log.With(

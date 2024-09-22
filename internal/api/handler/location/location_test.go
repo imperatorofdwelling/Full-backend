@@ -1,4 +1,4 @@
-package handler
+package location
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := mocks.LocationService{}
-	hdl := LocationHandler{
+	hdl := Handler{
 		Svc: &svc,
 		Log: log,
 	}

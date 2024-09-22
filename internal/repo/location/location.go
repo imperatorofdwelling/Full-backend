@@ -1,17 +1,18 @@
-package repo
+package location
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
 )
 
-type LocationRepo struct {
+type Repo struct {
 	Db *sql.DB
 }
 
-func (r *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error) {
+func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error) {
 	const op = "repo.location.FindByNameMatch"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM locations WHERE LOWER(city) LIKE LOWER($1)")
@@ -58,4 +59,43 @@ func (r *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]mo
 	}
 
 	return &locations, nil
+}
+
+func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error) {
+	const op = "repo.location.GetByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM locations WHERE id = $1")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	var location models.Location
+
+	row := stmt.QueryRowContext(ctx, id)
+	if row.Err() != nil {
+		return nil, fmt.Errorf("%s: %w", op, row.Err())
+	}
+
+	if err := row.Scan(
+		&location.ID,
+		&location.City,
+		&location.FederalDistrict,
+		&location.FiasID,
+		&location.KladrID,
+		&location.Lat,
+		&location.Lon,
+		&location.Okato,
+		&location.Oktmo,
+		&location.Population,
+		&location.RegionIsoCode,
+		&location.RegionName,
+		&location.CreatedAt,
+		&location.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &location, nil
 }

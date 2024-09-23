@@ -5,9 +5,7 @@ build: swag
 swag: wire
 	swag init -g cmd/app/main.go
 wire:
-	google-wire ./internal/di
-swag:
-	swag init -g cmd/app/main.go
+	wire ./internal/di
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:

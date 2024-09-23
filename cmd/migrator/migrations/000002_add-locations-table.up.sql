@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE TABLE IF NOT EXISTS locations (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "city" VARCHAR(255) NOT NULL,

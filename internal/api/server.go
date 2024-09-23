@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	advHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/advantage"
 	locHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
+	staysHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/stays"
 	usrHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Website-backend/internal/config"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -21,8 +22,9 @@ type ServerHTTP struct {
 func NewServerHTTP(
 	cfg *config.Config,
 	userHandler *usrHdl.UserHandler,
-	locationHandler *locHdl.LocationHandler,
+	locationHandler *locHdl.Handler,
 	advantageHandler *advHdl.Handler,
+	staysHandler *staysHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -36,6 +38,7 @@ func NewServerHTTP(
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
 		advantageHandler.NewAdvantageHandler(r)
+		staysHandler.NewStaysHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

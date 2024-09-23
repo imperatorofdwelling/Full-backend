@@ -13,6 +13,7 @@ import (
 	providers3 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/advantage"
 	providers4 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/file"
 	providers2 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
+	providers5 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/stays"
 	"github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
 	"log/slog"
 )
@@ -27,13 +28,16 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	userRepository := providers.ProvideUserRepository(sqlDB)
 	userService := providers.ProvideUserService(userRepository)
 	userHandler := providers.ProvideUserHandler(userService, log)
-	locationRepo := providers2.ProvideLocationRepository(sqlDB)
-	locationService := providers2.ProvideLocationService(locationRepo)
-	locationHandler := providers2.ProvideLocationHandler(locationService, log)
-	repo := providers3.ProvideAdvantageRepository(sqlDB)
+	repo := providers2.ProvideLocationRepository(sqlDB)
+	service := providers2.ProvideLocationService(repo)
+	handler := providers2.ProvideLocationHandler(service, log)
+	advantageRepo := providers3.ProvideAdvantageRepository(sqlDB)
 	fileService := providers4.ProvideFileService()
-	service := providers3.ProvideAdvantageService(repo, fileService)
-	handler := providers3.ProvideAdvantageHandler(service, log)
-	serverHTTP := api.NewServerHTTP(cfg, userHandler, locationHandler, handler)
+	advantageService := providers3.ProvideAdvantageService(advantageRepo, fileService)
+	advantageHandler := providers3.ProvideAdvantageHandler(advantageService, log)
+	staysRepo := providers5.ProvideStaysRepo(sqlDB)
+	staysService := providers5.ProvideStaysService(staysRepo, service)
+	staysHandler := providers5.ProvideStaysHandler(staysService, log)
+	serverHTTP := api.NewServerHTTP(cfg, userHandler, handler, advantageHandler, staysHandler)
 	return serverHTTP, nil
 }

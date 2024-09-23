@@ -252,6 +252,243 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/stays": {
+            "get": {
+                "description": "Get all stays",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get all stays",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Stay"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/create": {
+            "post": {
+                "description": "Create stay",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Create Stay",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id of user",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "id of location",
+                        "name": "location_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of stay",
+                        "name": "name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "main image",
+                        "name": "image_main",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "images",
+                        "name": "images",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "type of stay",
+                        "name": "type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of bedrooms",
+                        "name": "number_of_bedrooms",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of bathrooms",
+                        "name": "number_of_beds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of beds",
+                        "name": "number_of_bathrooms",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of guests",
+                        "name": "guests",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "rating",
+                        "name": "rating",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "smoking",
+                        "name": "is_smoking_prohibited",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "square of home",
+                        "name": "square",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "street",
+                        "name": "street",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "house",
+                        "name": "house",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "entrance if exists",
+                        "name": "entrance",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "floor if exists",
+                        "name": "floor",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "room if exists",
+                        "name": "room",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "number",
+                        "description": "price of stay",
+                        "name": "price",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/{stayId}": {
+            "get": {
+                "description": "get stay",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get Stay by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stay"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -318,6 +555,80 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Stay": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "entrance": {
+                    "type": "string"
+                },
+                "floor": {
+                    "type": "string"
+                },
+                "guests": {
+                    "type": "integer"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_main": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_smoking_prohibited": {
+                    "type": "boolean"
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer"
+                },
+                "number_of_bedrooms": {
+                    "type": "integer"
+                },
+                "number_of_beds": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "square": {
+                    "type": "number"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

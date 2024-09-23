@@ -3,10 +3,10 @@ package providers
 import (
 	"database/sql"
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/repo/location"
-	"github.com/imperatorofdwelling/Website-backend/internal/service/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/location"
 	"log/slog"
 	"sync"
 )

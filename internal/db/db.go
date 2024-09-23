@@ -5,7 +5,7 @@ import (
 	"fmt"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"log"
 )

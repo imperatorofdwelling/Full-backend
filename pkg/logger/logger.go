@@ -2,7 +2,7 @@ package logger
 
 import (
 	"errors"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogpretty"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogpretty"
 	"log"
 	"log/slog"
 	"os"

@@ -2,11 +2,10 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	responseApi "github.com/imperatorofdwelling/Website-backend/internal/utils/response"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
 )
@@ -42,7 +41,7 @@ func (h *LocationHandler) FindByNameMatch(w http.ResponseWriter, r *http.Request
 	locations, err := h.Svc.FindByNameMatch(context.Background(), locationName)
 	if err != nil {
 		h.Log.Error("failed to find location", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, fmt.Errorf("%s: %s", op, err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 

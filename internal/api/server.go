@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	locHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/location"
-	usrHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/user"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
+	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
+	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log/slog"
 	"net/http"
@@ -19,6 +20,7 @@ type ServerHTTP struct {
 
 func NewServerHTTP(
 	cfg *config.Config,
+	authHandler *authHdl.AuthHandler,
 	userHandler *usrHdl.UserHandler,
 	locationHandler *locHdl.LocationHandler,
 ) *ServerHTTP {
@@ -29,7 +31,12 @@ func NewServerHTTP(
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(10 * time.Second))
 
-	r.Route("/api/v1", func(r chi.Router) {
+	r.Route("/api/v1/", func(r chi.Router) {
+		authHandler.NewAuthHandler(r)
+	})
+	// Маршруты защищенные JWTMiddleware
+	r.Group(func(r chi.Router) {
+		r.Use(authHandler.JWTMiddleware)
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
 	})

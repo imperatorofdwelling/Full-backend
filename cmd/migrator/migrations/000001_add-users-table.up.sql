@@ -3,15 +3,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS users
 (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    phone VARCHAR(255) DEFAULT '',
-    birth_date TIMESTAMP DEFAULT (CURRENT_TIMESTAMP - INTERVAL '2000 year'),
-    national VARCHAR(255) DEFAULT '',
-    gender VARCHAR(255) DEFAULT '',
-    country VARCHAR(255) DEFAULT '',
-    city VARCHAR(255) DEFAULT '',
-    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "name" varchar(255) NOT NULL,
+    "password" varchar(255) NOT NULL,
+    "email" varchar(255) NOT NULL,
+    "phone" varchar(255) DEFAULT '',
+    "avatar" blob DEFAULT NULL,
+    "birth_date" timestamp DEFAULT true,
+    "national" varchar(255) DEFAULT '',
+    "gender" varchar(255) DEFAULT '',
+    "country" varchar(255) DEFAULT '',
+    "city" varchar(255) DEFAULT '',
+    "created_at" timestamp DEFAULT true,
+    "updated_at" timestamp DEFAULT true
 );

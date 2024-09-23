@@ -12,6 +12,7 @@ type (
 		Email     string    `json:"email"`
 		Password  string    `json:"password"`
 		Phone     string    `json:"phone"`
+		Avatar    []byte    `json:"avatar"`
 		BirthDate time.Time `json:"birth_date,omitempty"`
 		National  string    `json:"national,omitempty"`
 		Gender    string    `json:"gender,omitempty"`
@@ -26,6 +27,7 @@ type (
 		Name      string    `json:"name"`
 		Email     string    `json:"email"`
 		Phone     string    `json:"phone"`
+		Avatar    []byte    `json:"avatar"`
 		BirthDate string    `json:"birth_date"`
 		National  string    `json:"national"`
 		Gender    string    `json:"gender"`
@@ -40,6 +42,7 @@ type (
 		Name      string `json:"name"`
 		Email     string `json:"email"`
 		Phone     string `json:"phone"`
+		Avatar    string `json:"avatar"`
 		BirthDate string `json:"birthDate"`
 		National  string `json:"national"`
 		Gender    string `json:"gender"`

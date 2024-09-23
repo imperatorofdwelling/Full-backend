@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -28,6 +28,18 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 	r.Post("/login", h.LoginUser)
 }
 
+// Registration
+//
+// @Summary Register a new user
+// @Description Creates a new user account
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param   request  body     auth.Registration  true  "Registration"
+// @Success 201 {object} UUID
+// @Failure 400 {object} responseApi.ResponseError
+// @Failure 500 {object} responseApi.ResponseError
+// @Router /registration [post]
 func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.Registration"
 
@@ -36,7 +48,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var userCurrent auth.Registration
+	var userCurrent model.Registration
 	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
@@ -56,6 +68,20 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusCreated, userCreated)
 }
 
+// LoginUser
+//
+// @Summary Login an existing user
+// @Description Authenticates an existing user and returns a JWT token
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param   request  body     auth.Login  true  "Login"
+// @Success 200 {object} UUID
+// @Failure 401 {object} responseApi.ResponseError
+// @Failure 404 {object} responseApi.ResponseError
+// @Failure 400 {object} responseApi.ResponseError
+// @Failure 500 {object} responseApi.ResponseError
+// @Router /login [post]
 func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
 	h.Log = h.Log.With(
@@ -69,7 +95,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userCurrent auth.Login
+	var userCurrent model.Login
 	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 	}

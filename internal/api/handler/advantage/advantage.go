@@ -6,11 +6,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	responseApi "github.com/imperatorofdwelling/Website-backend/internal/utils/response"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -44,7 +44,7 @@ func (h *Handler) NewAdvantageHandler(r chi.Router) {
 //	 	@Param			image	formData	file			true	"image file"
 //	 	@Param			title	formData	string			true	"title of advantage"
 //		@Produce		json
-//		@Success		201	{object}		models.Advantage	"created"
+//		@Success		201	{object}		advantage.Advantage	"created"
 //		@Failure		400		{object}	responseApi.ResponseError			"Error"
 //		@Failure		default		{object}	responseApi.ResponseError			"Error"
 //		@Router			/advantages/create [post]
@@ -61,21 +61,21 @@ func (h *Handler) CreateAdvantage(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(MaxAdvantageMemorySize)
 	if err != nil {
 		h.Log.Error("failed to parse form", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
 	image, hdl, err := r.FormFile("image")
 	if err != nil {
 		h.Log.Error("failed to parse form", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 	defer image.Close()
 
 	if hdl.Size > MaxAdvantageImgSize || hdl.Size < 1 {
 		h.Log.Error(handler.ErrInvalidImageSize.Error(), slogError.Err(handler.ErrInvalidImageSize))
-		responseApi.WriteError(w, r, http.StatusBadRequest, handler.ErrInvalidImageSize)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageSize))
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *Handler) CreateAdvantage(w http.ResponseWriter, r *http.Request) {
 
 	if !strings.Contains(contentType, "image/svg+xml") {
 		h.Log.Error("content type is not image/svg+xml", slogError.Err(handler.ErrImageTypeNotSvg))
-		responseApi.WriteError(w, r, http.StatusBadRequest, handler.ErrImageTypeNotSvg)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrImageTypeNotSvg))
 		return
 	}
 
@@ -94,14 +94,14 @@ func (h *Handler) CreateAdvantage(w http.ResponseWriter, r *http.Request) {
 	n, err := image.Read(buf)
 	if err != nil {
 		h.Log.Error("failed to read image", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	err = h.Svc.CreateAdvantage(context.Background(), &models.AdvantageEntity{Title: title, Image: buf[:n]})
+	err = h.Svc.CreateAdvantage(context.Background(), &advantage.AdvantageEntity{Title: title, Image: buf[:n]})
 	if err != nil {
 		h.Log.Error("failed to create advantage", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -133,14 +133,14 @@ func (h *Handler) RemoveAdvantage(w http.ResponseWriter, r *http.Request) {
 	uuidID, err := uuid.FromString(advId)
 	if err != nil {
 		h.Log.Error("failed to parse uuid", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
 	err = h.Svc.RemoveAdvantage(context.Background(), uuidID)
 	if err != nil {
 		h.Log.Error("failed to remove advantage", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -154,7 +154,7 @@ func (h *Handler) RemoveAdvantage(w http.ResponseWriter, r *http.Request) {
 //	@Tags			advantages
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]models.Advantage	"ok"
+//	@Success		200	{object}		[]advantage.Advantage	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/advantages/all [get]
@@ -169,7 +169,7 @@ func (h *Handler) GetAllAdvantages(w http.ResponseWriter, r *http.Request) {
 	adv, err := h.Svc.GetAllAdvantages(context.Background())
 	if err != nil {
 		h.Log.Error("failed to get all advantages", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -186,7 +186,7 @@ func (h *Handler) GetAllAdvantages(w http.ResponseWriter, r *http.Request) {
 //	@Param			advantageId	path		string		true	"advantage id"
 //	@Param			image	formData	file			false	"image file"
 //	@Param			title	formData	string			false	"title of advantage"
-//	@Success		200	{object}		models.Advantage	"ok"
+//	@Success		200	{object}		advantage.Advantage	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/advantages/{advantageId} [patch]
@@ -203,7 +203,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(MaxAdvantageMemorySize)
 	if err != nil {
 		h.Log.Error("failed to parse form", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -212,7 +212,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 	uuidID, err := uuid.FromString(advId)
 	if err != nil {
 		h.Log.Error("failed to parse uuid", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -223,7 +223,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if !errors.Is(err, http.ErrMissingFile) {
 			h.Log.Error("failed to parse form", slogError.Err(err))
-			responseApi.WriteError(w, r, http.StatusBadRequest, err)
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 			return
 		}
 	} else {
@@ -231,7 +231,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 
 		if hdl.Size > MaxAdvantageImgSize || hdl.Size < 1 {
 			h.Log.Error(handler.ErrInvalidImageSize.Error(), slogError.Err(handler.ErrInvalidImageSize))
-			responseApi.WriteError(w, r, http.StatusBadRequest, handler.ErrInvalidImageSize)
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageSize))
 			return
 		}
 
@@ -239,7 +239,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 
 		if !strings.Contains(imgContentType, "image/svg+xml") {
 			h.Log.Error("content type is not image/svg+xml", slogError.Err(handler.ErrImageTypeNotSvg))
-			responseApi.WriteError(w, r, http.StatusBadRequest, handler.ErrImageTypeNotSvg)
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrImageTypeNotSvg))
 			return
 		}
 
@@ -248,7 +248,7 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 		n, err := image.Read(buf)
 		if err != nil {
 			h.Log.Error("failed to read image", slogError.Err(err))
-			responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+			responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 			return
 		}
 
@@ -257,10 +257,10 @@ func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 
 	title := r.FormValue("title")
 
-	advUpdated, err := h.Svc.UpdateAdvantageByID(context.Background(), uuidID, &models.AdvantageEntity{Title: title, Image: buf[:numBytes]})
+	advUpdated, err := h.Svc.UpdateAdvantageByID(context.Background(), uuidID, &advantage.AdvantageEntity{Title: title, Image: buf[:numBytes]})
 	if err != nil {
 		h.Log.Error("failed to update advantage", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 

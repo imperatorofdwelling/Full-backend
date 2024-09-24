@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	"github.com/imperatorofdwelling/Website-backend/internal/repo"
-	service "github.com/imperatorofdwelling/Website-backend/internal/service/file"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo"
+	service "github.com/imperatorofdwelling/Full-backend/internal/service/file"
 )
 
 type Service struct {
@@ -15,7 +15,7 @@ type Service struct {
 	FileSvc interfaces.FileService
 }
 
-func (s *Service) CreateAdvantage(ctx context.Context, adv *models.AdvantageEntity) error {
+func (s *Service) CreateAdvantage(ctx context.Context, adv *advantage.AdvantageEntity) error {
 	const op = "service.AdvantageService.CreateAdvantage"
 
 	isExists, err := s.Repo.CheckAdvantageIfExists(ctx, adv.Title)
@@ -67,7 +67,7 @@ func (s *Service) RemoveAdvantage(ctx context.Context, advID uuid.UUID) error {
 	return nil
 }
 
-func (s *Service) GetAllAdvantages(ctx context.Context) ([]models.Advantage, error) {
+func (s *Service) GetAllAdvantages(ctx context.Context) ([]advantage.Advantage, error) {
 	const op = "service.advantage.GetAllAdvantages"
 
 	adv, err := s.Repo.GetAllAdvantages(ctx)
@@ -78,31 +78,31 @@ func (s *Service) GetAllAdvantages(ctx context.Context) ([]models.Advantage, err
 	return adv, nil
 }
 
-func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *models.AdvantageEntity) (models.Advantage, error) {
+func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *advantage.AdvantageEntity) (advantage.Advantage, error) {
 	const op = "service.advantage.UpdateAdvantageByID"
 
 	advFound, err := s.Repo.FindAdvantageByID(ctx, id)
 	if err != nil {
-		return models.Advantage{}, fmt.Errorf("%s: %w", op, err)
+		return advantage.Advantage{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if advFound.ID == uuid.Nil {
-		return models.Advantage{}, fmt.Errorf("%s: %s", op, repo.ErrUserNotFound)
+		return advantage.Advantage{}, fmt.Errorf("%s: %s", op, repo.ErrUserNotFound)
 	}
 
-	var newAdv models.Advantage
+	var newAdv advantage.Advantage
 
 	if adv.Image != nil {
 		image, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType)
 		if err != nil {
-			return models.Advantage{}, err
+			return advantage.Advantage{}, err
 		}
 
 		newAdv.Image = image
 
 		err = s.FileSvc.RemoveFile(advFound.Image)
 		if err != nil {
-			return models.Advantage{}, err
+			return advantage.Advantage{}, err
 		}
 	} else {
 		newAdv.Image = advFound.Image
@@ -116,12 +116,12 @@ func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *mo
 
 	err = s.Repo.UpdateAdvantageByID(ctx, id, &newAdv)
 	if err != nil {
-		return models.Advantage{}, fmt.Errorf("%s: %w", op, err)
+		return advantage.Advantage{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	advUpdated, err := s.Repo.FindAdvantageByID(ctx, id)
 	if err != nil {
-		return models.Advantage{}, fmt.Errorf("%s: %w", op, err)
+		return advantage.Advantage{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return *advUpdated, nil

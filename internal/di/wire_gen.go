@@ -7,14 +7,12 @@
 package di
 
 import (
-	"github.com/imperatorofdwelling/Website-backend/internal/api"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
-	"github.com/imperatorofdwelling/Website-backend/internal/db"
-	providers3 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/advantage"
-	providers4 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/file"
-	providers2 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
-	providers5 "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/stays"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/api"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	"github.com/imperatorofdwelling/Full-backend/internal/db"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 	"log/slog"
 )
 
@@ -25,19 +23,15 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	if err != nil {
 		return nil, err
 	}
-	userRepository := providers.ProvideUserRepository(sqlDB)
-	userService := providers.ProvideUserService(userRepository)
-	userHandler := providers.ProvideUserHandler(userService, log)
-	repo := providers2.ProvideLocationRepository(sqlDB)
-	service := providers2.ProvideLocationService(repo)
-	handler := providers2.ProvideLocationHandler(service, log)
-	advantageRepo := providers3.ProvideAdvantageRepository(sqlDB)
-	fileService := providers4.ProvideFileService()
-	advantageService := providers3.ProvideAdvantageService(advantageRepo, fileService)
-	advantageHandler := providers3.ProvideAdvantageHandler(advantageService, log)
-	staysRepo := providers5.ProvideStaysRepo(sqlDB)
-	staysService := providers5.ProvideStaysService(staysRepo, service)
-	staysHandler := providers5.ProvideStaysHandler(staysService, log)
-	serverHTTP := api.NewServerHTTP(cfg, userHandler, handler, advantageHandler, staysHandler)
+	repository := auth.ProvideAuthRepository(sqlDB)
+	userRepository := user.ProvideUserRepository(sqlDB)
+	service := auth.ProvideAuthService(repository, userRepository)
+	authHandler := auth.ProvideAuthHandler(service, log)
+	userService := user.ProvideUserService(userRepository)
+	userHandler := user.ProvideUserHandler(userService, log)
+	repo := providers.ProvideLocationRepository(sqlDB)
+	locationService := providers.ProvideLocationService(repo)
+	handler := providers.ProvideLocationHandler(locationService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler)
 	return serverHTTP, nil
 }

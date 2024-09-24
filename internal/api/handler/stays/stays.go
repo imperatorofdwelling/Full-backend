@@ -5,9 +5,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	responseApi "github.com/imperatorofdwelling/Website-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
 )
@@ -58,19 +59,19 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateStay"
 
-	var newStay models.StayEntity
+	var newStay stays.StayEntity
 
 	err := render.DecodeJSON(r.Body, &newStay)
 	if err != nil {
 		h.Log.Error("%s: %v", op, err)
-		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
 	err = h.Svc.CreateStay(context.Background(), &newStay)
 	if err != nil {
 		h.Log.Error("failed to create stay: ", err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -97,14 +98,14 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	idUuid, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("%s: %v", op, err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
 	stay, err := h.Svc.GetStayByID(context.Background(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to fetch stay by id %s: %v", idUuid, err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
@@ -128,7 +129,7 @@ func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 	stays, err := h.Svc.GetStays(context.Background())
 	if err != nil {
 		h.Log.Error("failed to fetch stays: ", err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 

@@ -1,4 +1,4 @@
-package service
+package file
 
 import (
 	"crypto/rand"
@@ -17,9 +17,9 @@ const (
 
 const filePath = "./assets/images/advantages"
 
-type FileService struct{}
+type Service struct{}
 
-func (s *FileService) UploadImage(img []byte, t ImageType) (string, error) {
+func (s *Service) UploadImage(img []byte, t ImageType) (string, error) {
 	const op = "service.FileService.CreateImage"
 
 	fileName, err := s.GenRandomFileName()
@@ -42,7 +42,7 @@ func (s *FileService) UploadImage(img []byte, t ImageType) (string, error) {
 	return fileWithPath, nil
 }
 
-func (s *FileService) RemoveFile(fileName string) error {
+func (s *Service) RemoveFile(fileName string) error {
 	const op = "service.FileService.RemoveFile"
 
 	file, err := os.Open(fileName)
@@ -67,7 +67,7 @@ func (s *FileService) RemoveFile(fileName string) error {
 	return nil
 }
 
-func (s *FileService) GenRandomFileName() (string, error) {
+func (s *Service) GenRandomFileName() (string, error) {
 	const op = "service.FileService.GenRandomFileName"
 
 	rBytes := make([]byte, 16)

@@ -1,4 +1,4 @@
-package models
+package advantage
 
 import (
 	"github.com/gofrs/uuid"

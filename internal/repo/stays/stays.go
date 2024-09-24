@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"time"
 )
 

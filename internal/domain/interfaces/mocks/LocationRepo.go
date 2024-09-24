@@ -5,9 +5,9 @@ package mocks
 import (
 	context "context"
 
-	mock "github.com/stretchr/testify/mock"
+	location "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 
-	models "github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -18,23 +18,23 @@ type LocationRepo struct {
 }
 
 // FindByNameMatch provides a mock function with given fields: ctx, match
-func (_m *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error) {
+func (_m *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
 	ret := _m.Called(ctx, match)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindByNameMatch")
 	}
 
-	var r0 *[]models.Location
+	var r0 *[]location.Location
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*[]models.Location, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*[]location.Location, error)); ok {
 		return rf(ctx, match)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *[]models.Location); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *[]location.Location); ok {
 		r0 = rf(ctx, match)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*[]models.Location)
+			r0 = ret.Get(0).(*[]location.Location)
 		}
 	}
 
@@ -48,23 +48,23 @@ func (_m *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]m
 }
 
 // GetByID provides a mock function with given fields: ctx, id
-func (_m *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error) {
+func (_m *LocationRepo) GetByID(ctx context.Context, id uuid.UUID) (*location.Location, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *models.Location
+	var r0 *location.Location
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*models.Location, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*location.Location, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *models.Location); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *location.Location); ok {
 		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Location)
+			r0 = ret.Get(0).(*location.Location)
 		}
 	}
 

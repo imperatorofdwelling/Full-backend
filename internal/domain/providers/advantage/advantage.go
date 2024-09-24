@@ -3,10 +3,10 @@ package providers
 import (
 	"database/sql"
 	"github.com/google/wire"
-	advHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/advantage"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	advRepo "github.com/imperatorofdwelling/Website-backend/internal/repo/advantage"
-	advSvc "github.com/imperatorofdwelling/Website-backend/internal/service/advantage"
+	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	advRepo "github.com/imperatorofdwelling/Full-backend/internal/repo/advantage"
+	advSvc "github.com/imperatorofdwelling/Full-backend/internal/service/advantage"
 	"log/slog"
 	"sync"
 )

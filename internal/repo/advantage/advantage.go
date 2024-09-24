@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
 	"time"
 )
 
@@ -78,7 +78,7 @@ func (r *Repo) CheckAdvantageIfExists(ctx context.Context, advName string) (bool
 	return exists, nil
 }
 
-func (r *Repo) FindAdvantageByID(ctx context.Context, id uuid.UUID) (*models.Advantage, error) {
+func (r *Repo) FindAdvantageByID(ctx context.Context, id uuid.UUID) (*advantage.Advantage, error) {
 	const op = "repo.advantage.FindAdvantageByID"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM advantages WHERE id = $1")
@@ -90,17 +90,17 @@ func (r *Repo) FindAdvantageByID(ctx context.Context, id uuid.UUID) (*models.Adv
 
 	row := stmt.QueryRowContext(ctx, id)
 
-	var advantage models.Advantage
+	var adv advantage.Advantage
 
-	err = row.Scan(&advantage.ID, &advantage.Title, &advantage.Image, &advantage.CreatedAt, &advantage.UpdatedAt)
+	err = row.Scan(&adv.ID, &adv.Title, &adv.Image, &adv.CreatedAt, &adv.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &advantage, nil
+	return &adv, nil
 }
 
-func (r *Repo) GetAllAdvantages(ctx context.Context) ([]models.Advantage, error) {
+func (r *Repo) GetAllAdvantages(ctx context.Context) ([]advantage.Advantage, error) {
 	const op = "repo.advantage.GetAllAdvantages"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM advantages")
@@ -117,22 +117,22 @@ func (r *Repo) GetAllAdvantages(ctx context.Context) ([]models.Advantage, error)
 
 	defer rows.Close()
 
-	var advantages []models.Advantage
+	var advantages []advantage.Advantage
 
 	for rows.Next() {
-		var advantage models.Advantage
+		var adv advantage.Advantage
 
-		if err = rows.Scan(&advantage.ID, &advantage.Title, &advantage.Image, &advantage.CreatedAt, &advantage.UpdatedAt); err != nil {
+		if err = rows.Scan(&adv.ID, &adv.Title, &adv.Image, &adv.CreatedAt, &adv.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		advantages = append(advantages, advantage)
+		advantages = append(advantages, adv)
 	}
 
 	return advantages, nil
 }
 
-func (r *Repo) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *models.Advantage) error {
+func (r *Repo) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *advantage.Advantage) error {
 	const op = "repo.advantage.UpdateAdvantageByID"
 
 	stmt, err := r.Db.PrepareContext(ctx, "UPDATE advantages SET title = $1, image = $2, updated_at = $3 WHERE id = $4")

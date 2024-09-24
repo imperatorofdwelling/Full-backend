@@ -5,21 +5,24 @@ package di
 
 import (
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Website-backend/internal/api"
-	"github.com/imperatorofdwelling/Website-backend/internal/config"
-	"github.com/imperatorofdwelling/Website-backend/internal/db"
-	advProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/advantage"
-	flProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/file"
-	locProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/location"
-	staysProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/stays"
-	usrProvider "github.com/imperatorofdwelling/Website-backend/internal/domain/providers/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/api"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	"github.com/imperatorofdwelling/Full-backend/internal/db"
+	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	usrProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
+	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
+	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
+
 	"log/slog"
 )
 
 func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error) {
 	panic(wire.Build(
-		usrProvider.UserProviderSet,
+		usrProvider.ProviderSet,
 		locProvider.LocationProviderSet,
+		authProvider.ProviderSet,
 		advProvider.AdvantageProviderSet,
 		flProvider.FileProviderSet,
 		staysProvider.StaysProviderSet,

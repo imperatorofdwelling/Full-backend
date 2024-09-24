@@ -3,22 +3,22 @@ package interfaces
 import (
 	"context"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"net/http"
 )
 
 //go:generate mockery --name StaysRepo
 type StaysRepo interface {
-	CreateStay(context.Context, *models.StayEntity) error
-	GetStayByID(context.Context, uuid.UUID) (*models.Stay, error)
-	GetStays(context.Context) ([]*models.Stay, error)
+	CreateStay(context.Context, *stays.StayEntity) error
+	GetStayByID(context.Context, uuid.UUID) (*stays.Stay, error)
+	GetStays(context.Context) ([]*stays.Stay, error)
 }
 
 //go:generate mockery --name StaysService
 type StaysService interface {
-	CreateStay(context.Context, *models.StayEntity) error
-	GetStayByID(context.Context, uuid.UUID) (*models.Stay, error)
-	GetStays(context.Context) ([]*models.Stay, error)
+	CreateStay(context.Context, *stays.StayEntity) error
+	GetStayByID(context.Context, uuid.UUID) (*stays.Stay, error)
+	GetStays(context.Context) ([]*stays.Stay, error)
 }
 
 type StaysHandler interface {

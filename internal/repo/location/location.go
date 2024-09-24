@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 )
 
 type Repo struct {
@@ -30,28 +30,28 @@ func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]models.Loc
 	}
 
 	for rows.Next() {
-		var location models.Location
+		var loc models.Location
 
 		if err := rows.Scan(
-			&location.ID,
-			&location.City,
-			&location.FederalDistrict,
-			&location.FiasID,
-			&location.KladrID,
-			&location.Lat,
-			&location.Lon,
-			&location.Okato,
-			&location.Oktmo,
-			&location.Population,
-			&location.RegionIsoCode,
-			&location.RegionName,
-			&location.CreatedAt,
-			&location.UpdatedAt,
+			&loc.ID,
+			&loc.City,
+			&loc.FederalDistrict,
+			&loc.FiasID,
+			&loc.KladrID,
+			&loc.Lat,
+			&loc.Lon,
+			&loc.Okato,
+			&loc.Oktmo,
+			&loc.Population,
+			&loc.RegionIsoCode,
+			&loc.RegionName,
+			&loc.CreatedAt,
+			&loc.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		locations = append(locations, location)
+		locations = append(locations, loc)
 	}
 
 	if err := rows.Err(); err != nil {

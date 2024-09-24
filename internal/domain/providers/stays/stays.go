@@ -3,10 +3,10 @@ package providers
 import (
 	"database/sql"
 	"github.com/google/wire"
-	staysHdl "github.com/imperatorofdwelling/Website-backend/internal/api/handler/stays"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	staysRepo "github.com/imperatorofdwelling/Website-backend/internal/repo/stays"
-	staysSvc "github.com/imperatorofdwelling/Website-backend/internal/service/stays"
+	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	staysRepo "github.com/imperatorofdwelling/Full-backend/internal/repo/stays"
+	staysSvc "github.com/imperatorofdwelling/Full-backend/internal/service/stays"
 	"log/slog"
 	"sync"
 )

@@ -5,9 +5,9 @@ package mocks
 import (
 	context "context"
 
-	mock "github.com/stretchr/testify/mock"
+	advantage "github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
 
-	models "github.com/imperatorofdwelling/Website-backend/internal/domain/models"
+	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -18,7 +18,7 @@ type AdvantageService struct {
 }
 
 // CreateAdvantage provides a mock function with given fields: _a0, _a1
-func (_m *AdvantageService) CreateAdvantage(_a0 context.Context, _a1 *models.AdvantageEntity) error {
+func (_m *AdvantageService) CreateAdvantage(_a0 context.Context, _a1 *advantage.AdvantageEntity) error {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -26,7 +26,7 @@ func (_m *AdvantageService) CreateAdvantage(_a0 context.Context, _a1 *models.Adv
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.AdvantageEntity) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *advantage.AdvantageEntity) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -36,23 +36,23 @@ func (_m *AdvantageService) CreateAdvantage(_a0 context.Context, _a1 *models.Adv
 }
 
 // GetAllAdvantages provides a mock function with given fields: _a0
-func (_m *AdvantageService) GetAllAdvantages(_a0 context.Context) ([]models.Advantage, error) {
+func (_m *AdvantageService) GetAllAdvantages(_a0 context.Context) ([]advantage.Advantage, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllAdvantages")
 	}
 
-	var r0 []models.Advantage
+	var r0 []advantage.Advantage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]models.Advantage, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]advantage.Advantage, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []models.Advantage); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []advantage.Advantage); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Advantage)
+			r0 = ret.Get(0).([]advantage.Advantage)
 		}
 	}
 
@@ -84,25 +84,25 @@ func (_m *AdvantageService) RemoveAdvantage(_a0 context.Context, _a1 uuid.UUID) 
 }
 
 // UpdateAdvantageByID provides a mock function with given fields: _a0, _a1, _a2
-func (_m *AdvantageService) UpdateAdvantageByID(_a0 context.Context, _a1 uuid.UUID, _a2 *models.AdvantageEntity) (models.Advantage, error) {
+func (_m *AdvantageService) UpdateAdvantageByID(_a0 context.Context, _a1 uuid.UUID, _a2 *advantage.AdvantageEntity) (advantage.Advantage, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateAdvantageByID")
 	}
 
-	var r0 models.Advantage
+	var r0 advantage.Advantage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.AdvantageEntity) (models.Advantage, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *advantage.AdvantageEntity) (advantage.Advantage, error)); ok {
 		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *models.AdvantageEntity) models.Advantage); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *advantage.AdvantageEntity) advantage.Advantage); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
-		r0 = ret.Get(0).(models.Advantage)
+		r0 = ret.Get(0).(advantage.Advantage)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *models.AdvantageEntity) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *advantage.AdvantageEntity) error); ok {
 		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofrs/uuid"
-	staysInterface "github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	"github.com/imperatorofdwelling/Website-backend/internal/service"
+	staysInterface "github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"github.com/imperatorofdwelling/Full-backend/internal/service"
 )
 
 type Service struct {
@@ -14,14 +14,14 @@ type Service struct {
 	LocSvc staysInterface.LocationService
 }
 
-func (s *Service) CreateStay(ctx context.Context, stay *models.StayEntity) error {
+func (s *Service) CreateStay(ctx context.Context, stay *stays.StayEntity) error {
 	const op = "service.stays.CreateStay"
 
 	foundLocation, err := s.LocSvc.GetByID(ctx, stay.LocationID)
 	if err != nil {
 		return err
 	}
-	if foundLocation.ID == 0 {
+	if foundLocation.ID == uuid.Nil {
 		return fmt.Errorf("%s: %w", op, service.ErrLocationNotFound)
 	}
 
@@ -35,7 +35,7 @@ func (s *Service) CreateStay(ctx context.Context, stay *models.StayEntity) error
 	return nil
 }
 
-func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, error) {
+func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*stays.Stay, error) {
 	const op = "service.stays.GetStayByID"
 
 	stay, err := s.Repo.GetStayByID(ctx, id)
@@ -50,7 +50,7 @@ func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, 
 	return stay, nil
 }
 
-func (s *Service) GetStays(ctx context.Context) ([]*models.Stay, error) {
+func (s *Service) GetStays(ctx context.Context) ([]*stays.Stay, error) {
 	const op = "service.stays.GetStays"
 
 	stays, err := s.Repo.GetStays(ctx)

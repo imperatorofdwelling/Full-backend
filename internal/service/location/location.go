@@ -1,4 +1,4 @@
-package service
+package location
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type LocationService struct {
+type Service struct {
 	Repo interfaces.LocationRepository
 }
 
-func (s *LocationService) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
+func (s *Service) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
 	m := strings.TrimSpace(match)
 
 	locations, err := s.Repo.FindByNameMatch(ctx, m)

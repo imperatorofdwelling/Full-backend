@@ -1,4 +1,4 @@
-package repo
+package location
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 )
 
-type LocationRepo struct {
+type Repo struct {
 	Db *sql.DB
 }
 
-func (r *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
+func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
 	const op = "repo.location.FindByNameMatch"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM locations WHERE LOWER(city) LIKE LOWER($1)")
@@ -29,28 +29,28 @@ func (r *LocationRepo) FindByNameMatch(ctx context.Context, match string) (*[]lo
 	}
 
 	for rows.Next() {
-		var location location.Location
+		var loc location.Location
 
 		if err := rows.Scan(
-			&location.ID,
-			&location.City,
-			&location.FederalDistrict,
-			&location.FiasID,
-			&location.KladrID,
-			&location.Lat,
-			&location.Lon,
-			&location.Okato,
-			&location.Oktmo,
-			&location.Population,
-			&location.RegionIsoCode,
-			&location.RegionName,
-			&location.CreatedAt,
-			&location.UpdatedAt,
+			&loc.ID,
+			&loc.City,
+			&loc.FederalDistrict,
+			&loc.FiasID,
+			&loc.KladrID,
+			&loc.Lat,
+			&loc.Lon,
+			&loc.Okato,
+			&loc.Oktmo,
+			&loc.Population,
+			&loc.RegionIsoCode,
+			&loc.RegionName,
+			&loc.CreatedAt,
+			&loc.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		locations = append(locations, location)
+		locations = append(locations, loc)
 	}
 
 	if err := rows.Err(); err != nil {

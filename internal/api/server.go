@@ -8,6 +8,7 @@ import (
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log/slog"
 	"net/http"
@@ -15,14 +16,14 @@ import (
 )
 
 type ServerHTTP struct {
-	router *chi.Mux
+	router http.Handler
 }
 
 func NewServerHTTP(
 	cfg *config.Config,
 	authHandler *authHdl.AuthHandler,
 	userHandler *usrHdl.UserHandler,
-	locationHandler *locHdl.LocationHandler,
+	locationHandler *locHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -42,10 +43,12 @@ func NewServerHTTP(
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Addr, cfg.Server.Port)),
+		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", "localhost", cfg.Server.Port)),
 	))
 
-	return &ServerHTTP{router: r}
+	handler := cors.Default().Handler(r)
+
+	return &ServerHTTP{router: handler}
 }
 
 func (sh *ServerHTTP) Start(cfg *config.Config, log *slog.Logger) {

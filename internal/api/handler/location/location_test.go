@@ -1,4 +1,4 @@
-package handler
+package location
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ import (
 func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := mocks.LocationService{}
-	hdl := LocationHandler{
+	hdl := Handler{
 		Svc: &svc,
 		Log: log,
 	}
@@ -28,7 +28,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	t.Run("should be correct response", func(t *testing.T) {
 		r := httptest.NewRecorder()
 		payload := "алейск"
-		expected := []location.Location{
+		expected := []models.Location{
 			{
 				City:            "Алейск",
 				FederalDistrict: "Сибирский",
@@ -87,6 +87,6 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Contains(t, response.Error, expectedErr.Error())
-		assert.Equal(t, http.StatusInternalServerError, response.Status)
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }

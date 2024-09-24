@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS users
     "city" varchar(255) DEFAULT '',
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
-    );
+);

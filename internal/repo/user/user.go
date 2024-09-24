@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	"time"
 )
 
@@ -18,7 +19,7 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)")
 	if err != nil {
-		return false, fmt.Errorf("%s: %w", op, err)
+		return false, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
 	}
 
 	defer stmt.Close()
@@ -33,7 +34,41 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 	return exists, nil
 }
 
-func (r *Repository) UpdateUser(ctx context.Context, id uuid.UUID, user model.User) error {
+func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
+	const op = "repo.user.FindUserByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, createdAt, updatedAt FROM users WHERE id = $1")
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
+	}
+
+	defer stmt.Close()
+
+	var user model.User
+
+	err = stmt.QueryRowContext(ctx, id).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Phone,
+		&user.Avatar,
+		&user.BirthDate,
+		&user.National,
+		&user.Gender,
+		&user.Country,
+		&user.City,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return user, nil
+}
+
+func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user model.User) error {
 	const op = "repo.user.UpdateUser"
 
 	stmt, err := r.Db.PrepareContext(ctx, `
@@ -52,7 +87,7 @@ func (r *Repository) UpdateUser(ctx context.Context, id uuid.UUID, user model.Us
 		WHERE id = $1
 	`)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, repo.ErrUpdateFailed)
 	}
 
 	defer stmt.Close()
@@ -84,46 +119,12 @@ func (r *Repository) UpdateUser(ctx context.Context, id uuid.UUID, user model.Us
 	return nil
 }
 
-func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
-	const op = "repo.user.FindUserByID"
-
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, createdAt, updatedAt FROM users WHERE id = $1")
-	if err != nil {
-		return model.User{}, fmt.Errorf("%s: %w", op, err)
-	}
-
-	defer stmt.Close()
-
-	var user model.User
-
-	err = stmt.QueryRowContext(ctx, id).Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Phone,
-		&user.Avatar,
-		&user.BirthDate,
-		&user.National,
-		&user.Gender,
-		&user.Country,
-		&user.City,
-		&user.CreatedAt,
-		&user.UpdatedAt,
-	)
-
-	if err != nil {
-		return model.User{}, fmt.Errorf("%s: %w", op, err)
-	}
-
-	return user, nil
-}
-
 func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	const op = "repo.user.DeleteUserByID"
 
 	stmt, err := r.Db.PrepareContext(ctx, "DELETE FROM users WHERE id = $1")
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, repo.ErrNotFound)
 	}
 
 	defer stmt.Close()

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, er
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1 AND password = $2")
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
 	}
 
 	defer stmt.Close()

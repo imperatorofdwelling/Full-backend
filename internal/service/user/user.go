@@ -2,10 +2,12 @@ package user
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 )
 
@@ -13,42 +15,66 @@ type Service struct {
 	Repo interfaces.UserRepository
 }
 
-func (s *Service) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
+func (s *Service) DeleteUserByID(ctx context.Context, idStr string) error {
 	const op = "service.user.DeleteUserByID"
 
-	_, err := s.Repo.FindUserByID(ctx, id)
+	id, err := uuid.FromString(idStr)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = s.Repo.DeleteUserByID(ctx, id)
 	if err != nil {
-		return err
+		if errors.Is(err, repo.ErrNotFound) {
+			return fmt.Errorf("%s: %w", op, service.ErrNotFound)
+		}
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	return nil
 }
 
-func (s *Service) UpdateUserByID(ctx context.Context, id uuid.UUID, user model.User) (model.User, error) {
+func (s *Service) UpdateUserByID(ctx context.Context, idStr string, user model.User) (model.User, error) {
 	const op = "service.user.UpdateUserByID"
-
-	oldUser, err := s.Repo.FindUserByID(ctx, id)
-	if err != nil {
-		return model.User{}, err
-	}
-
-	user, err = s.compare(ctx, oldUser, user)
+	id, err := uuid.FromString(idStr)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
-	updatedUser, err := s.Repo.UpdateUserByID(ctx, id, user)
+
+	oldUser, err := s.Repo.FindUserByID(ctx, id)
 	if err != nil {
-		return model.User{}, err
+		return model.User{}, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
+
+	user, err = s.compareUsers(ctx, oldUser, user)
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.Repo.UpdateUserByID(ctx, id, user)
+	if err != nil {
+		if errors.Is(err, repo.ErrUpdateFailed) {
+			return model.User{}, fmt.Errorf("%s: %w", op, service.ErrUpdateFailed)
+		}
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+	updatedUser, err := s.Repo.FindUserByID(ctx, id)
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, service.ErrNotFound)
+	}
+
 	return updatedUser, nil
 }
 
-func (s *Service) compare(ctx context.Context, oldUser model.User, newUser model.User) (model.User, error) {
+func (s *Service) stringToUUID(id string) (uuid.UUID, error) {
+	u, err := uuid.FromString(id)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return u, nil
+}
+
+func (s *Service) compareUsers(ctx context.Context, oldUser model.User, newUser model.User) (model.User, error) {
 	if newUser.ID == uuid.Nil {
 		newUser.ID = oldUser.ID
 	}

@@ -42,7 +42,7 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 	}
 
 	if userFound.ID == uuid.Nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	return userFound.ID, nil
@@ -56,7 +56,7 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error
 	}
 
 	if !userExists {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	id, err := s.AuthRepo.Login(ctx, user)

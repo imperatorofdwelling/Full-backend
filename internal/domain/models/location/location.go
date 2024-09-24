@@ -1,10 +1,13 @@
 package location
 
-import "time"
+import (
+	"github.com/gofrs/uuid"
+	"time"
+)
 
 type (
 	LocationEntity struct {
-		ID              int       `json:"id"`
+		ID              uuid.UUID `json:"id"`
 		City            string    `json:"city"`
 		FederalDistrict string    `json:"federal_district,omitempty"`
 		FiasID          string    `json:"fias_id,omitempty"`
@@ -21,7 +24,7 @@ type (
 	}
 
 	Location struct {
-		ID              int       `json:"id"`
+		ID              uuid.UUID `json:"id"`
 		City            string    `json:"city"`
 		FederalDistrict string    `json:"federal_district"`
 		FiasID          string    `json:"fias_id"`

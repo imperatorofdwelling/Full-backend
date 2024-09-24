@@ -1,8 +1,9 @@
 package interfaces
 
+import "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+
 import (
 	"context"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	"net/http"
 )
 

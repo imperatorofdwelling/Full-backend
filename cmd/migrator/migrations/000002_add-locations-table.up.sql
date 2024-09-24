@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS locations
 (
-    "id"               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    "city"             VARCHAR(255) NOT NULL,
+    "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "city" VARCHAR(255) NOT NULL,
     "federal_district" VARCHAR(255),
     "fias_id"          VARCHAR(255),
     "kladr_id"         VARCHAR(255),

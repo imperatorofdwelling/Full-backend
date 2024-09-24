@@ -7,12 +7,12 @@ CREATE TABLE IF NOT EXISTS users
     "password" varchar(255) NOT NULL,
     "email" varchar(255) NOT NULL,
     "phone" varchar(255) DEFAULT '',
-    "avatar" blob DEFAULT NULL,
-    "birth_date" timestamp DEFAULT true,
+    "avatar" varchar(255) DEFAULT NULL,
+    "birth_date" timestamp DEFAULT NULL,
     "national" varchar(255) DEFAULT '',
     "gender" varchar(255) DEFAULT '',
     "country" varchar(255) DEFAULT '',
     "city" varchar(255) DEFAULT '',
-    "created_at" timestamp DEFAULT true,
-    "updated_at" timestamp DEFAULT true
-);
+    "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
+    );

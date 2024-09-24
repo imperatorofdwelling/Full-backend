@@ -27,12 +27,34 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 	})
 }
 
+// UpdateUserByID
+//
+// @Summary Update a user by ID
+// @Description Update a user with the provided ID
+// @ID updateUserByID
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   id   path     string     true  "User ID"
+// @Param   body body     model.User true  "User update data"
+// @Security ApiKeyAuth
+// @Success 200 {object} model.User
+// @Failure 400 {object} responseApi.ErrorResponse "Invalid request"
+// @Failure 401 {object} responseApi.ErrorResponse "Unauthorized"
+// @Failure 404 {object} responseApi.ErrorResponse "User not found"
+// @Failure 409 {object} responseApi.ErrorResponse "Email already exists"
+// @Failure 500 {object} responseApi.ErrorResponse "Internal server error"
 func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
 	h.Log = h.Log.With(
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
+	_, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
+		return
+	}
 
 	var id = chi.URLParam(r, "id")
 
@@ -63,12 +85,32 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 
+// DeleteUserByID
+//
+// @Summary Delete a user by ID
+// @Description Delete a user with the provided ID
+// @ID deleteUserByID
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   id   path     string     true  "User ID"
+// @Security ApiKeyAuth
+// @Success 204
+// @Failure 400 {object} responseApi.ErrorResponse "Invalid request"
+// @Failure 401 {object} responseApi.ErrorResponse "Unauthorized"
+// @Failure 404 {object} responseApi.ErrorResponse "User not found"
+// @Failure 500 {object} responseApi.ErrorResponse "Internal server error"
 func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.DeleteUserByID"
 	h.Log = h.Log.With(
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
+	_, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
+		return
+	}
 
 	var id = chi.URLParam(r, "id")
 

@@ -19,25 +19,3 @@ func InitDbConfig() Database {
 		DbName: os.Getenv("POSTGRES_DB"),
 	}
 }
-
-//import "os"
-//
-//type DataBase struct {
-//	PsqlUser    string
-//	PsqlPass    string
-//	PsqlHost    string
-//	PsqlPort    string
-//	PsqlDBName  string
-//	PsqlSSLMode string
-//}
-//
-//func InitDbConfig() *DataBase {
-//	return &DataBase{
-//		PsqlUser:    os.Getenv("POSTGRES_USER"),
-//		PsqlPass:    os.Getenv("POSTGRES_PASSWORD"),
-//		PsqlHost:    os.Getenv("POSTGRES_HOST"),
-//		PsqlPort:    os.Getenv("POSTGRES_PORT"),
-//		PsqlDBName:  os.Getenv("POSTGRES_DB"),
-//		PsqlSSLMode: "disable",
-//	}
-//}

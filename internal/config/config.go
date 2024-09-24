@@ -1,8 +1,8 @@
 package config
 
 import (
-	configDb "github.com/imperatorofdwelling/Website-backend/internal/config/db"
-	configSrv "github.com/imperatorofdwelling/Website-backend/internal/config/server"
+	configDb "github.com/imperatorofdwelling/Full-backend/internal/config/db"
+	configSrv "github.com/imperatorofdwelling/Full-backend/internal/config/server"
 	"github.com/joho/godotenv"
 	"log"
 )
@@ -13,7 +13,6 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-
 	err := loadDotEnv("")
 	if err != nil {
 		log.Fatal(err)

@@ -12,193 +12,6 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
-        "/advantages/all": {
-            "get": {
-                "description": "Get all advantages",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "advantages"
-                ],
-                "summary": "Get advantages",
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Advantage"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/advantages/create": {
-            "post": {
-                "description": "Create advantage",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "advantages"
-                ],
-                "summary": "Create Advantage",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "image file",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "title of advantage",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Advantage"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/advantages/{advantageId}": {
-            "delete": {
-                "description": "Delete advantage by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "advantages"
-                ],
-                "summary": "Delete Advantage",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "advantage id",
-                        "name": "advantageId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "no content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Update advantage by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "advantages"
-                ],
-                "summary": "Update Advantage",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "advantage id",
-                        "name": "advantageId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "image file",
-                        "name": "image",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "title of advantage",
-                        "name": "title",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/models.Advantage"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
         "/locations/{locationName}": {
             "get": {
                 "description": "Find city by matching name",
@@ -227,7 +40,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Location"
+                                "$ref": "#/definitions/location.Location"
                             }
                         }
                     },
@@ -245,30 +58,148 @@
                     }
                 }
             }
+        },
+        "/login": {
+            "post": {
+                "description": "Authenticates an existing user and returns a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login an existing user",
+                "parameters": [
+                    {
+                        "description": "Login",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/registration": {
+            "post": {
+                "description": "Creates a new user account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Registration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.Registration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "models.Advantage": {
+        "auth.Login": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
-                "created_at": {
+                "email": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
+                "password": {
                     "type": "string"
                 }
             }
         },
-        "models.Location": {
+        "auth.Registration": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "location.Location": {
             "type": "object",
             "properties": {
                 "city": {
@@ -284,7 +215,7 @@
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "kladr_id": {
                     "type": "string"
@@ -320,9 +251,6 @@
             "properties": {
                 "error": {
                     "type": "string"
-                },
-                "status": {
-                    "type": "integer"
                 }
             }
         }

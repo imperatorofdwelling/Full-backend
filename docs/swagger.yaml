@@ -1,19 +1,29 @@
 basePath: /api/v1
 definitions:
-  models.Advantage:
+  auth.Login:
     properties:
-      created_at:
+      email:
         type: string
-      id:
+      password:
         type: string
-      image:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
+    required:
+    - email
+    - password
     type: object
-  models.Location:
+  auth.Registration:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  location.Location:
     properties:
       city:
         type: string
@@ -24,7 +34,7 @@ definitions:
       fias_id:
         type: string
       id:
-        type: integer
+        type: string
       kladr_id:
         type: string
       lat:
@@ -48,8 +58,6 @@ definitions:
     properties:
       error:
         type: string
-      status:
-        type: integer
     type: object
 externalDocs:
   description: OpenAPI
@@ -63,130 +71,6 @@ info:
   title: IOD App API
   version: "1.0"
 paths:
-  /advantages/{advantageId}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete advantage by id
-      parameters:
-      - description: advantage id
-        in: path
-        name: advantageId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: no content
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-      summary: Delete Advantage
-      tags:
-      - advantages
-    patch:
-      consumes:
-      - application/json
-      description: Update advantage by id
-      parameters:
-      - description: advantage id
-        in: path
-        name: advantageId
-        required: true
-        type: string
-      - description: image file
-        in: formData
-        name: image
-        type: file
-      - description: title of advantage
-        in: formData
-        name: title
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            $ref: '#/definitions/models.Advantage'
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-      summary: Update Advantage
-      tags:
-      - advantages
-  /advantages/all:
-    get:
-      consumes:
-      - application/json
-      description: Get all advantages
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            items:
-              $ref: '#/definitions/models.Advantage'
-            type: array
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-      summary: Get advantages
-      tags:
-      - advantages
-  /advantages/create:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Create advantage
-      parameters:
-      - description: image file
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: title of advantage
-        in: formData
-        name: title
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            $ref: '#/definitions/models.Advantage'
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/responseApi.ResponseError'
-      summary: Create Advantage
-      tags:
-      - advantages
   /locations/{locationName}:
     get:
       consumes:
@@ -205,7 +89,7 @@ paths:
           description: ok
           schema:
             items:
-              $ref: '#/definitions/models.Location'
+              $ref: '#/definitions/location.Location'
             type: array
         "400":
           description: Error
@@ -218,4 +102,72 @@ paths:
       summary: Find city by name
       tags:
       - locations
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates an existing user and returns a JWT token
+      parameters:
+      - description: Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Login an existing user
+      tags:
+      - auth
+  /registration:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account
+      parameters:
+      - description: Registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Registration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Register a new user
+      tags:
+      - auth
 swagger: "2.0"

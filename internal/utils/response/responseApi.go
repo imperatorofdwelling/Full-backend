@@ -2,23 +2,30 @@ package responseApi
 
 import (
 	"github.com/go-chi/render"
+	"log/slog"
 	"net/http"
 )
 
+type ResponseSuccess struct {
+	Data interface{} `json:"data"`
+}
+
 type ResponseError struct {
-	Status int    `json:"status"`
-	Error  string `json:"error"`
+	Error string `json:"error"`
 }
 
 func WriteJson(w http.ResponseWriter, r *http.Request, status http.ConnState, data interface{}) {
 	render.Status(r, int(status))
-	render.JSON(w, r, data)
+	render.JSON(w, r,
+		&ResponseSuccess{
+			Data: data,
+		})
 }
 
-func WriteError(w http.ResponseWriter, r *http.Request, status http.ConnState, err error) {
+func WriteError(w http.ResponseWriter, r *http.Request, status http.ConnState, err slog.Attr) {
 	render.Status(r, int(status))
-	render.JSON(w, r, &ResponseError{
-		Status: int(status),
-		Error:  err.Error(),
-	})
+	render.JSON(w, r,
+		&ResponseError{
+			Error: err.String(),
+		})
 }

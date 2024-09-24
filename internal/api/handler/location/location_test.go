@@ -1,14 +1,14 @@
-package handler
+package location
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces/mocks"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	responseApi "github.com/imperatorofdwelling/Website-backend/internal/utils/response"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +18,7 @@ import (
 func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := mocks.LocationService{}
-	hdl := LocationHandler{
+	hdl := Handler{
 		Svc: &svc,
 		Log: log,
 	}
@@ -55,7 +55,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual []models.Location
+		var actual []location.Location
 
 		err = json.Unmarshal(r.Body.Bytes(), &actual)
 
@@ -87,6 +87,6 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Contains(t, response.Error, expectedErr.Error())
-		assert.Equal(t, http.StatusInternalServerError, response.Status)
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }

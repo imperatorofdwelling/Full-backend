@@ -14,6 +14,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
@@ -46,6 +47,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	staysadvantageRepo := staysadvantage.ProvideStaysAdvantageRepo(sqlDB)
 	staysadvantageService := staysadvantage.ProvideStaysAdvantageService(staysadvantageRepo, staysService, advantageService)
 	staysadvantageHandler := staysadvantage.ProvideStaysAdvantageHandler(staysadvantageService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler)
+	reservationRepo := reservation.ProvideReservationRepository(sqlDB)
+	reservationService := reservation.ProvideReservationService(reservationRepo)
+	reservationHandler := reservation.ProvideReservationHandler(reservationService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler)
 	return serverHTTP, nil
 }

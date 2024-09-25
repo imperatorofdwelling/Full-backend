@@ -8,12 +8,13 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
-	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
-	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
-	usrProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
+	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
+	staysAdvProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
+	usrProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 
 	"log/slog"
 )
@@ -26,6 +27,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		advProvider.AdvantageProviderSet,
 		flProvider.FileProviderSet,
 		staysProvider.StaysProviderSet,
+		staysAdvProvider.StaysAdvantageProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

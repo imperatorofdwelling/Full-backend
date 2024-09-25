@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS stays_advantages
+(
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    stay_id UUID NOT NULL,
+    advantage_id UUID NOT NULL,
+    title VARCHAR(255) NOT NULL UNIQUE UNIQUE,
+    image VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (stay_id) REFERENCES stays(id) ON DELETE CASCADE,
+    FOREIGN KEY (advantage_id) REFERENCES advantages(id) ON DELETE CASCADE
+);

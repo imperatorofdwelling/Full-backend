@@ -3,6 +3,7 @@ package stays
 import (
 	"context"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
@@ -62,6 +63,11 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateStay"
 
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 	var newStay models.StayEntity
 
 	err := render.DecodeJSON(r.Body, &newStay)
@@ -97,6 +103,11 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStayByID"
 
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 	id := chi.URLParam(r, "stayId")
 	idUuid, err := uuid.FromString(id)
 	if err != nil {
@@ -129,6 +140,11 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStays"
 
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 	stays, err := h.Svc.GetStays(context.Background())
 	if err != nil {
 		h.Log.Error("failed to fetch stays: ", err)
@@ -153,6 +169,11 @@ func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 //	@Router			/stays/{stayId} [delete]
 func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.DeleteStay"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
 
 	stayId := chi.URLParam(r, "stayId")
 	idUuid, err := uuid.FromString(stayId)
@@ -205,6 +226,11 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.UpdateStayByID"
 
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 	stayId := chi.URLParam(r, "stayId")
 	idUuid, err := uuid.FromString(stayId)
 	if err != nil {
@@ -246,6 +272,11 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Router			/stays/user/{userId} [get]
 func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStaysByUserID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
 
 	userId := chi.URLParam(r, "userId")
 	idUuid, err := uuid.FromString(userId)

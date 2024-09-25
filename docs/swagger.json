@@ -642,7 +642,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "advantages"
+                    "stays"
                 ],
                 "summary": "Update Stay",
                 "parameters": [
@@ -803,6 +803,105 @@
                         "type": "string",
                         "description": "stay id",
                         "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "no content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/staysadvantage/create": {
+            "post": {
+                "description": "Create staysadvantage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysadvantage"
+                ],
+                "summary": "Create StaysAdvantage",
+                "parameters": [
+                    {
+                        "description": "stay id",
+                        "name": "stay_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "advantage id",
+                        "name": "advantage_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/staysadvantage/{id}": {
+            "delete": {
+                "description": "Create staysadvantage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysadvantage"
+                ],
+                "summary": "Create StaysAdvantage",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay advantage id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }

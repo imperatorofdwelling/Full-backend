@@ -35,6 +35,36 @@ func (_m *AdvantageService) CreateAdvantage(_a0 context.Context, _a1 *advantage.
 	return r0
 }
 
+// GetAdvantageByID provides a mock function with given fields: _a0, _a1
+func (_m *AdvantageService) GetAdvantageByID(_a0 context.Context, _a1 uuid.UUID) (*advantage.Advantage, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAdvantageByID")
+	}
+
+	var r0 *advantage.Advantage
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*advantage.Advantage, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *advantage.Advantage); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*advantage.Advantage)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAllAdvantages provides a mock function with given fields: _a0
 func (_m *AdvantageService) GetAllAdvantages(_a0 context.Context) ([]advantage.Advantage, error) {
 	ret := _m.Called(_a0)

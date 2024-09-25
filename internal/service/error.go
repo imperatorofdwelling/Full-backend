@@ -10,4 +10,6 @@ var (
 	ErrLocationNotFound = errors.New("location not found")
 
 	ErrStayNotFound = errors.New("stay not found")
+
+	ErrAdvantageNotFound = errors.New("advantage not found")
 )

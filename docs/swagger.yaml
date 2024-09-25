@@ -540,7 +540,7 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Update Stay
       tags:
-      - advantages
+      - stays
   /stays/create:
     post:
       consumes:
@@ -676,4 +676,69 @@ paths:
       summary: Get all stays by user id
       tags:
       - stays
+  /staysadvantage/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Create staysadvantage
+      parameters:
+      - description: stay advantage id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create StaysAdvantage
+      tags:
+      - staysadvantage
+  /staysadvantage/create:
+    post:
+      consumes:
+      - application/json
+      description: Create staysadvantage
+      parameters:
+      - description: stay id
+        in: body
+        name: stay_id
+        required: true
+        schema:
+          type: string
+      - description: advantage id
+        in: body
+        name: advantage_id
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create StaysAdvantage
+      tags:
+      - staysadvantage
 swagger: "2.0"

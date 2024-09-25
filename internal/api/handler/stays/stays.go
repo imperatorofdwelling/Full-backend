@@ -176,7 +176,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update Stay
 //	@Description	Update stay by id
-//	@Tags			advantages
+//	@Tags			stays
 //	@Accept			json
 //	@Produce		json
 //	@Param			stayId	path		string		true	"advantage id"

@@ -23,6 +23,7 @@ type AdvantageService interface {
 	RemoveAdvantage(context.Context, uuid.UUID) error
 	GetAllAdvantages(context.Context) ([]advantage.Advantage, error)
 	UpdateAdvantageByID(context.Context, uuid.UUID, *advantage.AdvantageEntity) (advantage.Advantage, error)
+	GetAdvantageByID(context.Context, uuid.UUID) (*advantage.Advantage, error)
 }
 
 type AdvantageHandler interface {

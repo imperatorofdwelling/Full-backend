@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+	"github.com/gofrs/uuid"
+	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 )
 
 type Repo struct {
 	Db *sql.DB
 }
 
-func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]location.Location, error) {
+func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error) {
 	const op = "repo.location.FindByNameMatch"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM locations WHERE LOWER(city) LIKE LOWER($1)")
@@ -21,7 +22,7 @@ func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]location.L
 
 	defer stmt.Close()
 
-	var locations []location.Location
+	var locations []models.Location
 
 	rows, err := stmt.QueryContext(ctx, fmt.Sprintf("%%%s%%", match))
 	if err != nil {
@@ -29,7 +30,7 @@ func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]location.L
 	}
 
 	for rows.Next() {
-		var loc location.Location
+		var loc models.Location
 
 		if err := rows.Scan(
 			&loc.ID,
@@ -58,4 +59,43 @@ func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]location.L
 	}
 
 	return &locations, nil
+}
+
+func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error) {
+	const op = "repo.location.GetByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM locations WHERE id = $1")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	var location models.Location
+
+	row := stmt.QueryRowContext(ctx, id)
+	if row.Err() != nil {
+		return nil, fmt.Errorf("%s: %w", op, row.Err())
+	}
+
+	if err := row.Scan(
+		&location.ID,
+		&location.City,
+		&location.FederalDistrict,
+		&location.FiasID,
+		&location.KladrID,
+		&location.Lat,
+		&location.Lon,
+		&location.Okato,
+		&location.Oktmo,
+		&location.Population,
+		&location.RegionIsoCode,
+		&location.RegionName,
+		&location.CreatedAt,
+		&location.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &location, nil
 }

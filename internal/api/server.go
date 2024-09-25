@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
 	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
+	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/rs/cors"
@@ -24,6 +27,9 @@ func NewServerHTTP(
 	authHandler *authHdl.AuthHandler,
 	userHandler *usrHdl.UserHandler,
 	locationHandler *locHdl.Handler,
+	advantageHandler *advHdl.Handler,
+	staysHandler *staysHdl.Handler,
+	staysAdvHandler *staysAdvHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -34,12 +40,15 @@ func NewServerHTTP(
 
 	r.Route("/api/v1/", func(r chi.Router) {
 		authHandler.NewAuthHandler(r)
+		staysAdvHandler.NewStaysAdvantageHandler(r)
 	})
 	// Маршруты защищенные JWTMiddleware
 	r.Group(func(r chi.Router) {
 		r.Use(authHandler.JWTMiddleware)
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
+		advantageHandler.NewAdvantageHandler(r)
+		staysHandler.NewStaysHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

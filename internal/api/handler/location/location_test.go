@@ -55,7 +55,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual []location.Location
+		var actual []models.Location
 
 		err = json.Unmarshal(r.Body.Bytes(), &actual)
 

@@ -67,6 +67,23 @@ definitions:
       updatedAt:
         type: string
     type: object
+  reservation.Reservation:
+    properties:
+      arrived:
+        type: string
+      created_at:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+      stay_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   reservation.ReservationEntity:
     properties:
       arrived:
@@ -403,6 +420,34 @@ paths:
           schema:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Delete Reservation
+      tags:
+      - reservations
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/reservation.Reservation'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get Reservation
       tags:
       - reservations
   /reservation/{reservationId}:

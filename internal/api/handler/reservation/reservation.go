@@ -24,6 +24,7 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 		r.Post("/create", h.CreateReservation)
 		r.Put("/update", h.UpdateReservation)
 		r.Delete("/{reservationID}", h.DeleteReservationByID)
+		r.Get("/{reservationID}", h.GetReservationByID)
 	})
 }
 
@@ -142,4 +143,42 @@ func (h *Handler) DeleteReservationByID(w http.ResponseWriter, r *http.Request) 
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "successfully deleted reservation")
+}
+
+// GetReservationByID godoc
+//
+//	@Summary		Get Reservation
+//	@Description	Get reservation by id
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			reservationID	path		string		true	"reservation id"
+//	@Success		200	{object}		reservation.Reservation	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/reservation/{reservationID} [get]
+func (h *Handler) GetReservationByID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.GetReservationByID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	id := chi.URLParam(r, "reservationID")
+	uuID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	reserv, err := h.Svc.GetReservationByID(context.Background(), uuID)
+	if err != nil {
+		h.Log.Error("failed to fetch reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, reserv)
 }

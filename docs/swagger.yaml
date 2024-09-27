@@ -67,6 +67,17 @@ definitions:
       updatedAt:
         type: string
     type: object
+  reservation.ReservationEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      stay_id:
+        type: string
+      user_id:
+        type: string
+    type: object
   responseApi.ResponseError:
     properties:
       error:
@@ -356,6 +367,36 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /reservation/create:
+    post:
+      consumes:
+      - application/json
+      description: Create reservation
+      parameters:
+      - description: Create reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Reservation
+      tags:
+      - reservations
   /stays:
     get:
       consumes:

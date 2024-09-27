@@ -357,6 +357,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/reservation/create": {
+            "post": {
+                "description": "Create reservation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Create Reservation",
+                "parameters": [
+                    {
+                        "description": "Create reservation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reservation.ReservationEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/stays": {
             "get": {
                 "description": "Get all stays",
@@ -1034,6 +1080,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "reservation.ReservationEntity": {
+            "type": "object",
+            "properties": {
+                "arrived": {
+                    "type": "string"
+                },
+                "departure": {
+                    "type": "string"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

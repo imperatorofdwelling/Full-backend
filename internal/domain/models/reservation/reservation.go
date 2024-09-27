@@ -6,6 +6,12 @@ import (
 )
 
 type (
+	ReservationUpdateEntity struct {
+		ID        uuid.UUID `json:"id"`
+		Arrived   time.Time `json:"arrived"`
+		Departure time.Time `json:"departure"`
+	}
+
 	ReservationEntity struct {
 		StayID    uuid.UUID `json:"stay_id"`
 		UserID    uuid.UUID `json:"user_id"`

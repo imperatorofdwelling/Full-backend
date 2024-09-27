@@ -359,7 +359,7 @@ const docTemplate = `{
         },
         "/reservation/create": {
             "post": {
-                "description": "Create reservation",
+                "description": "Create reservation (arrived and departure should be TIMESTAMP type)",
                 "consumes": [
                     "application/json"
                 ],
@@ -384,6 +384,59 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservation/{reservationId}": {
+            "put": {
+                "description": "Update reservation by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Update Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "reservation id",
+                        "name": "reservationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update reservation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/reservation.ReservationUpdateEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
                         "schema": {
                             "type": "string"
                         }
@@ -1097,6 +1150,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "reservation.ReservationUpdateEntity": {
+            "type": "object",
+            "properties": {
+                "arrived": {
+                    "type": "string"
+                },
+                "departure": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }

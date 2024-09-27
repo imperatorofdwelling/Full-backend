@@ -62,3 +62,43 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 
 	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created reservation")
 }
+
+// UpdateReservation godoc
+//
+//	@Summary		Update Reservation
+//	@Description	Update reservation by id
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			reservationId	path		string		true	"reservation id"
+//	@Param			request	body	reservation.ReservationUpdateEntity			true	"update reservation request"
+//	@Success		200	{string}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/reservation/{reservationId} [put]
+func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.UpdateReservation"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var newReserv reservation.ReservationUpdateEntity
+
+	err := render.DecodeJSON(r.Body, &newReserv)
+	if err != nil {
+		h.Log.Error("failed to decode JSON", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.UpdateReservation(context.Background(), &newReserv)
+	if err != nil {
+		h.Log.Error("failed to update reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "successfully updated reservation")
+}

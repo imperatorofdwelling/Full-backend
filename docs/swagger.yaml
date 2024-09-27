@@ -78,6 +78,15 @@ definitions:
       user_id:
         type: string
     type: object
+  reservation.ReservationUpdateEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+    type: object
   responseApi.ResponseError:
     properties:
       error:
@@ -367,11 +376,46 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /reservation/{reservationId}:
+    put:
+      consumes:
+      - application/json
+      description: Update reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationId
+        required: true
+        type: string
+      - description: update reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationUpdateEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Reservation
+      tags:
+      - reservations
   /reservation/create:
     post:
       consumes:
       - application/json
-      description: Create reservation
+      description: Create reservation (arrived and departure should be TIMESTAMP type)
       parameters:
       - description: Create reservation request
         in: body

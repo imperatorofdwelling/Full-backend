@@ -851,21 +851,12 @@ const docTemplate = `{
                 "summary": "Create StaysAdvantage",
                 "parameters": [
                     {
-                        "description": "stay id",
-                        "name": "stay_id",
+                        "description": "staysadvantage request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "advantage id",
-                        "name": "advantage_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/staysadvantage.StayAdvantageCreateReq"
                         }
                     }
                 ],
@@ -1116,6 +1107,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "staysadvantage.StayAdvantageCreateReq": {
+            "type": "object",
+            "properties": {
+                "advantage_id": {
+                    "type": "string"
+                },
+                "stay_id": {
                     "type": "string"
                 }
             }

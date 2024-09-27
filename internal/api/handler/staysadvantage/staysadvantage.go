@@ -21,7 +21,8 @@ type Handler struct {
 
 func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 	r.Route("/staysadvantage", func(r chi.Router) {
-
+		r.Post("/create", h.CreateStaysAdvantage)
+		r.Delete("/{id}", h.DeleteStaysAdvantageByID)
 	})
 }
 
@@ -31,9 +32,8 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 //		@Description	Create staysadvantage
 //		@Tags			staysadvantage
 //		@Accept			application/json
-//	 	@Param			stay_id	body	string			true	"stay id"
-//	 	@Param			advantage_id	body	string			true	"advantage id"
 //		@Produce		json
+//	 	@Param			request		body	staysadvantage.StayAdvantageCreateReq	true	"staysadvantage request"
 //		@Success		201	{object}		string	"created"
 //		@Failure		400		{object}	responseApi.ResponseError			"Error"
 //		@Failure		default		{object}	responseApi.ResponseError			"Error"

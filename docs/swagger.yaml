@@ -121,6 +121,13 @@ definitions:
       user_id:
         type: string
     type: object
+  staysadvantage.StayAdvantageCreateReq:
+    properties:
+      advantage_id:
+        type: string
+      stay_id:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -711,18 +718,12 @@ paths:
       - application/json
       description: Create staysadvantage
       parameters:
-      - description: stay id
+      - description: staysadvantage request
         in: body
-        name: stay_id
+        name: request
         required: true
         schema:
-          type: string
-      - description: advantage id
-        in: body
-        name: advantage_id
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/staysadvantage.StayAdvantageCreateReq'
       produces:
       - application/json
       responses:

@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -20,7 +21,9 @@ type Handler struct {
 
 func (h *Handler) NewReservationHandler(r chi.Router) {
 	r.Route("/reservation", func(r chi.Router) {
-
+		r.Post("/create", h.CreateReservation)
+		r.Put("/update", h.UpdateReservation)
+		r.Delete("/{reservationID}", h.DeleteReservationByID)
 	})
 }
 
@@ -101,4 +104,42 @@ func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "successfully updated reservation")
+}
+
+// DeleteReservationByID godoc
+//
+//	@Summary		Delete Reservation
+//	@Description	Delete reservation by id
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			reservationID	path		string		true	"reservation id"
+//	@Success		200	{string}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/reservation/{reservationID} [delete]
+func (h *Handler) DeleteReservationByID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.DeleteReservationByID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	id := chi.URLParam(r, "reservationID")
+	uuID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.DeleteReservationByID(context.Background(), uuID)
+	if err != nil {
+		h.Log.Error("failed to delete reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "successfully deleted reservation")
 }

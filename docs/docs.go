@@ -403,6 +403,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/reservation/{reservationID}": {
+            "delete": {
+                "description": "Delete reservation by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Delete Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "reservation id",
+                        "name": "reservationID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/reservation/{reservationId}": {
             "put": {
                 "description": "Update reservation by id",

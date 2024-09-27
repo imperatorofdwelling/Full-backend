@@ -376,6 +376,35 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /reservation/{reservationID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Reservation
+      tags:
+      - reservations
   /reservation/{reservationId}:
     put:
       consumes:

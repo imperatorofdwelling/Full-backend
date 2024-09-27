@@ -31,5 +31,5 @@ type ReservationHandler interface {
 	UpdateReservation(http.ResponseWriter, *http.Request)
 	DeleteReservationByID(http.ResponseWriter, *http.Request)
 	GetReservationByID(http.ResponseWriter, *http.Request)
-	//GetAllReservationsByUser(http.ResponseWriter, *http.Request)
+	GetAllReservationsByUser(http.ResponseWriter, *http.Request)
 }

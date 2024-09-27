@@ -282,7 +282,7 @@ paths:
         "201":
           description: created
           schema:
-            $ref: '#/definitions/advantage.Advantage'
+            type: string
         "400":
           description: Error
           schema:
@@ -513,6 +513,37 @@ paths:
           schema:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create Reservation
+      tags:
+      - reservations
+  /reservation/user/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by user id
+      parameters:
+      - description: user id
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/reservation.Reservation'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all Reservations
       tags:
       - reservations
   /stays:

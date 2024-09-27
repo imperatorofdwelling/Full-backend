@@ -44,7 +44,7 @@ func (h *Handler) NewAdvantageHandler(r chi.Router) {
 //	 	@Param			image	formData	file			true	"image file"
 //	 	@Param			title	formData	string			true	"title of advantage"
 //		@Produce		json
-//		@Success		201	{object}		advantage.Advantage	"created"
+//		@Success		201	{string}		string	"created"
 //		@Failure		400		{object}	responseApi.ResponseError			"Error"
 //		@Failure		default		{object}	responseApi.ResponseError			"Error"
 //		@Router			/advantages/create [post]
@@ -181,7 +181,7 @@ func (h *Handler) GetAllAdvantages(w http.ResponseWriter, r *http.Request) {
 //	@Summary		Update Advantage
 //	@Description	Update advantage by id
 //	@Tags			advantages
-//	@Accept			json
+//	@Accept			application/json
 //	@Produce		json
 //	@Param			advantageId	path		string		true	"advantage id"
 //	@Param			image	formData	file			false	"image file"

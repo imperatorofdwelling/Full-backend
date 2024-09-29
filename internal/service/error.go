@@ -14,4 +14,6 @@ var (
 	ErrAdvantageNotFound = errors.New("advantage not found")
 
 	ErrNotFoundReservation = errors.New("reservation not found")
+
+	ErrStaysReviewNotFound = errors.New("stays review not found")
 )

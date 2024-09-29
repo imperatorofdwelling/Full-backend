@@ -10,6 +10,7 @@ import (
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
 	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
+	staysRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreviews"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/rs/cors"
@@ -32,6 +33,7 @@ func NewServerHTTP(
 	staysHandler *staysHdl.Handler,
 	staysAdvHandler *staysAdvHdl.Handler,
 	reservationHandler *reservationHdl.Handler,
+	staysReviewsHandler *staysRevHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -52,6 +54,7 @@ func NewServerHTTP(
 		locationHandler.NewLocationHandler(r)
 		advantageHandler.NewAdvantageHandler(r)
 		staysHandler.NewStaysHandler(r)
+		staysReviewsHandler.NewStaysReviewsHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

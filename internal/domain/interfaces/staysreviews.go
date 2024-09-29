@@ -14,6 +14,7 @@ type StaysReviewsRepo interface {
 	DeleteStaysReviewByID(context.Context, uuid.UUID) error
 	FindOneStaysReviewByID(context.Context, uuid.UUID) (*staysreviews.StaysReview, error)
 	FindAllStaysReviews(context.Context) ([]staysreviews.StaysReview, error)
+	CheckIfExists(context.Context, uuid.UUID) (bool, error)
 }
 
 //go:generate mockery --name StaysReviewsService

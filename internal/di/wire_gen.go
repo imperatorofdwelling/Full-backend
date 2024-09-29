@@ -17,6 +17,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
+	providers5 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreviews"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 	"log/slog"
 )
@@ -50,6 +51,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	reservationRepo := reservation.ProvideReservationRepository(sqlDB)
 	reservationService := reservation.ProvideReservationService(reservationRepo)
 	reservationHandler := reservation.ProvideReservationHandler(reservationService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler)
+	staysreviewsRepo := providers5.ProvideStaysReviewsRepository(sqlDB)
+	staysreviewsService := providers5.ProvideStaysReviewsService(staysreviewsRepo)
+	staysreviewsHandler := providers5.ProvideStaysReviewsHandler(staysreviewsService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler)
 	return serverHTTP, nil
 }

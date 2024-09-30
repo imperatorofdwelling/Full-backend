@@ -7,17 +7,17 @@ import (
 
 type (
 	StaysReviewEntity struct {
-		StayID      string  `json:"stay_id"`
-		UserID      string  `json:"user_id"`
-		Title       string  `json:"title"`
-		Description string  `json:"description"`
-		Rating      float32 `json:"rating"`
+		StayID      uuid.UUID `json:"stay_id"`
+		UserID      uuid.UUID `json:"user_id"`
+		Title       string    `json:"title"`
+		Description string    `json:"description"`
+		Rating      float32   `json:"rating"`
 	}
 
 	StaysReview struct {
 		ID          uuid.UUID `json:"id"`
-		StayID      string    `json:"stay_id"`
-		UserID      string    `json:"user_id"`
+		StayID      uuid.UUID `json:"stay_id"`
+		UserID      uuid.UUID `json:"user_id"`
 		Title       string    `json:"title"`
 		Description string    `json:"description"`
 		Rating      float32   `json:"rating"`

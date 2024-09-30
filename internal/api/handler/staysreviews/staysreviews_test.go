@@ -268,3 +268,120 @@ func TestStaysReviewsHandler_DeleteStayReviewHandler(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
+
+func TestStaysReviewsHandler_FindOneStayReviewHandler(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysReviewsService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuID, _ := uuid.NewV4()
+
+		expected := staysreviews.StaysReview{
+			ID:          uuID,
+			StayID:      uuID,
+			UserID:      uuID,
+			Title:       "test",
+			Description: "test",
+			Rating:      1.2,
+		}
+
+		svc.On("FindOneStaysReview", mock.Anything, mock.Anything).Return(&expected, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/staysreviews/"+uuID.String(), nil)
+
+		router.HandleFunc("/staysreviews/{id}", hdl.FindOneStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+
+		assert.ObjectsAreEqual(&expected, r.Body)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		fakeID := "fake"
+
+		req := httptest.NewRequest(http.MethodGet, "/staysreviews/"+fakeID, nil)
+
+		router.HandleFunc("/staysreviews/{id}", hdl.FindOneStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error finding stays review", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuID, _ := uuid.NewV4()
+
+		svc.On("FindOneStaysReview", mock.Anything, mock.Anything).Return(nil, errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/staysreviews/"+uuID.String(), nil)
+
+		router.HandleFunc("/staysreviews/{id}", hdl.FindOneStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestStaysReviewsHandler_FindAllStayReviews(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysReviewsService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuID, _ := uuid.NewV4()
+
+		expected := []staysreviews.StaysReview{
+			{
+				ID:          uuID,
+				StayID:      uuID,
+				UserID:      uuID,
+				Title:       "test",
+				Description: "test",
+				Rating:      1.2,
+			},
+		}
+
+		svc.On("FindAllStaysReviews", mock.Anything).Return(expected, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/staysreviews", nil)
+
+		router.HandleFunc("/staysreviews", hdl.FindAllStaysReviews)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be getting stays reviews", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("FindAllStaysReviews", mock.Anything).Return(nil, errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/staysreviews", nil)
+
+		router.HandleFunc("/staysreviews", hdl.FindAllStaysReviews)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}

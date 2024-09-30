@@ -194,15 +194,14 @@ func (h *Handler) FindOneStaysReview(w http.ResponseWriter, r *http.Request) {
 // FindAllStaysReviews godoc
 //
 //	@Summary		Get all Stays review
-//	@Description	Get Stays review by user id
+//	@Description	Get all Stays reviews
 //	@Tags			staysreviews
 //	@Accept			application/json
 //	@Produce		json
-//	@Param			id	path		string		true	"stays review id"
 //	@Success		200	{object}		[]staysreviews.StaysReview	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
-//	@Router			/staysreviews/{id} [get]
+//	@Router			/staysreviews [get]
 func (h *Handler) FindAllStaysReviews(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.FindAllStaysReviews"
 

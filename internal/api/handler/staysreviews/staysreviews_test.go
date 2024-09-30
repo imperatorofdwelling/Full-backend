@@ -111,3 +111,105 @@ func TestStaysReviewsHandler_CreateStaysReviewHandler(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
+
+func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysReviewsService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuidStayReview, _ := uuid.NewV4()
+
+		uuidStay, _ := uuid.NewV4()
+
+		uuidUser, _ := uuid.NewV4()
+
+		payload := staysreviews.StaysReviewEntity{
+			StayID:      uuidStay,
+			UserID:      uuidUser,
+			Title:       "test",
+			Description: "test",
+			Rating:      1.2,
+		}
+
+		pBytes, _ := json.Marshal(payload)
+
+		pBuf := bytes.NewBuffer(pBytes)
+
+		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+uuidStayReview.String(), pBuf)
+
+		router.HandleFunc("/staysreviews/update/{id}", hdl.UpdateStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		fakeID := "fake"
+
+		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+fakeID, nil)
+
+		router.HandleFunc("/staysreviews/update/{id}", hdl.UpdateStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error parsing body", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuidStayReview, _ := uuid.NewV4()
+
+		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+uuidStayReview.String(), strings.NewReader(""))
+
+		router.HandleFunc("/staysreviews/update/{id}", hdl.UpdateStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error updating stays review", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuidStayReview, _ := uuid.NewV4()
+
+		uuidStay, _ := uuid.NewV4()
+
+		uuidUser, _ := uuid.NewV4()
+
+		payload := staysreviews.StaysReviewEntity{
+			StayID:      uuidStay,
+			UserID:      uuidUser,
+			Title:       "test",
+			Description: "test",
+			Rating:      1.2,
+		}
+
+		pBytes, _ := json.Marshal(payload)
+
+		pBuf := bytes.NewBuffer(pBytes)
+
+		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+uuidStayReview.String(), pBuf)
+
+		router.HandleFunc("/staysreviews/update/{id}", hdl.UpdateStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}

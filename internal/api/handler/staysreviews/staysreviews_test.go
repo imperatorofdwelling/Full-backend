@@ -213,3 +213,58 @@ func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
+
+func TestStaysReviewsHandler_DeleteStayReviewHandler(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysReviewsService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuidStayReview, _ := uuid.NewV4()
+
+		svc.On("DeleteStaysReview", mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/staysreviews/delete/"+uuidStayReview.String(), nil)
+
+		router.HandleFunc("/staysreviews/delete/{id}", hdl.DeleteStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		fakeID := "fake"
+
+		req := httptest.NewRequest(http.MethodDelete, "/staysreviews/delete/"+fakeID, nil)
+
+		router.HandleFunc("/staysreviews/delete/{id}", hdl.DeleteStaysReview)
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error deleting stays review", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		uuidStayReview, _ := uuid.NewV4()
+
+		svc.On("DeleteStaysReview", mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/staysreviews/delete/"+uuidStayReview.String(), nil)
+
+		router.HandleFunc("/staysreviews/delete/{id}", hdl.DeleteStaysReview)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}

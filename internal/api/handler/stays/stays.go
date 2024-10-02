@@ -93,11 +93,11 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	idUuid, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("%s: %v", op, slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
-	stay, err := h.Svc.GetStayByID(context.Background(), idUuid)
+	stay, err := h.Svc.GetStayByID(r.Context(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to fetch stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -126,7 +126,7 @@ func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	stays, err := h.Svc.GetStays(context.Background())
+	stays, err := h.Svc.GetStays(r.Context())
 	if err != nil {
 		h.Log.Error("failed to fetch stays: ", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -160,7 +160,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 	idUuid, err := uuid.FromString(stayId)
 	if err != nil {
 		h.Log.Error("%s: %v", op, err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -179,7 +179,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Summary		Update Stay
 //	@Description	Update stay by id
 //	@Tags			stays
-//	@Accept			json
+//	@Accept			application/json
 //	@Produce		json
 //	@Param	request body stays.StayEntity	true	"request stay data"
 //	@Success		200	{object}		stays.Stay	"ok"
@@ -198,7 +198,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 	idUuid, err := uuid.FromString(stayId)
 	if err != nil {
 		h.Log.Error("%s: %v", op, err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -245,7 +245,7 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	idUuid, err := uuid.FromString(userId)
 	if err != nil {
 		h.Log.Error("%s: %v", op, err)
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 

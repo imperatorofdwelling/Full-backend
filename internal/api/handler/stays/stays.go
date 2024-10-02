@@ -32,34 +32,16 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 
 // CreateStay godoc
 //
-//		@Summary		Create Stay
-//		@Description	Create stay
-//		@Tags			stays
-//		@Accept			application/json
-//		@Produce		json
-//	 	@Param			user_id	formData		string			true	"id of user"
-//	 	@Param			location_id	formData	string			true	"id of location"
-//	 	@Param			name	formData		string			false	"name of stay"
-//	 	@Param			image_main	formData	file			false	"main image"
-//	 	@Param			images	formData	file			false	"images"
-//	 	@Param			type	formData		string			false	"type of stay"
-//	 	@Param			number_of_bedrooms	formData		int			false	"number of bedrooms"
-//	 	@Param			number_of_beds	formData		int			false	"number of bathrooms"
-//	 	@Param			number_of_bathrooms	formData		int			false	"number of beds"
-//	 	@Param			guests	formData		int			false	"number of guests"
-//	 	@Param			rating	formData		float32			false	"rating"
-//	 	@Param			is_smoking_prohibited	formData		boolean			false	"smoking"
-//	 	@Param			square	formData		float32			false	"square of home"
-//	 	@Param			street	formData		string			true	"street"
-//	 	@Param			house	formData		string			true	"house"
-//	 	@Param			entrance	formData		string			false	"entrance if exists"
-//	 	@Param			floor	formData		string			false	"floor if exists"
-//	 	@Param			room	formData		string			false	"room if exists"
-//	 	@Param			price	formData		float32			false	"price of stay"
-//		@Success		201	{string}		string		"created"
-//		@Failure		400		{object}	responseApi.ResponseError			"Error"
-//		@Failure		default		{object}	responseApi.ResponseError			"Error"
-//		@Router			/stays/create [post]
+//	@Summary		Create Stay
+//	@Description	Create stay
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param	request body stays.StayEntity	true	"request stay data"
+//	@Success		201	{string}		string		"created"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/create [post]
 func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateStay"
 
@@ -72,14 +54,14 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 
 	err := render.DecodeJSON(r.Body, &newStay)
 	if err != nil {
-		h.Log.Error("%s: %v", op, err)
+		h.Log.Error("failed to decode form", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
-	err = h.Svc.CreateStay(context.Background(), &newStay)
+	err = h.Svc.CreateStay(r.Context(), &newStay)
 	if err != nil {
-		h.Log.Error("failed to create stay: ", err)
+		h.Log.Error("failed to create stay: ", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -95,11 +77,10 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId	path		string		true	"stay id"
-//
-// @Success		200	{object}		stays.Stay		"ok"
-// @Failure		400		{object}	responseApi.ResponseError			"Error"
-// @Failure		default		{object}	responseApi.ResponseError			"Error"
-// @Router			/stays/{stayId} [get]
+//	@Success		200	{object}		stays.Stay		"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/{stayId} [get]
 func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStayByID"
 
@@ -111,14 +92,14 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "stayId")
 	idUuid, err := uuid.FromString(id)
 	if err != nil {
-		h.Log.Error("%s: %v", op, err)
+		h.Log.Error("%s: %v", op, slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
 	stay, err := h.Svc.GetStayByID(context.Background(), idUuid)
 	if err != nil {
-		h.Log.Error("failed to fetch stay by id %s: %v", idUuid, err)
+		h.Log.Error("failed to fetch stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -147,7 +128,7 @@ func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 
 	stays, err := h.Svc.GetStays(context.Background())
 	if err != nil {
-		h.Log.Error("failed to fetch stays: ", err)
+		h.Log.Error("failed to fetch stays: ", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -185,7 +166,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Svc.DeleteStayByID(context.Background(), idUuid)
 	if err != nil {
-		h.Log.Error("failed to delete stay by id %s: %v", idUuid, err)
+		h.Log.Error("failed to delete stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -200,25 +181,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			json
 //	@Produce		json
-//	@Param			stayId	path		string		true	"advantage id"
-//	@Param			location_id	formData	string			true	"id of location"
-//	@Param			name	formData		string			false	"name of stay"
-//	@Param			image_main	formData	file			false	"main image"
-//	@Param			images	formData	file			false	"images"
-//	@Param			type	formData		string			false	"type of stay"
-//	@Param			number_of_bedrooms	formData		int			false	"number of bedrooms"
-//	@Param			number_of_beds	formData		int			false	"number of bathrooms"
-//	@Param			number_of_bathrooms	formData		int			false	"number of beds"
-//	@Param			guests	formData		int			false	"number of guests"
-//	@Param			rating	formData		float32			false	"rating"
-//	@Param			is_smoking_prohibited	formData		boolean			false	"smoking"
-//	@Param			square	formData		float32			false	"square of home"
-//	@Param			street	formData		string			true	"street"
-//	@Param			house	formData		string			true	"house"
-//	@Param			entrance	formData		string			false	"entrance if exists"
-//	@Param			floor	formData		string			false	"floor if exists"
-//	@Param			room	formData		string			false	"room if exists"
-//	@Param			price	formData		float32			false	"price of stay"
+//	@Param	request body stays.StayEntity	true	"request stay data"
 //	@Success		200	{object}		stays.Stay	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
@@ -250,7 +213,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 
 	updatedStay, err := h.Svc.UpdateStayByID(context.Background(), &newStay, idUuid)
 	if err != nil {
-		h.Log.Error("failed to update stay by id %s: %v", idUuid, err)
+		h.Log.Error("failed to update stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -288,7 +251,7 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 
 	stays, err := h.Svc.GetStaysByUserID(context.Background(), idUuid)
 	if err != nil {
-		h.Log.Error("failed to fetch stays: %v", err)
+		h.Log.Error("failed to fetch stays: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}

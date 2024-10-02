@@ -41,6 +41,7 @@ func NewServerHTTP(
 	r.Route("/api/v1/", func(r chi.Router) {
 		authHandler.NewAuthHandler(r)
 		staysAdvHandler.NewStaysAdvantageHandler(r)
+		staysHandler.NewStaysHandler(r)
 	})
 	// Маршруты защищенные JWTMiddleware
 	r.Group(func(r chi.Router) {
@@ -48,7 +49,7 @@ func NewServerHTTP(
 		userHandler.NewUserHandler(r)
 		locationHandler.NewLocationHandler(r)
 		advantageHandler.NewAdvantageHandler(r)
-		staysHandler.NewStaysHandler(r)
+
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

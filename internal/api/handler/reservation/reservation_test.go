@@ -161,3 +161,187 @@ func TestReservationHandler_UpdateReservation(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
+
+func TestReservationHandler_DeleteReservationByID(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.ReservationService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteReservationByID", mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/reservation/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.DeleteReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodDelete, "/reservation/"+invalidUUID, nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.DeleteReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error deleting reservation", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteReservationByID", mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/reservation/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.DeleteReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestReservationHandler_GetReservationByID(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.ReservationService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	expected := &reservation.Reservation{
+		ID:        fakeUUID,
+		StayID:    fakeUUID,
+		UserID:    fakeUUID,
+		Arrived:   time.Now(),
+		Departure: time.Now(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetReservationByID", mock.Anything, mock.Anything).Return(expected, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.GetReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/"+invalidUUID, nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.GetReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error getting reservation", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetReservationByID", mock.Anything, mock.Anything).Return(nil, errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/{reservationID}", hdl.GetReservationByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestReservationHandler_GetAllReservationsByUser(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.ReservationService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	expected := []reservation.Reservation{
+		{
+			ID:        fakeUUID,
+			StayID:    fakeUUID,
+			UserID:    fakeUUID,
+			Arrived:   time.Now(),
+			Departure: time.Now(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetAllReservationsByUser", mock.Anything, mock.Anything).Return(&expected, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/user/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/user/{userID}", hdl.GetAllReservationsByUser)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/user/"+invalidUUID, nil)
+
+		router.HandleFunc("/reservation/user/{userID}", hdl.GetAllReservationsByUser)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error getting reservation", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetAllReservationsByUser", mock.Anything, mock.Anything).Return(nil, errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/reservation/user/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/reservation/user/{userID}", hdl.GetAllReservationsByUser)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}

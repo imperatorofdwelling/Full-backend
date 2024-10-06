@@ -29,9 +29,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	authHandler := auth.ProvideAuthHandler(service, log)
 	userService := user.ProvideUserService(userRepository)
 	userHandler := user.ProvideUserHandler(userService, log)
-	locationRepo := providers.ProvideLocationRepository(sqlDB)
-	locationService := providers.ProvideLocationService(locationRepo)
-	locationHandler := providers.ProvideLocationHandler(locationService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, locationHandler)
+	repo := providers.ProvideLocationRepository(sqlDB)
+	locationService := providers.ProvideLocationService(repo)
+	handler := providers.ProvideLocationHandler(locationService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler)
 	return serverHTTP, nil
 }

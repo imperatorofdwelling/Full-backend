@@ -10,9 +10,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o ./bin/migrator ./cmd/migrator/main.go
-RUN ./bin/migrator up
-
 RUN make build
 
 ENTRYPOINT ["/app/bin/app"]

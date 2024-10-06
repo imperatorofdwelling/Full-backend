@@ -6,7 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	"time"
 )
 
@@ -14,7 +15,7 @@ type Repository struct {
 	Db *sql.DB
 }
 
-func (r *Repository) Register(ctx context.Context, user auth.Registration) (uuid.UUID, error) {
+func (r *Repository) Register(ctx context.Context, user model.Registration) (uuid.UUID, error) {
 	// Create a new UUID for the user
 	id, err := uuid.NewV4()
 	if err != nil {
@@ -34,12 +35,12 @@ func (r *Repository) Register(ctx context.Context, user auth.Registration) (uuid
 	return id, nil
 }
 
-func (r *Repository) Login(ctx context.Context, user auth.Login) (uuid.UUID, error) {
+func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
 	const op = "repo.user.Login"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1 AND password = $2")
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
 	}
 
 	defer stmt.Close()

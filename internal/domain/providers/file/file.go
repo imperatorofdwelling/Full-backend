@@ -2,25 +2,25 @@ package providers
 
 import (
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces"
-	service "github.com/imperatorofdwelling/Website-backend/internal/service/file"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	"sync"
 )
 
 var (
-	svc     *service.FileService
+	svc     *file.Service
 	svcOnce sync.Once
 )
 
 var FileProviderSet wire.ProviderSet = wire.NewSet(
 	ProvideFileService,
 
-	wire.Bind(new(interfaces.FileService), new(*service.FileService)),
+	wire.Bind(new(interfaces.FileService), new(*file.Service)),
 )
 
-func ProvideFileService() *service.FileService {
+func ProvideFileService() *file.Service {
 	svcOnce.Do(func() {
-		svc = &service.FileService{}
+		svc = &file.Service{}
 	})
 
 	return svc

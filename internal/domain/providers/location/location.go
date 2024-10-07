@@ -29,7 +29,7 @@ var LocationProviderSet wire.ProviderSet = wire.NewSet(
 
 	wire.Bind(new(interfaces.LocationHandler), new(*locHdl.Handler)),
 	wire.Bind(new(interfaces.LocationService), new(*locSvc.Service)),
-	wire.Bind(new(interfaces.LocationRepository), new(*locRepo.Repo)),
+	wire.Bind(new(interfaces.LocationRepo), new(*locRepo.Repo)),
 )
 
 func ProvideLocationHandler(svc interfaces.LocationService, log *slog.Logger) *locHdl.Handler {
@@ -43,7 +43,7 @@ func ProvideLocationHandler(svc interfaces.LocationService, log *slog.Logger) *l
 	return hdl
 }
 
-func ProvideLocationService(repo interfaces.LocationRepository) *locSvc.Service {
+func ProvideLocationService(repo interfaces.LocationRepo) *locSvc.Service {
 	svcOnce.Do(func() {
 		svc = &locSvc.Service{
 			Repo: repo,

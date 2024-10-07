@@ -7,10 +7,10 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Website-backend/internal/api/handler"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/interfaces/mocks"
-	"github.com/imperatorofdwelling/Website-backend/internal/domain/models"
-	"github.com/imperatorofdwelling/Website-backend/pkg/logger"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
+	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"mime/multipart"
@@ -46,7 +46,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 
 	testCases := []struct {
 		title                 string
-		payload               models.AdvantageEntity
+		payload               advantage.AdvantageEntity
 		contentType           string
 		contentTypeImg        string
 		contentDispositionImg string
@@ -55,7 +55,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 	}{
 		{
 			title: "should successfully create advantage",
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize - 1000),
 			},
@@ -66,7 +66,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 		},
 		{
 			title: "should be invalid image type",
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize - 1000),
 			},
@@ -77,7 +77,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 		},
 		{
 			title: "should be invalid size",
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize + 1000),
 			},
@@ -88,7 +88,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 		},
 		{
 			title: "should be invalid Header Content-Type",
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 			},
 			contentType: "application/json",
@@ -282,7 +282,7 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		payload := []models.Advantage{
+		payload := []advantage.Advantage{
 			{
 				ID:        id,
 				Title:     "test",
@@ -302,7 +302,7 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var resp []models.Advantage
+		var resp []advantage.Advantage
 
 		err = json.Unmarshal(r.Body.Bytes(), &resp)
 		if err != nil {
@@ -350,7 +350,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 	testCases := []struct {
 		title                 string
 		id                    string
-		payload               models.AdvantageEntity
+		payload               advantage.AdvantageEntity
 		contentType           string
 		contentTypeImg        string
 		contentDispositionImg string
@@ -360,7 +360,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		{
 			title: "should successfully update advantage",
 			id:    id.String(),
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize - 1000),
 			},
@@ -372,7 +372,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		{
 			title: "should be invalid image type",
 			id:    id.String(),
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize - 1000),
 			},
@@ -384,7 +384,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		{
 			title: "should be invalid size",
 			id:    id.String(),
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize + 1000),
 			},
@@ -396,7 +396,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		{
 			title: "should be invalid Header Content-Type",
 			id:    id.String(),
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 			},
 			contentType: "application/json",
@@ -406,7 +406,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		{
 			title: "should be invalid id",
 			id:    "invalid",
-			payload: models.AdvantageEntity{
+			payload: advantage.AdvantageEntity{
 				Title: "test",
 				Image: createMockSvg(MaxAdvantageImgSize - 1000),
 			},
@@ -430,7 +430,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 
 			mockTime := time.Now()
 
-			expected := models.Advantage{
+			expected := advantage.Advantage{
 				ID:        uuid.FromStringOrNil(testCase.id),
 				Title:     testCase.payload.Title,
 				Image:     "./assets/images/advantages/test.svg",

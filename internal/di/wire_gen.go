@@ -10,8 +10,12 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
+	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
 	"log/slog"
 )
@@ -32,6 +36,16 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	repo := providers.ProvideLocationRepository(sqlDB)
 	locationService := providers.ProvideLocationService(repo)
 	handler := providers.ProvideLocationHandler(locationService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler)
+	advantageRepo := providers2.ProvideAdvantageRepository(sqlDB)
+	fileService := providers3.ProvideFileService()
+	advantageService := providers2.ProvideAdvantageService(advantageRepo, fileService)
+	advantageHandler := providers2.ProvideAdvantageHandler(advantageService, log)
+	staysRepo := providers4.ProvideStaysRepo(sqlDB)
+	staysService := providers4.ProvideStaysService(staysRepo, locationService)
+	staysHandler := providers4.ProvideStaysHandler(staysService, log)
+	staysadvantageRepo := staysadvantage.ProvideStaysAdvantageRepo(sqlDB)
+	staysadvantageService := staysadvantage.ProvideStaysAdvantageService(staysadvantageRepo, staysService, advantageService)
+	staysadvantageHandler := staysadvantage.ProvideStaysAdvantageHandler(staysadvantageService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler)
 	return serverHTTP, nil
 }

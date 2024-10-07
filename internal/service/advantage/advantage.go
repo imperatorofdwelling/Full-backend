@@ -7,6 +7,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
+	errs "github.com/imperatorofdwelling/Full-backend/internal/service"
 	service "github.com/imperatorofdwelling/Full-backend/internal/service/file"
 )
 
@@ -125,4 +126,19 @@ func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *ad
 	}
 
 	return *advUpdated, nil
+}
+
+func (s *Service) GetAdvantageByID(ctx context.Context, id uuid.UUID) (*advantage.Advantage, error) {
+	const op = "service.advantage.GetAdvantageByID"
+
+	adv, err := s.Repo.FindAdvantageByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if adv == nil {
+		return nil, fmt.Errorf("%s: %w", op, errs.ErrAdvantageNotFound)
+	}
+
+	return adv, nil
 }

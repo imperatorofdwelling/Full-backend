@@ -57,7 +57,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	userCreated, err := h.Svc.Register(context.Background(), userCurrent)
 	if err != nil {
-		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrUserNotFound) {
+		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 			return
 		}
@@ -102,7 +102,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := h.Svc.Login(context.Background(), userCurrent)
 	if err != nil {
-		if errors.Is(err, service.ErrUserNotFound) {
+		if errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
 			return
 		}
@@ -156,6 +156,20 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
 			return
 		}
+		// Extract the user ID from the token
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
+			return
+		}
+		userID, ok := claims["user_id"].(string)
+		if !ok {
+			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
+			return
+		}
+		// Store the user ID in the request context
+		ctx := context.WithValue(r.Context(), "user_id", userID)
+		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
 }

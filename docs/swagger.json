@@ -635,122 +635,13 @@
                 "summary": "Create Stay",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "id of user",
-                        "name": "user_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "id of location",
-                        "name": "location_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of stay",
-                        "name": "name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "main image",
-                        "name": "image_main",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "images",
-                        "name": "images",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type of stay",
-                        "name": "type",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of bedrooms",
-                        "name": "number_of_bedrooms",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of bathrooms",
-                        "name": "number_of_beds",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of beds",
-                        "name": "number_of_bathrooms",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of guests",
-                        "name": "guests",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "rating",
-                        "name": "rating",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "smoking",
-                        "name": "is_smoking_prohibited",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "square of home",
-                        "name": "square",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "street",
-                        "name": "street",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "house",
-                        "name": "house",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "entrance if exists",
-                        "name": "entrance",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "floor if exists",
-                        "name": "floor",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "room if exists",
-                        "name": "room",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "price of stay",
-                        "name": "price",
-                        "in": "formData"
+                        "description": "request stay data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stays.StayEntity"
+                        }
                     }
                 ],
                 "responses": {
@@ -1076,21 +967,12 @@
                 "summary": "Create StaysAdvantage",
                 "parameters": [
                     {
-                        "description": "stay id",
-                        "name": "stay_id",
+                        "description": "staysadvantage request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "advantage id",
-                        "name": "advantage_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/staysadvantage.StayAdvantageCreateReq"
                         }
                     }
                 ],
@@ -1398,6 +1280,86 @@
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "stays.StayEntity": {
+            "type": "object",
+            "required": [
+                "guests",
+                "house",
+                "location_id",
+                "name",
+                "number_of_bathrooms",
+                "number_of_bedrooms",
+                "number_of_beds",
+                "price",
+                "square",
+                "street",
+                "type",
+                "user_id"
+            ],
+            "properties": {
+                "entrance": {
+                    "type": "string"
+                },
+                "floor": {
+                    "type": "string"
+                },
+                "guests": {
+                    "type": "integer"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "is_smoking_prohibited": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer"
+                },
+                "number_of_bedrooms": {
+                    "type": "integer"
+                },
+                "number_of_beds": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "square": {
+                    "type": "number"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "ImageMain           []byte    `json:\"image_main\"`\nImages              []string  `json:\"images,omitempty\"`",
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "staysadvantage.StayAdvantageCreateReq": {
+            "type": "object",
+            "properties": {
+                "advantage_id": {
+                    "type": "string"
+                },
+                "stay_id": {
                     "type": "string"
                 }
             }

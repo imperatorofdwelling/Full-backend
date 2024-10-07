@@ -14,4 +14,7 @@ var (
 	ErrAdvantageNotFound = errors.New("advantage not found")
 
 	ErrNotFoundReservation = errors.New("reservation not found")
+	ErrEmailAlreadyExists = errors.New("email already exists")
+	ErrNotFound           = errors.New("not found")
+	ErrUpdateFailed       = errors.New("update failed")
 )

@@ -7,6 +7,7 @@ import (
 	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
 	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
 	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
@@ -30,6 +31,7 @@ func NewServerHTTP(
 	advantageHandler *advHdl.Handler,
 	staysHandler *staysHdl.Handler,
 	staysAdvHandler *staysAdvHdl.Handler,
+	reservationHandler *reservationHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -41,6 +43,7 @@ func NewServerHTTP(
 	r.Route("/api/v1/", func(r chi.Router) {
 		authHandler.NewAuthHandler(r)
 		staysAdvHandler.NewStaysAdvantageHandler(r)
+		reservationHandler.NewReservationHandler(r)
 		staysHandler.NewStaysHandler(r)
 	})
 	// Маршруты защищенные JWTMiddleware

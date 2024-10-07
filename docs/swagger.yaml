@@ -67,6 +67,43 @@ definitions:
       updatedAt:
         type: string
     type: object
+  reservation.Reservation:
+    properties:
+      arrived:
+        type: string
+      created_at:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+      stay_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  reservation.ReservationEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      stay_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  reservation.ReservationUpdateEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+    type: object
   responseApi.ResponseError:
     properties:
       error:
@@ -304,7 +341,7 @@ paths:
         "201":
           description: created
           schema:
-            $ref: '#/definitions/advantage.Advantage'
+            type: string
         "400":
           description: Error
           schema:
@@ -415,6 +452,159 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /reservation/{reservationID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Reservation
+      tags:
+      - reservations
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/reservation.Reservation'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get Reservation
+      tags:
+      - reservations
+  /reservation/{reservationId}:
+    put:
+      consumes:
+      - application/json
+      description: Update reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationId
+        required: true
+        type: string
+      - description: update reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationUpdateEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Reservation
+      tags:
+      - reservations
+  /reservation/create:
+    post:
+      consumes:
+      - application/json
+      description: Create reservation (arrived and departure should be TIMESTAMP type)
+      parameters:
+      - description: Create reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Reservation
+      tags:
+      - reservations
+  /reservation/user/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by user id
+      parameters:
+      - description: user id
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/reservation.Reservation'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all Reservations
+      tags:
+      - reservations
   /stays:
     get:
       consumes:

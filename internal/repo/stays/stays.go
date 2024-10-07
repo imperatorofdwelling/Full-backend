@@ -17,12 +17,12 @@ func (r *Repo) CreateStay(ctx context.Context, stay *models.StayEntity) error {
 	const op = "repo.stays.CreateStay"
 
 	stmt, err := r.Db.PrepareContext(ctx,
-		"INSERT INTO stays(user_id, location_id, name, image_main, images, type, number_of_bedrooms, number_of_beds, number_of_bathrooms, guests, rating, is_smoking_prohibited, square, street, house, entrance, floor, room, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)")
+		"INSERT INTO stays(user_id, location_id, name, type, number_of_bedrooms, number_of_beds, number_of_bathrooms, guests, is_smoking_prohibited, square, street, house, entrance, floor, room, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = stmt.ExecContext(ctx, stay.UserID, stay.LocationID, stay.Name, stay.ImageMain, stay.Images, stay.Type, stay.NumberOfBedrooms, stay.NumberOfBeds, stay.NumberOfBathrooms, stay.Guests, stay.Rating, stay.IsSmokingProhibited, stay.Square, stay.Street, stay.House, stay.Entrance, stay.Floor, stay.Room, stay.Price, time.Now(), time.Now())
+	_, err = stmt.ExecContext(ctx, stay.UserID, stay.LocationID, stay.Name, stay.Type, stay.NumberOfBedrooms, stay.NumberOfBeds, stay.NumberOfBathrooms, stay.Guests, stay.IsSmokingProhibited, stay.Square, stay.Street, stay.House, stay.Entrance, stay.Floor, stay.Room, stay.Price, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -91,7 +91,7 @@ func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
 func (r *Repo) UpdateStayByID(ctx context.Context, stay *models.StayEntity, id uuid.UUID) error {
 	const op = "repo.stays.updateStayByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, image_main=$3, images=$4, type=$5, number_of_bedrooms=$6, number_of_beds=$7, number_of_bathrooms=$8, guests=$9, rating=$10, is_smoking_prohibited=$11, square=$12, street=$13, house=$14, entrance=$15, floor=$16, room=$17, price=$18, updated_at=$19 WHERE id=$20")
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, type=$5, number_of_bedrooms=$6, number_of_beds=$7, number_of_bathrooms=$8, guests=$9, is_smoking_prohibited=$10, square=$11, street=$12, house=$13, entrance=$14, floor=$15, room=$16, price=$17, updated_at=$18 WHERE id=$19")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -102,14 +102,11 @@ func (r *Repo) UpdateStayByID(ctx context.Context, stay *models.StayEntity, id u
 		ctx,
 		stay.LocationID,
 		stay.Name,
-		stay.ImageMain,
-		stay.Images,
 		stay.Type,
 		stay.NumberOfBedrooms,
 		stay.NumberOfBeds,
 		stay.NumberOfBathrooms,
 		stay.Guests,
-		stay.Rating,
 		stay.IsSmokingProhibited,
 		stay.Square,
 		stay.Street,

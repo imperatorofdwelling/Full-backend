@@ -132,7 +132,7 @@ func (h *Handler) DeleteReservationByID(w http.ResponseWriter, r *http.Request) 
 	uuID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to parse UUID", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -170,7 +170,7 @@ func (h *Handler) GetReservationByID(w http.ResponseWriter, r *http.Request) {
 	uuID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to parse UUID", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -208,7 +208,7 @@ func (h *Handler) GetAllReservationsByUser(w http.ResponseWriter, r *http.Reques
 	uuID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to parse UUID", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 

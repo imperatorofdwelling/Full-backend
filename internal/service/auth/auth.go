@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"net/mail"
 	"strings"
@@ -16,7 +16,7 @@ type Service struct {
 	UserRepo interfaces.UserRepository
 }
 
-func (s *Service) Register(ctx context.Context, user auth.Registration) (uuid.UUID, error) {
+func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.UUID, error) {
 	const op = "service.user.Registration"
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
@@ -42,13 +42,13 @@ func (s *Service) Register(ctx context.Context, user auth.Registration) (uuid.UU
 	}
 
 	if userFound.ID == uuid.Nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	return userFound.ID, nil
 }
 
-func (s *Service) Login(ctx context.Context, user auth.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
 	const op = "service.user.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
@@ -56,7 +56,7 @@ func (s *Service) Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	}
 
 	if !userExists {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserNotFound)
+		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	id, err := s.AuthRepo.Login(ctx, user)
@@ -67,7 +67,7 @@ func (s *Service) Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	return id, err
 }
 
-func (s *Service) validate(user auth.Registration) bool {
+func (s *Service) validate(user model.Registration) bool {
 	if strings.TrimSpace(user.Name) == "" || strings.TrimSpace(user.Email) == "" {
 		return false
 	}

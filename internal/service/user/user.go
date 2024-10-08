@@ -15,6 +15,21 @@ type Service struct {
 	Repo interfaces.UserRepository
 }
 
+func (s *Service) GetUserByID(ctx context.Context, idStr string) (model.User, error) {
+	const op = "service.user.GetUserByID"
+
+	id, err := uuid.FromString(idStr)
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	result, err := s.Repo.FindUserByID(ctx, id)
+	if err != nil {
+		return model.User{}, fmt.Errorf("%s: %w", op, err)
+	}
+	return result, nil
+}
+
 func (s *Service) DeleteUserByID(ctx context.Context, idStr string) error {
 	const op = "service.user.DeleteUserByID"
 

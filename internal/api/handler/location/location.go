@@ -1,8 +1,9 @@
-package handler
+package location
 
 import (
 	"context"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -10,12 +11,12 @@ import (
 	"net/http"
 )
 
-type LocationHandler struct {
+type Handler struct {
 	Svc interfaces.LocationService
 	Log *slog.Logger
 }
 
-func (h *LocationHandler) NewLocationHandler(r chi.Router) {
+func (h *Handler) NewLocationHandler(r chi.Router) {
 	r.Route("/locations", func(r chi.Router) {
 		r.Get("/{locationName}", h.FindByNameMatch)
 	})
@@ -29,12 +30,17 @@ func (h *LocationHandler) NewLocationHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			locationName	path		string		true	"location name match"
-//	@Success		200	{object}		[]models.Location	"ok"
+//	@Success		200	{object}		[]location.Location	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/locations/{locationName} [get]
-func (h *LocationHandler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.FindByNameMatch"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
 
 	locationName := chi.URLParam(r, "locationName")
 

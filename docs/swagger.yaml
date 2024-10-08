@@ -1,6 +1,42 @@
 basePath: /api/v1
 definitions:
-  models.Location:
+  advantage.Advantage:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  auth.Login:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.Registration:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  location.Location:
     properties:
       city:
         type: string
@@ -11,7 +47,7 @@ definitions:
       fias_id:
         type: string
       id:
-        type: integer
+        type: string
       kladr_id:
         type: string
       lat:
@@ -31,12 +67,155 @@ definitions:
       updatedAt:
         type: string
     type: object
+  reservation.Reservation:
+    properties:
+      arrived:
+        type: string
+      created_at:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+      stay_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  reservation.ReservationEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      stay_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  reservation.ReservationUpdateEntity:
+    properties:
+      arrived:
+        type: string
+      departure:
+        type: string
+      id:
+        type: string
+    type: object
   responseApi.ResponseError:
     properties:
       error:
         type: string
-      status:
+    type: object
+  stays.Stay:
+    properties:
+      created_at:
+        type: string
+      entrance:
+        type: string
+      floor:
+        type: string
+      guests:
         type: integer
+      house:
+        type: string
+      id:
+        type: string
+      image_main:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      is_smoking_prohibited:
+        type: boolean
+      location_id:
+        type: string
+      name:
+        type: string
+      number_of_bathrooms:
+        type: integer
+      number_of_bedrooms:
+        type: integer
+      number_of_beds:
+        type: integer
+      price:
+        type: number
+      rating:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      street:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  stays.StayEntity:
+    properties:
+      entrance:
+        type: string
+      floor:
+        type: string
+      guests:
+        type: integer
+      house:
+        type: string
+      is_smoking_prohibited:
+        default: false
+        type: boolean
+      location_id:
+        type: string
+      name:
+        type: string
+      number_of_bathrooms:
+        type: integer
+      number_of_bedrooms:
+        type: integer
+      number_of_beds:
+        type: integer
+      price:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      street:
+        type: string
+      type:
+        description: |-
+          ImageMain           []byte    `json:"image_main"`
+          Images              []string  `json:"images,omitempty"`
+        type: string
+      user_id:
+        type: string
+    required:
+    - guests
+    - house
+    - location_id
+    - name
+    - number_of_bathrooms
+    - number_of_bedrooms
+    - number_of_beds
+    - price
+    - square
+    - street
+    - type
+    - user_id
+    type: object
+  staysadvantage.StayAdvantageCreateReq:
+    properties:
+      advantage_id:
+        type: string
+      stay_id:
+        type: string
     type: object
 externalDocs:
   description: OpenAPI
@@ -50,6 +229,130 @@ info:
   title: IOD App API
   version: "1.0"
 paths:
+  /advantages/{advantageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete advantage by id
+      parameters:
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Advantage
+      tags:
+      - advantages
+    patch:
+      consumes:
+      - application/json
+      description: Update advantage by id
+      parameters:
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/advantage.Advantage'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Advantage
+      tags:
+      - advantages
+  /advantages/all:
+    get:
+      consumes:
+      - application/json
+      description: Get all advantages
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/advantage.Advantage'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get advantages
+      tags:
+      - advantages
+  /advantages/create:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create advantage
+      parameters:
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Advantage
+      tags:
+      - advantages
   /locations/{locationName}:
     get:
       consumes:
@@ -68,7 +371,7 @@ paths:
           description: ok
           schema:
             items:
-              $ref: '#/definitions/models.Location'
+              $ref: '#/definitions/location.Location'
             type: array
         "400":
           description: Error
@@ -81,4 +384,530 @@ paths:
       summary: Find city by name
       tags:
       - locations
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates an existing user and returns a JWT token
+      parameters:
+      - description: Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Login an existing user
+      tags:
+      - auth
+  /registration:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account
+      parameters:
+      - description: Registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.Registration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Register a new user
+      tags:
+      - auth
+  /reservation/{reservationID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Reservation
+      tags:
+      - reservations
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/reservation.Reservation'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get Reservation
+      tags:
+      - reservations
+  /reservation/{reservationId}:
+    put:
+      consumes:
+      - application/json
+      description: Update reservation by id
+      parameters:
+      - description: reservation id
+        in: path
+        name: reservationId
+        required: true
+        type: string
+      - description: update reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationUpdateEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Reservation
+      tags:
+      - reservations
+  /reservation/create:
+    post:
+      consumes:
+      - application/json
+      description: Create reservation (arrived and departure should be TIMESTAMP type)
+      parameters:
+      - description: Create reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.ReservationEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Reservation
+      tags:
+      - reservations
+  /reservation/user/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: Get reservation by user id
+      parameters:
+      - description: user id
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/reservation.Reservation'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all Reservations
+      tags:
+      - reservations
+  /stays:
+    get:
+      consumes:
+      - application/json
+      description: Get all stays
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/stays.Stay'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all stays
+      tags:
+      - stays
+  /stays/{stayId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete stay by id
+      parameters:
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Stay
+      tags:
+      - stays
+    get:
+      consumes:
+      - application/json
+      description: get stay
+      parameters:
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/stays.Stay'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get Stay by id
+      tags:
+      - stays
+    put:
+      consumes:
+      - application/json
+      description: Update stay by id
+      parameters:
+      - description: advantage id
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: id of location
+        in: formData
+        name: location_id
+        required: true
+        type: string
+      - description: name of stay
+        in: formData
+        name: name
+        type: string
+      - description: main image
+        in: formData
+        name: image_main
+        type: file
+      - description: images
+        in: formData
+        name: images
+        type: file
+      - description: type of stay
+        in: formData
+        name: type
+        type: string
+      - description: number of bedrooms
+        in: formData
+        name: number_of_bedrooms
+        type: integer
+      - description: number of bathrooms
+        in: formData
+        name: number_of_beds
+        type: integer
+      - description: number of beds
+        in: formData
+        name: number_of_bathrooms
+        type: integer
+      - description: number of guests
+        in: formData
+        name: guests
+        type: integer
+      - description: rating
+        in: formData
+        name: rating
+        type: number
+      - description: smoking
+        in: formData
+        name: is_smoking_prohibited
+        type: boolean
+      - description: square of home
+        in: formData
+        name: square
+        type: number
+      - description: street
+        in: formData
+        name: street
+        required: true
+        type: string
+      - description: house
+        in: formData
+        name: house
+        required: true
+        type: string
+      - description: entrance if exists
+        in: formData
+        name: entrance
+        type: string
+      - description: floor if exists
+        in: formData
+        name: floor
+        type: string
+      - description: room if exists
+        in: formData
+        name: room
+        type: string
+      - description: price of stay
+        in: formData
+        name: price
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/stays.Stay'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Stay
+      tags:
+      - stays
+  /stays/create:
+    post:
+      consumes:
+      - application/json
+      description: Create stay
+      parameters:
+      - description: request stay data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/stays.StayEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Stay
+      tags:
+      - stays
+  /stays/user/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Get stays by user id
+      parameters:
+      - description: user id
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/stays.Stay'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all stays by user id
+      tags:
+      - stays
+  /staysadvantage/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Create staysadvantage
+      parameters:
+      - description: stay advantage id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create StaysAdvantage
+      tags:
+      - staysadvantage
+  /staysadvantage/create:
+    post:
+      consumes:
+      - application/json
+      description: Create staysadvantage
+      parameters:
+      - description: staysadvantage request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staysadvantage.StayAdvantageCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create StaysAdvantage
+      tags:
+      - staysadvantage
 swagger: "2.0"

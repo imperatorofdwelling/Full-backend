@@ -3,22 +3,22 @@ package providers
 import (
 	"database/sql"
 	"github.com/google/wire"
-	"github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/repo/location"
-	"github.com/imperatorofdwelling/Full-backend/internal/service/location"
+	locRepo "github.com/imperatorofdwelling/Full-backend/internal/repo/location"
+	locSvc "github.com/imperatorofdwelling/Full-backend/internal/service/location"
 	"log/slog"
 	"sync"
 )
 
 var (
-	hdl     *handler.LocationHandler
+	hdl     *locHdl.Handler
 	hdlOnce sync.Once
 
-	svc     *service.LocationService
+	svc     *locSvc.Service
 	svcOnce sync.Once
 
-	repository     *repo.LocationRepo
+	repository     *locRepo.Repo
 	repositoryOnce sync.Once
 )
 
@@ -27,14 +27,14 @@ var LocationProviderSet wire.ProviderSet = wire.NewSet(
 	ProvideLocationService,
 	ProvideLocationRepository,
 
-	wire.Bind(new(interfaces.LocationHandler), new(*handler.LocationHandler)),
-	wire.Bind(new(interfaces.LocationService), new(*service.LocationService)),
-	wire.Bind(new(interfaces.LocationRepository), new(*repo.LocationRepo)),
+	wire.Bind(new(interfaces.LocationHandler), new(*locHdl.Handler)),
+	wire.Bind(new(interfaces.LocationService), new(*locSvc.Service)),
+	wire.Bind(new(interfaces.LocationRepo), new(*locRepo.Repo)),
 )
 
-func ProvideLocationHandler(svc interfaces.LocationService, log *slog.Logger) *handler.LocationHandler {
+func ProvideLocationHandler(svc interfaces.LocationService, log *slog.Logger) *locHdl.Handler {
 	hdlOnce.Do(func() {
-		hdl = &handler.LocationHandler{
+		hdl = &locHdl.Handler{
 			Svc: svc,
 			Log: log,
 		}
@@ -43,9 +43,9 @@ func ProvideLocationHandler(svc interfaces.LocationService, log *slog.Logger) *h
 	return hdl
 }
 
-func ProvideLocationService(repo interfaces.LocationRepository) *service.LocationService {
+func ProvideLocationService(repo interfaces.LocationRepo) *locSvc.Service {
 	svcOnce.Do(func() {
-		svc = &service.LocationService{
+		svc = &locSvc.Service{
 			Repo: repo,
 		}
 	})
@@ -53,9 +53,9 @@ func ProvideLocationService(repo interfaces.LocationRepository) *service.Locatio
 	return svc
 }
 
-func ProvideLocationRepository(db *sql.DB) *repo.LocationRepo {
+func ProvideLocationRepository(db *sql.DB) *locRepo.Repo {
 	repositoryOnce.Do(func() {
-		repository = &repo.LocationRepo{
+		repository = &locRepo.Repo{
 			Db: db,
 		}
 	})

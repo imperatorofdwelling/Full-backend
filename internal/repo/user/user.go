@@ -19,7 +19,7 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)")
 	if err != nil {
-		return false, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
+		return false, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
 	defer stmt.Close()
@@ -39,7 +39,7 @@ func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, createdAt, updatedAt FROM users WHERE id = $1")
 	if err != nil {
-		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrNotFound)
+		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
 	defer stmt.Close()
@@ -124,7 +124,7 @@ func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 
 	stmt, err := r.Db.PrepareContext(ctx, "DELETE FROM users WHERE id = $1")
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, repo.ErrNotFound)
+		return fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
 	defer stmt.Close()

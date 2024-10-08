@@ -1,9 +1,8 @@
 package repo
 
-import "errors"
-
 const (
 	ErrUserNotFound      = "user not found"
+	ErrUpdateFailed      = "update failed"
 	ErrStayNotFound      = "stay not found"
 	ErrAdvantageNotFound = "advantage not found"
 )

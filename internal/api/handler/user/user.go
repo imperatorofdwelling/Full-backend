@@ -76,7 +76,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param   id   path     string     true  "User ID"
-// @Param   body body     user.User true  "User update data"
+// @Param   body     user.User true  "User update data"
 // @Security ApiKeyAuth
 // @Success 200 {object} user.User
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"

@@ -16,11 +16,13 @@ type (
 	}
 
 	UserService interface {
+		GetUserByID(ctx context.Context, idStr string) (user.User, error)
 		UpdateUserByID(ctx context.Context, idStr string, user user.User) (user.User, error)
 		DeleteUserByID(ctx context.Context, idStr string) error
 	}
 
 	UserHandler interface {
+		GetUserByID(w http.ResponseWriter, r *http.Request)
 		UpdateUserByID(w http.ResponseWriter, r *http.Request)
 		DeleteUserByID(w http.ResponseWriter, r *http.Request)
 	}

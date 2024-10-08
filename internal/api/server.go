@@ -32,13 +32,15 @@ func NewServerHTTP(
 	r.Use(middleware.Timeout(10 * time.Second))
 
 	r.Route("/api/v1/", func(r chi.Router) {
-		authHandler.NewAuthHandler(r)
-	})
-	// Маршруты защищенные JWTMiddleware
-	r.Group(func(r chi.Router) {
-		r.Use(authHandler.JWTMiddleware)
-		userHandler.NewUserHandler(r)
-		locationHandler.NewLocationHandler(r)
+		r.Group(func(r chi.Router) {
+			authHandler.NewAuthHandler(r)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(authHandler.JWTMiddleware)
+			userHandler.NewUserHandler(r)
+			locationHandler.NewLocationHandler(r)
+		})
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

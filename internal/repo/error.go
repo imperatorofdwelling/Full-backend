@@ -1,6 +1,6 @@
 package repo
 
-const (
+var (
 	ErrUserNotFound      = "user not found"
 	ErrUpdateFailed      = "update failed"
 	ErrStayNotFound      = "stay not found"

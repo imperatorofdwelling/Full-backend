@@ -2,12 +2,10 @@ package user
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
-	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 )
 
@@ -40,9 +38,6 @@ func (s *Service) DeleteUserByID(ctx context.Context, idStr string) error {
 
 	err = s.Repo.DeleteUserByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, repo.ErrNotFound) {
-			return fmt.Errorf("%s: %w", op, service.ErrNotFound)
-		}
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -68,9 +63,6 @@ func (s *Service) UpdateUserByID(ctx context.Context, idStr string, user model.U
 
 	err = s.Repo.UpdateUserByID(ctx, id, user)
 	if err != nil {
-		if errors.Is(err, repo.ErrUpdateFailed) {
-			return model.User{}, fmt.Errorf("%s: %w", op, service.ErrUpdateFailed)
-		}
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
 	updatedUser, err := s.Repo.FindUserByID(ctx, id)

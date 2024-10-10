@@ -29,9 +29,9 @@ jobs:
       - name: Test
         run: make test
 
-  deploy:
-    needs: test
-    runs-on: [self-hosted]
+#  deploy:
+#    needs: test
+#    runs-on: [self-hosted]
 
-    steps:
-      - name: Project publish
+#    steps:
+#      - name: Project publish

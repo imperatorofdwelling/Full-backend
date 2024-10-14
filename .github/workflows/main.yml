@@ -7,9 +7,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  deploy:
     runs-on: self_hosted
-
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker-compose

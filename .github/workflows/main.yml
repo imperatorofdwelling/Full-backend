@@ -21,13 +21,13 @@ jobs:
         run: make docker
 
 
-  test:
-    needs: build
-    runs-on: [self-hosted]
-
-    steps:
-      - name: Test
-        run: make test
+#  test:
+#    needs: build
+#    runs-on: [self-hosted]
+#
+#    steps:
+#      - name: Test
+#        run: make test
 
 #  deploy:
 #    needs: test

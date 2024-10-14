@@ -1,4 +1,4 @@
-name: CI
+name: main
 
 on:
   push:
@@ -6,17 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  message: "conversation"
-  my_token: ${{ secrets.GITHUB_TOKEN}}
-
 jobs:
   build:
     runs-on: self_hosted
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Build the Docker-compose
         run: make docker
 

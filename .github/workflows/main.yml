@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Run make deploy
+      - name: Run make docker
         run: make deploy

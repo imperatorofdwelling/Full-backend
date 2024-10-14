@@ -13,5 +13,5 @@ migrate-up:
 migrate-down:
 	go run cmd/migrator/main.go down
 docker:
-	sudo docker-compose up --build
+	sudo -S docker-compose up --build
 test:

@@ -38,8 +38,7 @@ services:
     networks:
       - proxynet
     depends_on:
-      db:
-        condition: service_healthy
+      - db
   migrate:
     image: migrate/migrate
     volumes:

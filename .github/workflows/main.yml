@@ -16,5 +16,9 @@ jobs:
         run: make docker
       - name: Build
         run: make build
+      - name: Install swag
+        run : go install github.com/google/wire/cmd/wire@latest
+      - name: Install wire
+        run: go install github.com/swaggo/swag/cmd/swag@latest
       - name: Run
         run: make run

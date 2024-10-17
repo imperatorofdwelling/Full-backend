@@ -42,7 +42,7 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 // @Accept  json
 // @Produce  json
 // @Param   id   path     string     true  "User  ID"
-// @Success 200 {object} user.User
+// @Success 200 {object} model.User
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
 // @Failure 404 {object} responseApi.ResponseError "User  not found"
 // @Router /user/{id} [get]
@@ -76,9 +76,9 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param   id   path     string     true  "User ID"
-// @Param   body	body     user.User true  "User update data"
+// @Param   body	body     model.User true  "User update data"
 // @Security ApiKeyAuth
-// @Success 200 {object} user.User
+// @Success 200 {object} model.User
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
 // @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 404 {object} responseApi.ResponseError "User not found"

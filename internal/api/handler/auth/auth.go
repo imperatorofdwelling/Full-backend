@@ -35,7 +35,7 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Param   request  body     auth.Registration  true  "Registration"
+// @Param   request  body     model.Registration  true  "Registration"
 // @Success 201 {object} UUID
 // @Failure 400 {object} responseApi.ResponseError
 // @Failure 500 {object} responseApi.ResponseError
@@ -75,7 +75,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Param   request  body     auth.Login  true  "Login"
+// @Param   request  body     model.Login  true  "Login"
 // @Success 200 {object} UUID
 // @Failure 401 {object} responseApi.ResponseError
 // @Failure 404 {object} responseApi.ResponseError

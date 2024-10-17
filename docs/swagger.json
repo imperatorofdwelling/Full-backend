@@ -770,122 +770,13 @@
                 "summary": "Update Stay",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "advantage id",
-                        "name": "stayId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "id of location",
-                        "name": "location_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "name of stay",
-                        "name": "name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "main image",
-                        "name": "image_main",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "images",
-                        "name": "images",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type of stay",
-                        "name": "type",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of bedrooms",
-                        "name": "number_of_bedrooms",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of bathrooms",
-                        "name": "number_of_beds",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of beds",
-                        "name": "number_of_bathrooms",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "number of guests",
-                        "name": "guests",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "rating",
-                        "name": "rating",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "smoking",
-                        "name": "is_smoking_prohibited",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "square of home",
-                        "name": "square",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "street",
-                        "name": "street",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "house",
-                        "name": "house",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "entrance if exists",
-                        "name": "entrance",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "floor if exists",
-                        "name": "floor",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "room if exists",
-                        "name": "room",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "price of stay",
-                        "name": "price",
-                        "in": "formData"
+                        "description": "request stay data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stays.StayEntity"
+                        }
                     }
                 ],
                 "responses": {
@@ -1041,6 +932,274 @@
                     }
                 }
             }
+        },
+        "/staysreviews": {
+            "get": {
+                "description": "Get all Stays reviews",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysreviews"
+                ],
+                "summary": "Get all Stays review",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/staysreviews.StaysReview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/staysreviews/create": {
+            "post": {
+                "description": "Create stays_review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysreviews"
+                ],
+                "summary": "Create Stays_review",
+                "parameters": [
+                    {
+                        "description": "stays review request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/staysreviews.StaysReviewEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/staysreviews/update/{id}": {
+            "put": {
+                "description": "Update Stays_review by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysreviews"
+                ],
+                "summary": "Update Stays_review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stays review id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update stays review request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/staysreviews.StaysReviewEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/staysreviews/{id}": {
+            "get": {
+                "description": "Get Stays review by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysreviews"
+                ],
+                "summary": "Get Stays review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stays review id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/staysreviews.StaysReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete Stays_review by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysreviews"
+                ],
+                "summary": "Delete Stays_review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stays review id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "Retrieves a user by the provided ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get a user by ID",
+                "operationId": "getUserByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User  ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "User  not found",
+                        "schema": {
+                            "$ref": "#/definitions/responseApi.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1095,6 +1254,17 @@
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "helper.NullTime": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "type": "boolean"
                 }
             }
         },
@@ -1345,7 +1515,6 @@
                     "type": "string"
                 },
                 "type": {
-                    "description": "ImageMain           []byte    `json:\"image_main\"`\nImages              []string  `json:\"images,omitempty\"`",
                     "type": "string"
                 },
                 "user_id": {
@@ -1360,6 +1529,100 @@
                     "type": "string"
                 },
                 "stay_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "staysreviews.StaysReview": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "staysreviews.StaysReviewEntity": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.User": {
+            "description": "User details",
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "birth_date": {
+                    "$ref": "#/definitions/helper.NullTime"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "national": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }

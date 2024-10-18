@@ -51,6 +51,8 @@ func NewServerHTTP(
 			r.Use(authHandler.JWTMiddleware)
 			userHandler.NewUserHandler(r)
 			locationHandler.NewLocationHandler(r)
+			// just added stays handler
+			staysHandler.NewStaysHandler(r)
 		})
 
 	})

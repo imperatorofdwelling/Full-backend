@@ -1,9 +1,5 @@
 version: "3.7"
 
-networks:
-  proxynet:
-    driver: bridge
-
 volumes:
   local_postgres_data:
 
@@ -12,49 +8,41 @@ services:
     container_name: db
     restart: always
     image: postgres
-    env_file:
-      - ./.env
-    expose:
-      - "5432"
+    env_file: ./.env
+    ports:
+      - "5432:5432"
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
-    networks:
-      - proxynet
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
-  server:
-    container_name: server
-    restart: always
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file: ./.env
-    ports:
-      - "8080:8080"
-    networks:
-      - proxynet
-    depends_on:
-      - db
+#  server:
+#    container_name: server
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    env_file: ./.env
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      db:
+#        condition: service_healthy
   migrate:
     image: migrate/migrate
     volumes:
       - ./cmd/migrator/migrations:/migrations
     command: ["-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up"]
-    networks:
-      - proxynet
     depends_on:
       - db
-      - server
+#      - server
   migrate-cities-json:
     build:
       context: .
       dockerfile: Dockerfile_cities_migrate
-    networks:
-      - proxynet
     depends_on:
       - migrate
     command: ["./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}"]

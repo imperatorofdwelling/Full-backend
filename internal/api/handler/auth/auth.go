@@ -114,7 +114,8 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"user_id": userID,
 	})
 	tokenString, err := token.SignedString([]byte("your-secret-key"))
 	if err != nil {
@@ -156,6 +157,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
 			return
 		}
+		fmt.Println(token.Claims)
 		// Extract the user ID from the token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
@@ -167,6 +169,9 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
 			return
 		}
+
+		fmt.Printf("User ID extracted from token: %s\n", userID)
+
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), "user_id", userID)
 		r = r.WithContext(ctx)

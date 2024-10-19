@@ -1,6 +1,6 @@
 run: build
 	./bin/app
-build: swag
+build:
 	go build -o bin/app cmd/app/main.go
 swag: wire
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go

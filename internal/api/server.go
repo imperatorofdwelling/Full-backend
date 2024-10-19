@@ -56,10 +56,17 @@ func NewServerHTTP(
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", "localhost", cfg.Server.Port)),
+		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Addr, cfg.Server.Port)),
 	))
 
-	handler := cors.Default().Handler(r)
+	handler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8080", fmt.Sprintf("http://%s:%s", cfg.Server.Addr, cfg.Server.Port)},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	}).Handler(r)
+
+	handler = cors.AllowAll().Handler(r)
 
 	return &ServerHTTP{router: handler}
 }

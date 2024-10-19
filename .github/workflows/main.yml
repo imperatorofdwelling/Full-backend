@@ -17,8 +17,6 @@ jobs:
         run: go mod download
       - name: List files in internal directory
         run: cat Makefile
-      - name: Swag and Wire
-        run: make bjiake-wire-swag
       - name: Build
         run: make build
   deploy:

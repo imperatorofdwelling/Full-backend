@@ -2,7 +2,7 @@ name: main
 
 on:
   push:
-    branches: [ "main", "ci/cd" ]
+    branches: [ "ci/cd" ]
 
 jobs:
   postgres_and_migrations:

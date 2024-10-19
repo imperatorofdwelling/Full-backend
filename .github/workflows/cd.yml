@@ -18,9 +18,9 @@ jobs:
       - name: Add go env GOPATH
         run: export PATH=$PATH:$(go env GOPATH)/bin
       - name: Swagger
-        run: make swag
+        run: swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
       - name: Wire
-        run: make wire
+        run: wire ./internal/di
 
   deploy:
     runs-on: self-hosted

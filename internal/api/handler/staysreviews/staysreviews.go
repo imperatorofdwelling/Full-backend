@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -32,10 +32,10 @@ func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 //
 //		@Summary		Create Stays_review
 //		@Description	Create stays_review
-//		@Tags			staysreviews
+//		@Tags			staysReviews
 //		@Accept			application/json
 //		@Produce		json
-//	 	@Param			request	body	staysreviews.StaysReviewEntity			true	"stays review request"
+//	 	@Param			request	body	model.StaysReviewEntity			true	"stays review request"
 //		@Success		201	{string}		string	"created"
 //		@Failure		400		{object}	responseApi.ResponseError			"Error"
 //		@Failure		default		{object}	responseApi.ResponseError			"Error"
@@ -48,7 +48,7 @@ func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var newStaysReview staysreviews.StaysReviewEntity
+	var newStaysReview model.StaysReviewEntity
 
 	err := render.DecodeJSON(r.Body, &newStaysReview)
 	if err != nil {
@@ -71,11 +71,11 @@ func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Update Stays_review
 //	@Description	Update Stays_review by id
-//	@Tags			staysreviews
+//	@Tags			staysReviews
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			id	path		string		true	"stays review id"
-//	@Param			request	body	staysreviews.StaysReviewEntity			true	"update stays review request"
+//	@Param			request	body	model.StaysReviewEntity			true	"update stays review request"
 //	@Success		200	{string}		string	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
@@ -96,7 +96,7 @@ func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newStaysReview staysreviews.StaysReviewEntity
+	var newStaysReview model.StaysReviewEntity
 
 	err = render.DecodeJSON(r.Body, &newStaysReview)
 	if err != nil {
@@ -119,7 +119,7 @@ func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Delete Stays_review
 //	@Description	Delete Stays_review by id
-//	@Tags			staysreviews
+//	@Tags			staysReviews
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			id	path		string		true	"stays review id"
@@ -157,11 +157,11 @@ func (h *Handler) DeleteStaysReview(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get Stays review
 //	@Description	Get Stays review by id
-//	@Tags			staysreviews
+//	@Tags			staysReviews
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			id	path		string		true	"stays review id"
-//	@Success		200	{object}		staysreviews.StaysReview	"ok"
+//	@Success		200	{object}		model.StaysReview	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/staysreviews/{id} [get]
@@ -195,10 +195,10 @@ func (h *Handler) FindOneStaysReview(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Get all Stays review
 //	@Description	Get all Stays reviews
-//	@Tags			staysreviews
+//	@Tags			staysReviews
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]staysreviews.StaysReview	"ok"
+//	@Success		200	{object}		[]model.StaysReview	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/staysreviews [get]

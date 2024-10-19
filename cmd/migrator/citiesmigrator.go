@@ -95,9 +95,9 @@ func getDbPath() (string, error) {
 	var dbUserName, dbPass, dbHost, dbName string
 
 	flag.StringVar(&dbUserName, "db-user-name", "postgres", "Name of the database user")
-	flag.StringVar(&dbPass, "db-pass", "", "Password of the database user")
-	flag.StringVar(&dbHost, "db-host", "localhost:5432", "Port of the database")
-	flag.StringVar(&dbName, "db-name", "", "Name of the database to migrate")
+	flag.StringVar(&dbPass, "db-pass", "postgres", "Password of the database user")
+	flag.StringVar(&dbHost, "db-host", "db:5432", "Port of the database")
+	flag.StringVar(&dbName, "db-name", "postgres", "Name of the database to migrate")
 	flag.Parse()
 
 	if dbName == "" {

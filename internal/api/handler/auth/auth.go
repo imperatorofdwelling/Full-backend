@@ -35,7 +35,7 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Param   request  body     auth.Registration  true  "Registration"
+// @Param   request  body     model.Registration  true  "Registration"
 // @Success 201 {object} UUID
 // @Failure 400 {object} responseApi.ResponseError
 // @Failure 500 {object} responseApi.ResponseError
@@ -75,7 +75,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Param   request  body     auth.Login  true  "Login"
+// @Param   request  body     model.Login  true  "Login"
 // @Success 200 {object} UUID
 // @Failure 401 {object} responseApi.ResponseError
 // @Failure 404 {object} responseApi.ResponseError
@@ -162,6 +162,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
 			return
 		}
+		// TODO зафиксить ошибку
 		userID, ok := claims["user_id"].(string)
 		if !ok {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))

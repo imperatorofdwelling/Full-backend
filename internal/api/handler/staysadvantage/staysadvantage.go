@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -29,11 +29,11 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 // CreateStaysAdvantage godoc
 //
 //		@Summary		Create StaysAdvantage
-//		@Description	Create staysadvantage
-//		@Tags			staysadvantage
+//		@Description	Create staysAdvantage
+//		@Tags			staysAdvantage
 //		@Accept			application/json
 //		@Produce		json
-//	 	@Param			request		body	staysadvantage.StayAdvantageCreateReq	true	"staysadvantage request"
+//	 	@Param			request		body	model.StayAdvantageCreateReq	true	"staysAdvantage request"
 //		@Success		201	{object}		string	"created"
 //		@Failure		400		{object}	responseApi.ResponseError			"Error"
 //		@Failure		default		{object}	responseApi.ResponseError			"Error"
@@ -46,7 +46,7 @@ func (h *Handler) CreateStaysAdvantage(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var req staysadvantage.StayAdvantageCreateReq
+	var req model.StayAdvantageCreateReq
 
 	err := render.DecodeJSON(r.Body, &req)
 	if err != nil {
@@ -68,8 +68,8 @@ func (h *Handler) CreateStaysAdvantage(w http.ResponseWriter, r *http.Request) {
 // DeleteStaysAdvantageByID godoc
 //
 //	@Summary		Create StaysAdvantage
-//	@Description	Create staysadvantage
-//	@Tags			staysadvantage
+//	@Description	Create staysAdvantage
+//	@Tags			staysAdvantage
 //	@Accept			application/json
 //	@Param			id	path		string		true	"stay advantage id"
 //	@Produce		json

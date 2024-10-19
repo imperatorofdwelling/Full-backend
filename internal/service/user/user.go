@@ -101,7 +101,7 @@ func (s *Service) compareUsers(ctx context.Context, oldUser model.User, newUser 
 	if len(newUser.Avatar) == 0 {
 		newUser.Avatar = oldUser.Avatar
 	}
-	if newUser.BirthDate == "" {
+	if newUser.BirthDate.Valid {
 		newUser.BirthDate = oldUser.BirthDate
 	}
 	if newUser.National == "" {

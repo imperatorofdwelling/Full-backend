@@ -1,4 +1,4 @@
-FROM golang:1.23.1
+FROM golang:1.23.2
 
 RUN go install github.com/google/wire/cmd/wire@latest
 RUN go install github.com/swaggo/swag/cmd/swag@latest

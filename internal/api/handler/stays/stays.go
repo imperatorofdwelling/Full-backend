@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -37,7 +37,7 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Param	request body stays.StayEntity	true	"request stay data"
+//	@Param	request body model.StayEntity	true	"request stay data"
 //	@Success		201	{string}		string		"created"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
@@ -50,7 +50,7 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	var newStay models.StayEntity
+	var newStay model.StayEntity
 
 	err := render.DecodeJSON(r.Body, &newStay)
 	if err != nil {
@@ -77,7 +77,7 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId	path		string		true	"stay id"
-//	@Success		200	{object}		stays.Stay		"ok"
+//	@Success		200	{object}		model.Stay		"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/stays/{stayId} [get]
@@ -114,7 +114,7 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]stays.Stay	"ok"
+//	@Success		200	{object}		[]model.Stay	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/stays [get]
@@ -181,8 +181,8 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Param	request body stays.StayEntity	true	"request stay data"
-//	@Success		200	{object}		stays.Stay	"ok"
+//	@Param	request body model.StayEntity	true	"request stay data"
+//	@Success		200	{object}		model.Stay	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/stays/{stayId} [put]
@@ -202,7 +202,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newStay models.StayEntity
+	var newStay model.StayEntity
 
 	err = render.DecodeJSON(r.Body, &newStay)
 	if err != nil {
@@ -229,7 +229,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Param			userId	path		string		true	"user id"
 //	@Produce		json
-//	@Success		200	{object}		[]stays.Stay	"ok"
+//	@Success		200	{object}		[]model.Stay	"ok"
 //	@Failure		400		{object}	responseApi.ResponseError			"Error"
 //	@Failure		default		{object}	responseApi.ResponseError			"Error"
 //	@Router			/stays/user/{userId} [get]

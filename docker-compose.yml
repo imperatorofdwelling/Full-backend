@@ -26,6 +26,7 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+
   migrate:
     image: migrate/migrate
     volumes:
@@ -34,7 +35,8 @@ services:
     networks:
       - proxynet
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   migrate-cities-json:
     build:
@@ -43,9 +45,10 @@ services:
     networks:
       - proxynet
     depends_on:
-      - db
-      - migrate
-    command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_started
 
   server:
     container_name: server
@@ -59,5 +62,5 @@ services:
     networks:
       - proxynet
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy

@@ -56,7 +56,7 @@ func NewServerHTTP(
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Addr, cfg.Server.Port)),
+		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", "109.71.247.209", cfg.Server.Port)),
 	))
 
 	handler := cors.New(cors.Options{

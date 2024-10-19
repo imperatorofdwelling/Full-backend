@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: go mod
         run: go mod download
+      - name: List files in internal directory
+        run: cat Makefile
       - name: Build
         run: make build
   deploy:

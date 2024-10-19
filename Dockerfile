@@ -8,12 +8,9 @@ ENV PATH="/go/bin:${PATH}"
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download && go mod tidy
 
 COPY . .
-
-RUN sed -i 's/\r$//g' ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
 
 RUN make build
 

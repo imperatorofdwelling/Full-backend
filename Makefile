@@ -16,5 +16,5 @@ migrate-up:
 migrate-down:
 	go run cmd/migrator/main.go down
 docker:
-	docker-compose up --build --limit-cpu 1 --limit-memory 1G
+	docker-compose up --build
 test:

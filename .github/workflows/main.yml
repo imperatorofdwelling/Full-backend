@@ -17,4 +17,4 @@ jobs:
       - name: Check app
         run: ls
       - name: Run
-        run: ./bin/app
+        run: make run

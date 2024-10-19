@@ -34,8 +34,9 @@ services:
     networks:
       - proxynet
     depends_on:
-      - db
-      - server
+      db:
+        condition: service_healthy
+
   migrate-cities-json:
     build:
       context: .
@@ -58,4 +59,5 @@ services:
     networks:
       - proxynet
     depends_on:
-      - db
+      db:
+        condition: service_healthy

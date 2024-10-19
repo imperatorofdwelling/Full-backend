@@ -15,4 +15,4 @@ jobs:
     needs: postgres_and_migrations
     steps:
       - name: Run
-        run: make run
+        run: ./bin/app

@@ -20,8 +20,8 @@ definitions:
       password:
         type: string
     required:
-    - email
-    - password
+      - email
+      - password
     type: object
   auth.Registration:
     properties:
@@ -32,9 +32,9 @@ definitions:
       password:
         type: string
     required:
-    - email
-    - name
-    - password
+      - email
+      - name
+      - password
     type: object
   helper.NullTime:
     properties:
@@ -201,18 +201,18 @@ definitions:
       user_id:
         type: string
     required:
-    - guests
-    - house
-    - location_id
-    - name
-    - number_of_bathrooms
-    - number_of_bedrooms
-    - number_of_beds
-    - price
-    - square
-    - street
-    - type
-    - user_id
+      - guests
+      - house
+      - location_id
+      - name
+      - number_of_bathrooms
+      - number_of_bedrooms
+      - number_of_beds
+      - price
+      - square
+      - street
+      - type
+      - user_id
     type: object
   staysadvantage.StayAdvantageCreateReq:
     properties:
@@ -298,16 +298,16 @@ paths:
   /advantages/{advantageId}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete advantage by id
       parameters:
-      - description: advantage id
-        in: path
-        name: advantageId
-        required: true
-        type: string
+        - description: advantage id
+          in: path
+          name: advantageId
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: no content
@@ -323,27 +323,27 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Delete Advantage
       tags:
-      - advantages
+        - advantages
     patch:
       consumes:
-      - application/json
+        - application/json
       description: Update advantage by id
       parameters:
-      - description: advantage id
-        in: path
-        name: advantageId
-        required: true
-        type: string
-      - description: image file
-        in: formData
-        name: image
-        type: file
-      - description: title of advantage
-        in: formData
-        name: title
-        type: string
+        - description: advantage id
+          in: path
+          name: advantageId
+          required: true
+          type: string
+        - description: image file
+          in: formData
+          name: image
+          type: file
+        - description: title of advantage
+          in: formData
+          name: title
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -359,14 +359,14 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Update Advantage
       tags:
-      - advantages
+        - advantages
   /advantages/all:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get all advantages
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -384,25 +384,25 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get advantages
       tags:
-      - advantages
+        - advantages
   /advantages/create:
     post:
       consumes:
-      - multipart/form-data
+        - multipart/form-data
       description: Create advantage
       parameters:
-      - description: image file
-        in: formData
-        name: image
-        required: true
-        type: file
-      - description: title of advantage
-        in: formData
-        name: title
-        required: true
-        type: string
+        - description: image file
+          in: formData
+          name: image
+          required: true
+          type: file
+        - description: title of advantage
+          in: formData
+          name: title
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: created
@@ -418,20 +418,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create Advantage
       tags:
-      - advantages
+        - advantages
   /locations/{locationName}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Find city by matching name
       parameters:
-      - description: location name match
-        in: path
-        name: locationName
-        required: true
-        type: string
+        - description: location name match
+          in: path
+          name: locationName
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -449,21 +449,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Find city by name
       tags:
-      - locations
+        - locations
   /login:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Authenticates an existing user and returns a JWT token
       parameters:
-      - description: Login
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.Login'
+        - description: Login
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/auth.Login'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -487,21 +487,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Login an existing user
       tags:
-      - auth
+        - auth
   /registration:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Creates a new user account
       parameters:
-      - description: Registration
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/auth.Registration'
+        - description: Registration
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/auth.Registration'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Created
@@ -517,20 +517,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Register a new user
       tags:
-      - auth
+        - auth
   /reservation/{reservationID}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete reservation by id
       parameters:
-      - description: reservation id
-        in: path
-        name: reservationID
-        required: true
-        type: string
+        - description: reservation id
+          in: path
+          name: reservationID
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -546,19 +546,19 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Delete Reservation
       tags:
-      - reservations
+        - reservations
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get reservation by id
       parameters:
-      - description: reservation id
-        in: path
-        name: reservationID
-        required: true
-        type: string
+        - description: reservation id
+          in: path
+          name: reservationID
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -574,26 +574,26 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get Reservation
       tags:
-      - reservations
+        - reservations
   /reservation/{reservationId}:
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update reservation by id
       parameters:
-      - description: reservation id
-        in: path
-        name: reservationId
-        required: true
-        type: string
-      - description: update reservation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reservation.ReservationUpdateEntity'
+        - description: reservation id
+          in: path
+          name: reservationId
+          required: true
+          type: string
+        - description: update reservation request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/reservation.ReservationUpdateEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -609,21 +609,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Update Reservation
       tags:
-      - reservations
+        - reservations
   /reservation/create:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Create reservation (arrived and departure should be TIMESTAMP type)
       parameters:
-      - description: Create reservation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/reservation.ReservationEntity'
+        - description: Create reservation request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/reservation.ReservationEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: created
@@ -639,20 +639,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create Reservation
       tags:
-      - reservations
+        - reservations
   /reservation/user/{userID}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get reservation by user id
       parameters:
-      - description: user id
-        in: path
-        name: userID
-        required: true
-        type: string
+        - description: user id
+          in: path
+          name: userID
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -670,14 +670,14 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get all Reservations
       tags:
-      - reservations
+        - reservations
   /stays:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get all stays
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -695,20 +695,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get all stays
       tags:
-      - stays
+        - stays
   /stays/{stayId}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete stay by id
       parameters:
-      - description: stay id
-        in: path
-        name: stayId
-        required: true
-        type: string
+        - description: stay id
+          in: path
+          name: stayId
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: no content
@@ -724,19 +724,19 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Delete Stay
       tags:
-      - stays
+        - stays
     get:
       consumes:
-      - application/json
+        - application/json
       description: get stay
       parameters:
-      - description: stay id
-        in: path
-        name: stayId
-        required: true
-        type: string
+        - description: stay id
+          in: path
+          name: stayId
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -752,20 +752,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get Stay by id
       tags:
-      - stays
+        - stays
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update stay by id
       parameters:
-      - description: request stay data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/stays.StayEntity'
+        - description: request stay data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/stays.StayEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -781,21 +781,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Update Stay
       tags:
-      - stays
+        - stays
   /stays/create:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Create stay
       parameters:
-      - description: request stay data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/stays.StayEntity'
+        - description: request stay data
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/stays.StayEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: created
@@ -811,20 +811,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create Stay
       tags:
-      - stays
+        - stays
   /stays/user/{userId}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get stays by user id
       parameters:
-      - description: user id
-        in: path
-        name: userId
-        required: true
-        type: string
+        - description: user id
+          in: path
+          name: userId
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -842,20 +842,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get all stays by user id
       tags:
-      - stays
+        - stays
   /staysadvantage/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Create staysadvantage
       parameters:
-      - description: stay advantage id
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: stay advantage id
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "204":
           description: no content
@@ -871,21 +871,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create StaysAdvantage
       tags:
-      - staysadvantage
+        - staysadvantage
   /staysadvantage/create:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Create staysadvantage
       parameters:
-      - description: staysadvantage request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/staysadvantage.StayAdvantageCreateReq'
+        - description: staysadvantage request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/staysadvantage.StayAdvantageCreateReq'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: created
@@ -901,14 +901,14 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create StaysAdvantage
       tags:
-      - staysadvantage
+        - staysadvantage
   /staysreviews:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get all Stays reviews
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -926,20 +926,20 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get all Stays review
       tags:
-      - staysreviews
+        - staysreviews
   /staysreviews/{id}:
     delete:
       consumes:
-      - application/json
+        - application/json
       description: Delete Stays_review by id
       parameters:
-      - description: stays review id
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: stays review id
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -955,19 +955,19 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Delete Stays_review
       tags:
-      - staysreviews
+        - staysreviews
     get:
       consumes:
-      - application/json
+        - application/json
       description: Get Stays review by id
       parameters:
-      - description: stays review id
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: stays review id
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -983,21 +983,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get Stays review
       tags:
-      - staysreviews
+        - staysreviews
   /staysreviews/create:
     post:
       consumes:
-      - application/json
+        - application/json
       description: Create stays_review
       parameters:
-      - description: stays review request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/staysreviews.StaysReviewEntity'
+        - description: stays review request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/staysreviews.StaysReviewEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: created
@@ -1013,26 +1013,26 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Create Stays_review
       tags:
-      - staysreviews
+        - staysreviews
   /staysreviews/update/{id}:
     put:
       consumes:
-      - application/json
+        - application/json
       description: Update Stays_review by id
       parameters:
-      - description: stays review id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: update stays review request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/staysreviews.StaysReviewEntity'
+        - description: stays review id
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: update stays review request
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/staysreviews.StaysReviewEntity'
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: ok
@@ -1048,21 +1048,21 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Update Stays_review
       tags:
-      - staysreviews
+        - staysreviews
   /user/{id}:
     get:
       consumes:
-      - application/json
+        - application/json
       description: Retrieves a user by the provided ID
       operationId: getUserByID
       parameters:
-      - description: User  ID
-        in: path
-        name: id
-        required: true
-        type: string
+        - description: User  ID
+          in: path
+          name: id
+          required: true
+          type: string
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -1078,5 +1078,158 @@ paths:
             $ref: '#/definitions/responseApi.ResponseError'
       summary: Get a user by ID
       tags:
-      - users
+        - users
+    put:
+      description: Updates a user by the provided ID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - users
+      summary: Update a user by ID
+      operationId: updateUserByID
+      parameters:
+        - type: string
+          description: User ID
+          name: id
+          in: path
+          required: true
+        - in: body
+          name: body
+          description: Updated user object
+          required: true
+          schema:
+            $ref: "#/definitions/user.User"
+      responses:
+        200:
+          description: User updated successfully
+          schema:
+            $ref: "#/definitions/user.User"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+    delete:
+      description: Deletes a user by the provided ID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - users
+      summary: Delete a user by ID
+      operationId: deleteUserByID
+      parameters:
+        - type: string
+          description: User ID
+          name: id
+          in: path
+          required: true
+      responses:
+        200:
+          description: User deleted successfully
+          schema:
+            type: string
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+  /favourite/{userId}:
+    get:
+      description: Retrieves a list of favourite stays by userID
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - favourites
+      summary: Get a list of favourites by userID
+      operationId: getFavouritesByUserID
+      parameters:
+        - type: string
+          description: User ID
+          name: userId
+          in: path
+          required: true
+      responses:
+        '200':
+          description: Favourites found
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/stays.StayEntity"
+        '400':
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+        '404':
+          description: User not found
+          schema:
+            $ref: "#/definitions/responseApi.ResponseError"
+
+  /favourite/{stayId}:
+      put:
+        description: Adds a favourite by the provided stay ID
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        tags:
+          - favourites
+        summary: Adds a favourite by stay ID
+        operationId: addFavouriteByStayID
+        parameters:
+          - type: string
+            description: Stay ID
+            name: stayId
+            in: path
+            required: true
+        responses:
+          '201':
+            description: Favourite added successfully
+          '400':
+            description: Invalid request
+            schema:
+              $ref: "#/definitions/responseApi.ResponseError"
+          '404':
+            description: User not found
+            schema:
+              $ref: "#/definitions/responseApi.ResponseError"
+      delete:
+        description: Deletes a favourite by the provided user ID and stay ID
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        tags:
+          - favourites
+        summary: Delete a favourite by stay ID
+        operationId: deleteFavouriteByStayID
+        parameters:
+          - type: string
+            description: Stay ID
+            name: stayId
+            in: path
+            required: true
+        responses:
+          '201':
+            description: Favourite deleted successfully
+          '400':
+            description: Invalid request
+            schema:
+              $ref: "#/definitions/responseApi.ResponseError"
+          '404':
+            description: User not found
+            schema:
+              $ref: "#/definitions/responseApi.ResponseError"
+
 swagger: "2.0"

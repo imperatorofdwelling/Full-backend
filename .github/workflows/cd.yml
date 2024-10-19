@@ -1,0 +1,27 @@
+name: ci/cd
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  postgres_and_migrations:
+    runs-on: self-hosted
+    steps:
+      - name: Check
+        run: cat .env
+      - name: Check comp
+        run: cat docker-compose.yml
+      - name: Docker up
+        run: |
+          make docker
+          # Проверка статуса последней команды
+          if [ $? -ne 0 ]; then
+          echo "Docker command failed!"
+          exit 1
+          fi
+
+      - name: Verify deployment
+        run: |
+          # Добавьте команду для проверки, что код обновился
+          # Например, curl или проверка статуса контейнера

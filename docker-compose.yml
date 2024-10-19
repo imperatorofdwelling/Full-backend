@@ -6,9 +6,6 @@ networks:
 
 volumes:
   local_postgres_data:
-    driver: "local"
-    external: true
-    name: local_postgres_data
 
 services:
   db:
@@ -40,6 +37,7 @@ services:
       - db
 
   migrate-cities-json:
+    entrypoint: ./entrypoint.sh
     build:
       context: .
       dockerfile: Dockerfile_cities_migrate
@@ -52,6 +50,7 @@ services:
   server:
     container_name: server
     restart: always
+#    entrypoint: ./entrypoint.sh
     build:
       context: .
       dockerfile: Dockerfile
@@ -61,4 +60,5 @@ services:
     networks:
       - proxynet
     depends_on:
+      - migrate
       - db

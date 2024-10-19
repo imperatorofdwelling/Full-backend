@@ -1,9 +1,13 @@
-FROM golang:alpine
+FROM golang:1.23.2
 
 WORKDIR /app
 
 COPY ./cmd/migrator/citiesmigrator.go .
 COPY ./cmd/migrator/cities.json .
+
+COPY ./entrypoint.sh ./entrypoint.sh
+RUN sed -i 's/\r$//g' ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 RUN go mod init cities-migrator
 RUN go mod tidy

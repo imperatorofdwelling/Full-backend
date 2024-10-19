@@ -10,6 +10,9 @@ RUN go mod download
 
 COPY . .
 
+RUN sed -i 's/\r$//g' ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 RUN make build
 
 ENTRYPOINT ["/app/bin/app"]

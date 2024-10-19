@@ -8,5 +8,7 @@ jobs:
   postgres_and_migrations:
     runs-on: self-hosted
     steps:
+      - name: Check
+        run: cat .env
       - name: Docker up
         run: make docker

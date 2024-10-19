@@ -6,7 +6,14 @@ on:
       - main
 
 jobs:
-  postgres_and_migrations:
+  swag_and_wire:
+    runs-on: self-hosted
+    steps:
+      - name: Swagger
+        run: make swag
+      - name: Wire
+        run: make wire
+  deploy:
     runs-on: self-hosted
     steps:
       - name: Checkout repository

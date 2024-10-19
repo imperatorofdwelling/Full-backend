@@ -9,6 +9,8 @@ jobs:
   postgres_and_migrations:
     runs-on: self-hosted
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
       - name: Check
         run: cat .env
       - name: Len

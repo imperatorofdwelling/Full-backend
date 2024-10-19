@@ -6,6 +6,7 @@ networks:
 
 volumes:
   local_postgres_data:
+    driver: "local"
 
 services:
   db:

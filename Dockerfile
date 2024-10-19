@@ -1,6 +1,6 @@
 FROM golang:1.23.2
 
-RUN go install github.com/google/wire/cmd/wire@latest && RUN go get -u github.com/google/wire/cmd/wire
+RUN go install github.com/google/wire/cmd/wire@latest && go get -u github.com/google/wire/cmd/wire
 RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 ENV PATH="/go/bin:${PATH}"

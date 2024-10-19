@@ -157,7 +157,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
 			return
 		}
-		fmt.Println(token.Claims)
+
 		// Extract the user ID from the token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
@@ -170,7 +170,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		fmt.Printf("User ID extracted from token: %s\n", userID)
+		h.Log.Info("User ID extracted from token: ", slog.String("user_id", userID))
 
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), "user_id", userID)

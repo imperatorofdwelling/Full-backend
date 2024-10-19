@@ -23,7 +23,7 @@ jobs:
 
   deploy:
     runs-on: self-hosted
-    needs: swag_and_wire
+#    needs: swag_and_wire
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

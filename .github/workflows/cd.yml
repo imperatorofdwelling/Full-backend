@@ -11,12 +11,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Install Swag
-        run: go install github.com/swaggo/swag/cmd/swag@latest
-      - name: Install Wire
-        run: go install github.com/google/wire/cmd/wire@latest
-      - name: Add go env GOPATH
-        run: export PATH=$PATH:$(go env GOPATH)/bin
+      - name: Install Go, Swag, and Wire
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          go install github.com/google/wire/cmd/wire@latest
+          echo "export PATH=\$PATH:$(go env GOPATH)/bin" >> $GITHUB_ENV
       - name: Swagger
         run: swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
       - name: Wire

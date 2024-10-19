@@ -9,12 +9,18 @@ jobs:
   swag_and_wire:
     runs-on: self-hosted
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install Swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
       - name: Swagger
         run: make swag
       - name: Wire
         run: make wire
+
   deploy:
     runs-on: self-hosted
+    needs: swag_and_wire
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

@@ -60,7 +60,7 @@ func NewServerHTTP(
 	))
 
 	handler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080", fmt.Sprintf("http://%s:%s", cfg.Server.Addr, cfg.Server.Port)},
+		AllowedOrigins:   []string{"http://localhost:8080", "http://109.71.247.209:8080"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

@@ -12,7 +12,7 @@ volumes:
 services:
   db:
     container_name: db
-#    restart: always
+    restart: always
     image: postgres:13
     env_file: ./.env
     expose:

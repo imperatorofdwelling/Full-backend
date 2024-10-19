@@ -15,6 +15,6 @@ jobs:
     needs: postgres_and_migrations
     steps:
       - name: Check app
-        run: ls ./bin/app
+        run: ls
       - name: Run
         run: ./bin/app

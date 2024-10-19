@@ -21,6 +21,7 @@ func ConnectToBD(cfg *config.Config) (*sql.DB, error) {
 		cfg.DB.DatabaseName,
 		cfg.DB.SSLMode,
 	)
+	// fixed
 
 	db, err := sql.Open("postgres", addr)
 	if err != nil {

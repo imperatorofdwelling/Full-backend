@@ -5,20 +5,22 @@ on:
     branches: [ "main", "ci/cd" ]
 
 jobs:
-
-
+  postgres_and_migrations:
+    runs-on: self-hosted
+    steps:
+      - name: Docker up
+        run: make docker
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Install swag
+        run: go install github.com/google/wire/cmd/wire@latest
+      - name: Install wire
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+      - name: Build
+        run: make build
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run make docker
-        run: make docker
-      - name: Build
-        run: make build
-      - name: Install swag
-        run : go install github.com/google/wire/cmd/wire@latest
-      - name: Install wire
-        run: go install github.com/swaggo/swag/cmd/swag@latest
       - name: Run
         run: make run

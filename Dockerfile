@@ -12,9 +12,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go get -u github.com/google/wire/cmd/wire
-RUN go mod tidy
-
 RUN make build
 
 ENTRYPOINT ["/app/bin/app"]

@@ -5,7 +5,7 @@ build: swag
 swag: wire
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	google-wire ./internal/di
+	wire ./internal/di
 bjiake-wire-swag:
 	swag init -g cmd/app/main.go
 	google-wire ./internal/di

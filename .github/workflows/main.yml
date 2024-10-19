@@ -13,10 +13,6 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Install swag
-        run: go get github.com/google/wire/cmd/wire@latest
-      - name: Install wire
-        run: go get github.com/swaggo/swag/cmd/swag@latest
       - name: go mod
         run: go mod download
       - name: Build

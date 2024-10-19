@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: go mod
         run: go mod download
-      - name: List files in internal directory
-        run: ls -la ./internal
       - name: Build
         run: make build
   deploy:

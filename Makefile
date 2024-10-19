@@ -15,6 +15,6 @@ migrate-up:
 	go run cmd/migrator/main.go up
 migrate-down:
 	go run cmd/migrator/main.go down
-docker: wire
+docker:
 	docker-compose up --build
 test:

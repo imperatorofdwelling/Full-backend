@@ -8,6 +8,7 @@ volumes:
   local_postgres_data:
     driver: "local"
     external: true
+    name: local_postgres_data
 
 services:
   db:

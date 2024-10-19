@@ -35,7 +35,7 @@ services:
       - proxynet
     depends_on:
       - db
-#          - server
+      - server
   migrate-cities-json:
     build:
       context: .
@@ -46,16 +46,16 @@ services:
       - migrate
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
 
-#  server:
-#    container_name: server
-#    restart: always
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    env_file: ./.env
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - proxynet
-#    depends_on:
-#      - db
+  server:
+    container_name: server
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: ./.env
+    ports:
+      - "8080:8080"
+    networks:
+      - proxynet
+    depends_on:
+      - db

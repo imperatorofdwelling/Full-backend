@@ -1,4 +1,4 @@
-run: build
+run: dep build
 	./bin/app
 build: swag
 	go build -o bin/app cmd/app/main.go
@@ -6,6 +6,8 @@ swag: wire
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	google-wire ./internal/di
+dep:
+	@go mod download
 bjiake-wire-swag:
 	swag init -g cmd/app/main.go
 	google-wire ./internal/di

@@ -7,6 +7,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	db2 "github.com/imperatorofdwelling/Full-backend/internal/db"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"log"
 	"os"
 )
@@ -30,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://cmd/migrator/migrations", cfg.DB.DbName, driver)
+	m, err := migrate.NewWithDatabaseInstance("file://cmd/migrator/migrations", cfg.DB.DatabaseName, driver)
 	if err != nil {
 		panic(err)
 	}
@@ -51,4 +53,5 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+	logrus.Info("Migrations complete")
 }

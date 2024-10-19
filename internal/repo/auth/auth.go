@@ -22,7 +22,7 @@ func (r *Repository) Register(ctx context.Context, user model.Registration) (uui
 		return uuid.Nil, err
 	}
 
-	query := `INSERT INTO users (id, name, email, password, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6)`
+	query := `INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)`
 
 	currentTime := time.Now()
 	rfc1123zTime := currentTime.Format(time.RFC1123Z)

@@ -36,6 +36,13 @@ definitions:
     - name
     - password
     type: object
+  helper.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
   location.Location:
     properties:
       city:
@@ -190,9 +197,6 @@ definitions:
       street:
         type: string
       type:
-        description: |-
-          ImageMain           []byte    `json:"image_main"`
-          Images              []string  `json:"images,omitempty"`
         type: string
       user_id:
         type: string
@@ -215,6 +219,68 @@ definitions:
       advantage_id:
         type: string
       stay_id:
+        type: string
+    type: object
+  staysreviews.StaysReview:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      rating:
+        type: number
+      stay_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  staysreviews.StaysReviewEntity:
+    properties:
+      description:
+        type: string
+      rating:
+        type: number
+      stay_id:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: string
+    type: object
+  user.User:
+    description: User details
+    properties:
+      avatar:
+        items:
+          type: integer
+        type: array
+      birth_date:
+        $ref: '#/definitions/helper.NullTime'
+      city:
+        type: string
+      country:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      national:
+        type: string
+      phone:
+        type: string
+      updatedAt:
         type: string
     type: object
 externalDocs:
@@ -692,86 +758,12 @@ paths:
       - application/json
       description: Update stay by id
       parameters:
-      - description: advantage id
-        in: path
-        name: stayId
+      - description: request stay data
+        in: body
+        name: request
         required: true
-        type: string
-      - description: id of location
-        in: formData
-        name: location_id
-        required: true
-        type: string
-      - description: name of stay
-        in: formData
-        name: name
-        type: string
-      - description: main image
-        in: formData
-        name: image_main
-        type: file
-      - description: images
-        in: formData
-        name: images
-        type: file
-      - description: type of stay
-        in: formData
-        name: type
-        type: string
-      - description: number of bedrooms
-        in: formData
-        name: number_of_bedrooms
-        type: integer
-      - description: number of bathrooms
-        in: formData
-        name: number_of_beds
-        type: integer
-      - description: number of beds
-        in: formData
-        name: number_of_bathrooms
-        type: integer
-      - description: number of guests
-        in: formData
-        name: guests
-        type: integer
-      - description: rating
-        in: formData
-        name: rating
-        type: number
-      - description: smoking
-        in: formData
-        name: is_smoking_prohibited
-        type: boolean
-      - description: square of home
-        in: formData
-        name: square
-        type: number
-      - description: street
-        in: formData
-        name: street
-        required: true
-        type: string
-      - description: house
-        in: formData
-        name: house
-        required: true
-        type: string
-      - description: entrance if exists
-        in: formData
-        name: entrance
-        type: string
-      - description: floor if exists
-        in: formData
-        name: floor
-        type: string
-      - description: room if exists
-        in: formData
-        name: room
-        type: string
-      - description: price of stay
-        in: formData
-        name: price
-        type: number
+        schema:
+          $ref: '#/definitions/stays.StayEntity'
       produces:
       - application/json
       responses:
@@ -910,4 +902,181 @@ paths:
       summary: Create StaysAdvantage
       tags:
       - staysadvantage
+  /staysreviews:
+    get:
+      consumes:
+      - application/json
+      description: Get all Stays reviews
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/staysreviews.StaysReview'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get all Stays review
+      tags:
+      - staysreviews
+  /staysreviews/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Stays_review by id
+      parameters:
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Delete Stays_review
+      tags:
+      - staysreviews
+    get:
+      consumes:
+      - application/json
+      description: Get Stays review by id
+      parameters:
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/staysreviews.StaysReview'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get Stays review
+      tags:
+      - staysreviews
+  /staysreviews/create:
+    post:
+      consumes:
+      - application/json
+      description: Create stays_review
+      parameters:
+      - description: stays review request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staysreviews.StaysReviewEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Create Stays_review
+      tags:
+      - staysreviews
+  /staysreviews/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update Stays_review by id
+      parameters:
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update stays review request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/staysreviews.StaysReviewEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Update Stays_review
+      tags:
+      - staysreviews
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a user by the provided ID
+      operationId: getUserByID
+      parameters:
+      - description: User  ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+        "404":
+          description: User  not found
+          schema:
+            $ref: '#/definitions/responseApi.ResponseError'
+      summary: Get a user by ID
+      tags:
+      - users
 swagger: "2.0"

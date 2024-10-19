@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
+	_ "github.com/lib/pq"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)")
 	if err != nil {
-		return false, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+		return false, fmt.Errorf("%s: %w", op, err)
 	}
 
 	defer stmt.Close()
@@ -37,7 +38,7 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	const op = "repo.user.FindUserByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, createdAt, updatedAt FROM users WHERE id = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, created_at, updated_at FROM users WHERE id = $1")
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}

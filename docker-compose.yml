@@ -35,6 +35,7 @@ services:
       - proxynet
     depends_on:
       - db
+      - migrate-cities-json
 
   migrate-cities-json:
     entrypoint: ./entrypoint.sh
@@ -45,7 +46,6 @@ services:
       - proxynet
     depends_on:
       - db
-      - migrate
 
   server:
     container_name: server

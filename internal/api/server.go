@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
 	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
+	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
@@ -34,6 +35,7 @@ func NewServerHTTP(
 	staysAdvHandler *staysAdvHdl.Handler,
 	reservationHandler *reservationHdl.Handler,
 	staysReviewsHandler *staysRevHdl.Handler,
+	favouriteHandler *fvrtHdl.FavHandler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -53,6 +55,7 @@ func NewServerHTTP(
 			locationHandler.NewLocationHandler(r)
 			// just added stays handler
 			staysHandler.NewStaysHandler(r)
+			favouriteHandler.NewFavouriteHandler(r)
 		})
 
 	})

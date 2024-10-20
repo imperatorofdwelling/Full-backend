@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
 )
 
 type Service struct {
@@ -30,4 +31,15 @@ func (s *Service) RemoveFromFavourites(ctx context.Context, userId, stayID strin
 	}
 
 	return nil
+}
+
+func (s *Service) GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error) {
+	const op = "service.Favourite.GetAllFavourites"
+
+	favorites, err := s.Repo.GetAllFavourites(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return favorites, nil
 }

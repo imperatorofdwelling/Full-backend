@@ -73,17 +73,16 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Description Update a user with the provided ID
 // @ID updateUserByID
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   id   path     string     true  "User ID"
-// @Param   body     model.User true  "User update data"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Security ApiKeyAuth
+// @Param   model.User	body     model.User true  "User update data"
 // @Success 200 {object} model.User
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 409 {object} responseApi.ResponseError "Email already exists"
 // @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
 	h.Log = h.Log.With(
@@ -131,15 +130,16 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 // @Description Delete a user with the provided ID
 // @ID deleteUserByID
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   id   path     string     true  "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Security ApiKeyAuth
-// @Success 204
+// @Success 204 {object} nil "User successfully deleted"
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
 // @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 404 {object} responseApi.ResponseError "User not found"
 // @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.DeleteUserByID"
 	h.Log = h.Log.With(

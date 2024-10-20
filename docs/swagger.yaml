@@ -1,6 +1,19 @@
 basePath: /api/v1
 definitions:
-  advantage.Advantage:
+  favourite.FavouriteEntity:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      stay_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage:
     properties:
       created_at:
         type: string
@@ -13,17 +26,17 @@ definitions:
       updated_at:
         type: string
     type: object
-  auth.Login:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login:
     properties:
       email:
         type: string
       password:
         type: string
     required:
-      - email
-      - password
+    - email
+    - password
     type: object
-  auth.Registration:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration:
     properties:
       email:
         type: string
@@ -32,18 +45,11 @@ definitions:
       password:
         type: string
     required:
-      - email
-      - name
-      - password
+    - email
+    - name
+    - password
     type: object
-  helper.NullTime:
-    properties:
-      time:
-        type: string
-      valid:
-        type: boolean
-    type: object
-  location.Location:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location:
     properties:
       city:
         type: string
@@ -74,7 +80,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  reservation.Reservation:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation:
     properties:
       arrived:
         type: string
@@ -91,7 +97,7 @@ definitions:
       user_id:
         type: string
     type: object
-  reservation.ReservationEntity:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity:
     properties:
       arrived:
         type: string
@@ -102,7 +108,7 @@ definitions:
       user_id:
         type: string
     type: object
-  reservation.ReservationUpdateEntity:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity:
     properties:
       arrived:
         type: string
@@ -111,12 +117,7 @@ definitions:
       id:
         type: string
     type: object
-  responseApi.ResponseError:
-    properties:
-      error:
-        type: string
-    type: object
-  stays.Stay:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay:
     properties:
       created_at:
         type: string
@@ -165,7 +166,7 @@ definitions:
       user_id:
         type: string
     type: object
-  stays.StayEntity:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity:
     properties:
       entrance:
         type: string
@@ -201,27 +202,27 @@ definitions:
       user_id:
         type: string
     required:
-      - guests
-      - house
-      - location_id
-      - name
-      - number_of_bathrooms
-      - number_of_bedrooms
-      - number_of_beds
-      - price
-      - square
-      - street
-      - type
-      - user_id
+    - guests
+    - house
+    - location_id
+    - name
+    - number_of_bathrooms
+    - number_of_bedrooms
+    - number_of_beds
+    - price
+    - square
+    - street
+    - type
+    - user_id
     type: object
-  staysadvantage.StayAdvantageCreateReq:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq:
     properties:
       advantage_id:
         type: string
       stay_id:
         type: string
     type: object
-  staysreviews.StaysReview:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview:
     properties:
       created_at:
         type: string
@@ -240,7 +241,7 @@ definitions:
       user_id:
         type: string
     type: object
-  staysreviews.StaysReviewEntity:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity:
     properties:
       description:
         type: string
@@ -253,7 +254,7 @@ definitions:
       user_id:
         type: string
     type: object
-  user.User:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User:
     description: User details
     properties:
       avatar:
@@ -261,7 +262,7 @@ definitions:
           type: integer
         type: array
       birth_date:
-        $ref: '#/definitions/helper.NullTime'
+        $ref: '#/definitions/sql.NullTime'
       city:
         type: string
       country:
@@ -283,6 +284,19 @@ definitions:
       updatedAt:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError:
+    properties:
+      error:
+        type: string
+    type: object
+  sql.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -298,16 +312,16 @@ paths:
   /advantages/{advantageId}:
     delete:
       consumes:
-        - application/json
+      - application/json
       description: Delete advantage by id
       parameters:
-        - description: advantage id
-          in: path
-          name: advantageId
-          required: true
-          type: string
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "204":
           description: no content
@@ -316,93 +330,93 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete Advantage
       tags:
-        - advantages
+      - advantages
     patch:
       consumes:
-        - application/json
+      - application/json
       description: Update advantage by id
       parameters:
-        - description: advantage id
-          in: path
-          name: advantageId
-          required: true
-          type: string
-        - description: image file
-          in: formData
-          name: image
-          type: file
-        - description: title of advantage
-          in: formData
-          name: title
-          type: string
+      - description: advantage id
+        in: path
+        name: advantageId
+        required: true
+        type: string
+      - description: image file
+        in: formData
+        name: image
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/advantage.Advantage'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage'
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Update Advantage
       tags:
-        - advantages
+      - advantages
   /advantages/all:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get all advantages
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/advantage.Advantage'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get advantages
       tags:
-        - advantages
+      - advantages
   /advantages/create:
     post:
       consumes:
-        - multipart/form-data
+      - multipart/form-data
       description: Create advantage
       parameters:
-        - description: image file
-          in: formData
-          name: image
-          required: true
-          type: file
-        - description: title of advantage
-          in: formData
-          name: title
-          required: true
-          type: string
+      - description: image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: title of advantage
+        in: formData
+        name: title
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: created
@@ -411,59 +425,140 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Advantage
       tags:
-        - advantages
+      - advantages
+  /favourites:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of favourite stays for the user based on the user
+        ID from context.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of favourite stays
+          schema:
+            items:
+              $ref: '#/definitions/favourite.FavouriteEntity'
+            type: array
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get all favourite stays for a user
+      tags:
+      - favourites
+  /favourites/{stayId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a stay from the user's favourites list using their user
+        ID from context and the stay ID from the URL.
+      parameters:
+      - description: ID of the stay to be removed from favourites
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully removed from favourites
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Remove a stay from user favourites
+      tags:
+      - favourites
+    post:
+      consumes:
+      - application/json
+      description: Add a stay to the user's favourites list using their user ID from
+        context and the stay ID from the URL.
+      parameters:
+      - description: ID of the stay to be added to favourites
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successfully added to favourites
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Add a stay to user favourites
+      tags:
+      - favourites
   /locations/{locationName}:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Find city by matching name
       parameters:
-        - description: location name match
-          in: path
-          name: locationName
-          required: true
-          type: string
+      - description: location name match
+        in: path
+        name: locationName
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/location.Location'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Find city by name
       tags:
-        - locations
+      - locations
   /login:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Authenticates an existing user and returns a JWT token
       parameters:
-        - description: Login
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/auth.Login'
+      - description: Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
@@ -472,36 +567,36 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Login an existing user
       tags:
-        - auth
+      - auth
   /registration:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Creates a new user account
       parameters:
-        - description: Registration
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/auth.Registration'
+      - description: Registration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: Created
@@ -510,27 +605,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Register a new user
       tags:
-        - auth
+      - auth
   /reservation/{reservationID}:
     delete:
       consumes:
-        - application/json
+      - application/json
       description: Delete reservation by id
       parameters:
-        - description: reservation id
-          in: path
-          name: reservationID
-          required: true
-          type: string
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
@@ -539,61 +634,61 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete Reservation
       tags:
-        - reservations
+      - reservations
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get reservation by id
       parameters:
-        - description: reservation id
-          in: path
-          name: reservationID
-          required: true
-          type: string
+      - description: reservation id
+        in: path
+        name: reservationID
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/reservation.Reservation'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation'
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get Reservation
       tags:
-        - reservations
+      - reservations
   /reservation/{reservationId}:
     put:
       consumes:
-        - application/json
+      - application/json
       description: Update reservation by id
       parameters:
-        - description: reservation id
-          in: path
-          name: reservationId
-          required: true
-          type: string
-        - description: update reservation request
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/reservation.ReservationUpdateEntity'
+      - description: reservation id
+        in: path
+        name: reservationId
+        required: true
+        type: string
+      - description: update reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
@@ -602,28 +697,28 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Update Reservation
       tags:
-        - reservations
+      - reservations
   /reservation/create:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create reservation (arrived and departure should be TIMESTAMP type)
       parameters:
-        - description: Create reservation request
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/reservation.ReservationEntity'
+      - description: Create reservation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: created
@@ -632,83 +727,83 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Reservation
       tags:
-        - reservations
+      - reservations
   /reservation/user/{userID}:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get reservation by user id
       parameters:
-        - description: user id
-          in: path
-          name: userID
-          required: true
-          type: string
+      - description: user id
+        in: path
+        name: userID
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/reservation.Reservation'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get all Reservations
       tags:
-        - reservations
+      - reservations
   /stays:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get all stays
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/stays.Stay'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get all stays
       tags:
-        - stays
+      - stays
   /stays/{stayId}:
     delete:
       consumes:
-        - application/json
+      - application/json
       description: Delete stay by id
       parameters:
-        - description: stay id
-          in: path
-          name: stayId
-          required: true
-          type: string
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "204":
           description: no content
@@ -717,85 +812,85 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete Stay
       tags:
-        - stays
+      - stays
     get:
       consumes:
-        - application/json
+      - application/json
       description: get stay
       parameters:
-        - description: stay id
-          in: path
-          name: stayId
-          required: true
-          type: string
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/stays.Stay'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay'
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get Stay by id
       tags:
-        - stays
+      - stays
     put:
       consumes:
-        - application/json
+      - application/json
       description: Update stay by id
       parameters:
-        - description: request stay data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/stays.StayEntity'
+      - description: request stay data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/stays.Stay'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay'
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Update Stay
       tags:
-        - stays
+      - stays
   /stays/create:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create stay
       parameters:
-        - description: request stay data
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/stays.StayEntity'
+      - description: request stay data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: created
@@ -804,58 +899,58 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Stay
       tags:
-        - stays
+      - stays
   /stays/user/{userId}:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get stays by user id
       parameters:
-        - description: user id
-          in: path
-          name: userId
-          required: true
-          type: string
+      - description: user id
+        in: path
+        name: userId
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/stays.Stay'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get all stays by user id
       tags:
-        - stays
+      - stays
   /staysadvantage/{id}:
     delete:
       consumes:
-        - application/json
-      description: Create staysadvantage
+      - application/json
+      description: Create staysAdvantage
       parameters:
-        - description: stay advantage id
-          in: path
-          name: id
-          required: true
-          type: string
+      - description: stay advantage id
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "204":
           description: no content
@@ -864,28 +959,28 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create StaysAdvantage
       tags:
-        - staysadvantage
+      - staysAdvantage
   /staysadvantage/create:
     post:
       consumes:
-        - application/json
-      description: Create staysadvantage
+      - application/json
+      description: Create staysAdvantage
       parameters:
-        - description: staysadvantage request
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/staysadvantage.StayAdvantageCreateReq'
+      - description: staysAdvantage request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: created
@@ -894,52 +989,52 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create StaysAdvantage
       tags:
-        - staysadvantage
+      - staysAdvantage
   /staysreviews:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get all Stays reviews
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
             items:
-              $ref: '#/definitions/staysreviews.StaysReview'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview'
             type: array
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get all Stays review
       tags:
-        - staysreviews
+      - staysReviews
   /staysreviews/{id}:
     delete:
       consumes:
-        - application/json
+      - application/json
       description: Delete Stays_review by id
       parameters:
-        - description: stays review id
-          in: path
-          name: id
-          required: true
-          type: string
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
@@ -948,56 +1043,56 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete Stays_review
       tags:
-        - staysreviews
+      - staysReviews
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get Stays review by id
       parameters:
-        - description: stays review id
-          in: path
-          name: id
-          required: true
-          type: string
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/staysreviews.StaysReview'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview'
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get Stays review
       tags:
-        - staysreviews
+      - staysReviews
   /staysreviews/create:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create stays_review
       parameters:
-        - description: stays review request
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/staysreviews.StaysReviewEntity'
+      - description: stays review request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "201":
           description: created
@@ -1006,33 +1101,33 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Stays_review
       tags:
-        - staysreviews
+      - staysReviews
   /staysreviews/update/{id}:
     put:
       consumes:
-        - application/json
+      - application/json
       description: Update Stays_review by id
       parameters:
-        - description: stays review id
-          in: path
-          name: id
-          required: true
-          type: string
-        - description: update stays review request
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/staysreviews.StaysReviewEntity'
+      - description: stays review id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update stays review request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity'
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: ok
@@ -1041,195 +1136,120 @@ paths:
         "400":
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         default:
           description: Error
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Update Stays_review
       tags:
-        - staysreviews
+      - staysReviews
   /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user with the provided ID
+      operationId: deleteUserByID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User successfully deleted
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a user by ID
+      tags:
+      - users
     get:
       consumes:
-        - application/json
+      - application/json
       description: Retrieves a user by the provided ID
       operationId: getUserByID
       parameters:
-        - description: User  ID
-          in: path
-          name: id
-          required: true
-          type: string
+      - description: User  ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.User'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User'
         "400":
           description: Invalid request
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "404":
           description: User  not found
           schema:
-            $ref: '#/definitions/responseApi.ResponseError'
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get a user by ID
       tags:
-        - users
+      - users
     put:
-      description: Updates a user by the provided ID
       consumes:
-        - application/json
-      produces:
-        - application/json
-      tags:
-        - users
-      summary: Update a user by ID
+      - application/json
+      description: Update a user with the provided ID
       operationId: updateUserByID
       parameters:
-        - type: string
-          description: User ID
-          name: id
-          in: path
-          required: true
-        - in: body
-          name: body
-          description: Updated user object
-          required: true
-          schema:
-            $ref: "#/definitions/user.User"
-      responses:
-        200:
-          description: User updated successfully
-          schema:
-            $ref: "#/definitions/user.User"
-        400:
-          description: Invalid request
-          schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-        404:
-          description: User not found
-          schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-    delete:
-      description: Deletes a user by the provided ID
-      consumes:
-        - application/json
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update data
+        in: body
+        name: model.User
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User'
       produces:
-        - application/json
-      tags:
-        - users
-      summary: Delete a user by ID
-      operationId: deleteUserByID
-      parameters:
-        - type: string
-          description: User ID
-          name: id
-          in: path
-          required: true
+      - application/json
       responses:
-        200:
-          description: User deleted successfully
+        "200":
+          description: OK
           schema:
-            type: string
-        400:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User'
+        "400":
           description: Invalid request
           schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-        404:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
           description: User not found
           schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-  /favourite/{userId}:
-    get:
-      description: Retrieves a list of favourite stays by userID
-      consumes:
-        - application/json
-      produces:
-        - application/json
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a user by ID
       tags:
-        - favourites
-      summary: Get a list of favourites by userID
-      operationId: getFavouritesByUserID
-      parameters:
-        - type: string
-          description: User ID
-          name: userId
-          in: path
-          required: true
-      responses:
-        '200':
-          description: Favourites found
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/stays.StayEntity"
-        '400':
-          description: Invalid request
-          schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-        '404':
-          description: User not found
-          schema:
-            $ref: "#/definitions/responseApi.ResponseError"
-
-  /favourite/{stayId}:
-      put:
-        description: Adds a favourite by the provided stay ID
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        tags:
-          - favourites
-        summary: Adds a favourite by stay ID
-        operationId: addFavouriteByStayID
-        parameters:
-          - type: string
-            description: Stay ID
-            name: stayId
-            in: path
-            required: true
-        responses:
-          '201':
-            description: Favourite added successfully
-          '400':
-            description: Invalid request
-            schema:
-              $ref: "#/definitions/responseApi.ResponseError"
-          '404':
-            description: User not found
-            schema:
-              $ref: "#/definitions/responseApi.ResponseError"
-      delete:
-        description: Deletes a favourite by the provided user ID and stay ID
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        tags:
-          - favourites
-        summary: Delete a favourite by stay ID
-        operationId: deleteFavouriteByStayID
-        parameters:
-          - type: string
-            description: Stay ID
-            name: stayId
-            in: path
-            required: true
-        responses:
-          '201':
-            description: Favourite deleted successfully
-          '400':
-            description: Invalid request
-            schema:
-              $ref: "#/definitions/responseApi.ResponseError"
-          '404':
-            description: User not found
-            schema:
-              $ref: "#/definitions/responseApi.ResponseError"
-
+      - users
 swagger: "2.0"

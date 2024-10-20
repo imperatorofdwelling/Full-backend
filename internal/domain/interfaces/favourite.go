@@ -2,22 +2,26 @@ package interfaces
 
 import (
 	"context"
+	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
 	"net/http"
 )
 
 type FavouriteRepo interface {
 	AddFavourite(ctx context.Context, userId, stayID string) error
 	RemoveFavourite(ctx context.Context, userID, stayID string) error
+	GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error)
 }
 
 type FavouriteService interface {
 	AddToFavourites(ctx context.Context, userID, stayID string) error
 	RemoveFromFavourites(ctx context.Context, userID, stayID string) error
+	GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error)
 }
 
 type FavouriteHandler interface {
 	AddFavourite(w http.ResponseWriter, r *http.Request)
 	RemoveFavourite(w http.ResponseWriter, r *http.Request)
+	GetAllFavourites(w http.ResponseWriter, r *http.Request)
 }
 
 // testing purposes

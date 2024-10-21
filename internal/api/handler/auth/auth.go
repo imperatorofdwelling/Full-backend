@@ -12,6 +12,7 @@ import (
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
@@ -49,7 +50,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var userCurrent model.Registration
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
 		return

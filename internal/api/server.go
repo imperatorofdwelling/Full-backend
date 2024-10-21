@@ -51,7 +51,7 @@ func NewServerHTTP(
 
 		r.Group(func(r chi.Router) {
 			r.Use(authHandler.JWTMiddleware)
-			userHandler.NewUserHandler(r)
+			userHandler.NewPublicUserHandler(r)
 			locationHandler.NewLocationHandler(r)
 			// just added stays handler
 			staysHandler.NewStaysHandler(r)

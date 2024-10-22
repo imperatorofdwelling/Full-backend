@@ -9,11 +9,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/pkg/validator"
 	"log/slog"
 	"net/http"
 	"time"
@@ -53,6 +55,15 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
+		return
+	}
+
+	// creating a new validator for registration
+	v := validator.New()
+	auth.ValidateRegistration(v, &userCurrent)
+
+	if !v.IsValid() {
+		responseApi.WriteJson(w, r, http.StatusBadRequest, v.Errors)
 		return
 	}
 

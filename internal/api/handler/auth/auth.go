@@ -110,6 +110,8 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var userCurrent model.Login
 	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid request body")))
+		return
 	}
 
 	userID, err := h.Svc.Login(context.Background(), userCurrent)

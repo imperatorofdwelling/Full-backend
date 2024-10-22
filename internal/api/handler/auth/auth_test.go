@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
@@ -112,6 +113,35 @@ func TestAuthHandler_Registration(t *testing.T) {
 	}
 }
 
+func TestAuthHandler_RegistrationInternalError(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/registration", hdl.Registration)
+
+	t.Run("should return internal server error after validation", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := []byte(`{"name":"test user", "email":"testuser@example.com", "password":"password123"}`)
+		req := httptest.NewRequest(http.MethodPost, "/registration", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		var userToRegister model.Registration
+		json.Unmarshal(body, &userToRegister)
+		svc.On("Register", mock.Anything, userToRegister).Return(uuid.Nil, errors.New("internal server error")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+		assert.Contains(t, r.Body.String(), "{\"error\":\"error=internal server error\"}\n")
+	})
+}
+
 func TestAuthHandler_Login(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := new(mocks.AuthService)
@@ -120,8 +150,29 @@ func TestAuthHandler_Login(t *testing.T) {
 		Svc: svc,
 	}
 
+	fakeUUID, _ := uuid.NewV4()
+
 	router := chi.NewRouter()
 	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return ok", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		pBody := `{"email": "testuser@example.com", "password": "password123"}`
+
+		obj := model.Login{
+			Email:    "testuser@example.com",
+			Password: "password123",
+		}
+
+		svc.On("Login", mock.Anything, obj).Return(fakeUUID, nil)
+
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(pBody))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
 
 	t.Run("should return unauthorized if already logged in", func(t *testing.T) {
 		r := httptest.NewRecorder()
@@ -146,7 +197,7 @@ func TestAuthHandler_Login(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
-		assert.Contains(t, r.Body.String(), "{\"error\":\"error=invalid data\"}\n") // Adjust this message based on your error handling
+		assert.Contains(t, r.Body.String(), "{\"error\":\"error=invalid data\"}\n")
 	})
 
 	t.Run("should return bad request if JSON is invalid", func(t *testing.T) {
@@ -157,6 +208,88 @@ func TestAuthHandler_Login(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 
 		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+}
+
+func TestAuthHandler_LoginBadRequest(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.AuthService)
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return bad request if JSON is invalid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := []byte(`{"email":"testuser@example.com", "password"}`)
+		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+}
+
+func TestAuthHandler_LoginNotFound(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.AuthService)
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return not found", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := []byte(`{"email":"testuser@example.com", "password":"wrong2password"}`)
+		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrNotFound)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusNotFound, r.Code)
+		assert.Contains(t, r.Body.String(), "{\"error\":\"error=not found\"}\n")
+	})
+}
+
+func TestAuthHandler_LoginInternalServerError(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.AuthService)
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return internal server error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := []byte(`{"email":"testuser@example.com", "password":"wrong2password"}`)
+		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, errors.New("internal server error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+		assert.Contains(t, r.Body.String(), "{\"error\":\"error=internal server error\"}\n")
 	})
 
 }

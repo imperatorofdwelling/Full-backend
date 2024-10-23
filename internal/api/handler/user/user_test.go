@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -33,6 +34,21 @@ func TestUserHandler_NewUserHandler(t *testing.T) {
 
 	t.Run("should be no error", func(t *testing.T) {
 		hdl.NewUserHandler(router)
+	})
+}
+
+func TestUserHandler_NewPublicUserHandler(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	router := chi.NewRouter()
+
+	t.Run("should be no error", func(t *testing.T) {
+		hdl.NewPublicUserHandler(router)
 	})
 }
 
@@ -108,6 +124,33 @@ func TestUserHandler_GetUserByID(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusNotFound, r.Code)
+	})
+}
+
+func TestUserHandler_GetUserByIDBadRequest(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.HandleFunc("/user/{id}", hdl.GetUserByID)
+
+	testUserID, _ := uuid.NewV4()
+
+	t.Run("should return bad request for invalid user ID", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetUserByID", mock.Anything, mock.Anything).Return(user.User{}, fmt.Errorf("invalid id"))
+
+		req := httptest.NewRequest(http.MethodGet, "/user/"+testUserID.String(), nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+		svc.AssertExpectations(t)
 	})
 }
 
@@ -283,6 +326,142 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 	})
 }
 
+func TestUserHandler_UpdateUserByIdUnauthorized(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+
+	payload := user.User{
+		Name:    "Updated Name",
+		Email:   "updated@example.com",
+		Phone:   "1234567890",
+		Country: "Updated Country",
+	}
+
+	t.Run("should return unauthorized when user_id is not present in context", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(payload)
+
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID.String(), bytes.NewReader(reqBody))
+		req.Header.Set("Content-Type", "application/json")
+
+		router := chi.NewRouter()
+
+		router.Put("/user/{id}", hdl.UpdateUserByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+
+		svc.AssertExpectations(t)
+	})
+}
+
+func TestUserHandler_UpdateUserByIdUUID(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+
+	payload := user.User{
+		Name:    "Updated Name",
+		Email:   "updated@example.com",
+		Phone:   "1234567890",
+		Country: "Updated Country",
+	}
+
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+
+	tokenString, err := testToken.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		t.Fatalf("Failed to sign token: %v", err)
+	}
+
+	t.Run("should return error parsing uuid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		reqBody, _ := json.Marshal(payload)
+
+		req := httptest.NewRequest(http.MethodPut, "/user/"+"12312", bytes.NewReader(reqBody))
+		req.Header.Set("Content-Type", "application/json")
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router := chi.NewRouter()
+		router.Use(JWTMiddleware("your-secret-key", log))
+
+		router.Put("/user/{id}", hdl.UpdateUserByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+
+		svc.AssertExpectations(t)
+	})
+}
+
+func TestUserHandler_UpdateUserByIdInvalidJSON(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+
+	tokenString, err := testToken.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		t.Fatalf("Failed to sign token: %v", err)
+	}
+
+	t.Run("should return bad request when JSON body is invalid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidJSON := []byte(`{"name": "Updated Name", "email":}`)
+
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID.String(), bytes.NewReader(invalidJSON))
+		req.Header.Set("Content-Type", "application/json")
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router := chi.NewRouter()
+		router.Use(JWTMiddleware("your-secret-key", log))
+
+		router.Put("/user/{id}", hdl.UpdateUserByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+
+		svc.AssertExpectations(t)
+	})
+}
+
 func TestUserHandler_DeleteUserByID(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := mocks.UserService{}
@@ -368,6 +547,100 @@ func TestUserHandler_DeleteUserByID(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
+		svc.AssertExpectations(t)
+	})
+}
+
+func TestUserHandler_DeleteUserByIdUnauthorized(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+
+	t.Run("should return unauthorized when user_id is not present in context", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/"+testUserID.String(), nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		router := chi.NewRouter()
+
+		router.Delete("/user/{id}", hdl.DeleteUserByID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+
+		svc.AssertExpectations(t)
+	})
+}
+
+func TestJWTMiddlewareUnexpectedSigningMethod(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	router := chi.NewRouter()
+	router.Use(JWTMiddleware("your-secret-key", log))
+	router.Delete("/user/{id}", hdl.DeleteUserByID)
+
+	testUserID, _ := uuid.NewV4()
+
+	testToken := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+
+	testTokenFake := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		// "user_id" отсутствует
+	})
+	tokenStringFake, err := testTokenFake.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		t.Fatalf("Failed to sign token: %v", err)
+	}
+
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should return error with invalid token", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/"+testUserID.String(), nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+		svc.AssertExpectations(t)
+	})
+
+	t.Run("should return invalid user ID in token", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodDelete, "/user/"+testUserID.String(), nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenStringFake,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
 		svc.AssertExpectations(t)
 	})
 }

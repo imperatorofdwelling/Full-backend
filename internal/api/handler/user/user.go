@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -54,6 +55,12 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var id = chi.URLParam(r, "id")
+	_, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
 
 	result, err := h.Svc.GetUserByID(context.Background(), id)
 	if err != nil {
@@ -64,6 +71,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
+
 	responseApi.WriteJson(w, r, http.StatusNoContent, result)
 }
 
@@ -97,6 +105,13 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 
 	var id = chi.URLParam(r, "id")
 
+	parsedID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
 	var updateUser model.User
 	if err := render.DecodeJSON(r.Body, &updateUser); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
@@ -104,8 +119,10 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.Svc.UpdateUserByID(context.Background(), id, updateUser)
+	// Передача контекста
+	result, err := h.Svc.UpdateUserByID(context.Background(), parsedID.String(), updateUser)
 	if err != nil {
+		// Обработка ошибок
 		if errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
 			return
@@ -121,6 +138,7 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
+
 	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 

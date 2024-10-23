@@ -6,12 +6,14 @@ import (
 	"net/http"
 )
 
+//go:generate mockery --name FavouriteRepo
 type FavouriteRepo interface {
 	AddFavourite(ctx context.Context, userId, stayID string) error
 	RemoveFavourite(ctx context.Context, userID, stayID string) error
 	GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error)
 }
 
+//go:generate mockery --name FavouriteService
 type FavouriteService interface {
 	AddToFavourites(ctx context.Context, userID, stayID string) error
 	RemoveFromFavourites(ctx context.Context, userID, stayID string) error

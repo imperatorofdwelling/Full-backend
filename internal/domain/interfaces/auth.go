@@ -7,17 +7,22 @@ import (
 	"net/http"
 )
 
+//go:generate mockery --name AuthRepository
 type (
 	AuthRepository interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	}
+)
 
+//go:generate mockery --name AuthService
+type (
 	AuthService interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 	}
-
+)
+type (
 	AuthHandler interface {
 		Registration(w http.ResponseWriter, r *http.Request)
 		LoginUser(w http.ResponseWriter, r *http.Request)

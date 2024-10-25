@@ -9,6 +9,7 @@ import (
 	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
+	srchRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/searchhistory"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
 	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
 	staysRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreviews"
@@ -36,6 +37,7 @@ func NewServerHTTP(
 	reservationHandler *reservationHdl.Handler,
 	staysReviewsHandler *staysRevHdl.Handler,
 	favouriteHandler *fvrtHdl.FavHandler,
+	searchHandler *srchRevHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -56,6 +58,7 @@ func NewServerHTTP(
 			// just added stays handler
 			staysHandler.NewStaysHandler(r)
 			favouriteHandler.NewFavouriteHandler(r)
+			searchHandler.NewHistorySearchHandler(r)
 		})
 
 	})

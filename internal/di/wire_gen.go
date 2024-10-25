@@ -16,6 +16,7 @@ import (
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
 	providers5 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreviews"
@@ -58,6 +59,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	favouriteRepo := user2.ProvideFavouriteRepository(sqlDB)
 	favouriteService := user2.ProvideFavouriteService(favouriteRepo)
 	favHandler := user2.ProvideFavouriteHandler(favouriteService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler)
+	searchhistoryRepo := searchhistory.ProvideSearchHistoryRepository(sqlDB)
+	searchhistoryService := searchhistory.ProvideSearchHistoryService(searchhistoryRepo)
+	searchhistoryHandler := searchhistory.ProvideSearchHistoryHandler(searchhistoryService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler)
 	return serverHTTP, nil
 }

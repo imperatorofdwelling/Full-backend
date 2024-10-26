@@ -1,18 +1,5 @@
 basePath: /api/v1
 definitions:
-  favourite.FavouriteEntity:
-    properties:
-      created_at:
-        type: string
-      description:
-        type: string
-      stay_id:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: string
-    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage:
     properties:
       created_at:
@@ -48,6 +35,19 @@ definitions:
     - email
     - name
     - password
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      stay_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location:
     properties:
@@ -115,6 +115,15 @@ definitions:
       departure:
         type: string
       id:
+        type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
         type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay:
@@ -446,7 +455,7 @@ paths:
           description: List of favourite stays
           schema:
             items:
-              $ref: '#/definitions/favourite.FavouriteEntity'
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity'
             type: array
         "401":
           description: User not logged in
@@ -514,6 +523,66 @@ paths:
       summary: Add a stay to user favourites
       tags:
       - favourites
+  /history:
+    get:
+      consumes:
+      - application/json
+      description: Get all search history for a user by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory'
+            type: array
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Search History
+      tags:
+      - search-history
+    post:
+      consumes:
+      - application/json
+      description: Add a new entry to the search history for a user
+      parameters:
+      - description: Name of the search history entry
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Add Search History
+      tags:
+      - search-history
   /locations/{locationName}:
     get:
       consumes:

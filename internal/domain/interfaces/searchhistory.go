@@ -6,11 +6,13 @@ import (
 	"net/http"
 )
 
+//go:generate mockery --name SearchHistoryRepo
 type SearchHistoryRepo interface {
 	AddHistory(ctx context.Context, userId, name string) error
 	GetAllHistoryByUserId(ctx context.Context, userId string) ([]history.SearchHistory, error)
 }
 
+//go:generate mockery --name SearchHistoryService
 type SearchHistoryService interface {
 	AddHistory(ctx context.Context, userId, name string) error
 	GetAllHistoryByUserId(ctx context.Context, userId string) ([]history.SearchHistory, error)

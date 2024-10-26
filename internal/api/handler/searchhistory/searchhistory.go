@@ -91,24 +91,21 @@ func (h *Handler) AddHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type requestBody struct {
-		Name string `json:"name"`
-	}
-
-	var reqBody requestBody
+	var reqBody map[string]string
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.Wrap(err, "failed to decode request body")))
 		return
 	}
 
-	if reqBody.Name == "" {
+	name, exists := reqBody["name"]
+	if !exists || name == "" {
 		h.Log.Error("name parameter is required")
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("name parameter is required")))
 		return
 	}
 
-	err := h.Svc.AddHistory(context.Background(), userID, reqBody.Name)
+	err := h.Svc.AddHistory(context.Background(), userID, name)
 	if err != nil {
 		h.Log.Error("could not add history", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not add history")))

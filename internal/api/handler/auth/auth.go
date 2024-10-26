@@ -7,7 +7,6 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
@@ -108,9 +107,9 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userCurrent model.Login
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid request body")))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
 		return
 	}
 

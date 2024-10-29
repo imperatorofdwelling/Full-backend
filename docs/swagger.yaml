@@ -36,6 +36,35 @@ definitions:
     - name
     - password
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract:
+    properties:
+      created_at:
+        type: string
+      date_end:
+        type: string
+      date_start:
+        type: string
+      entrance:
+        type: string
+      floor:
+        type: string
+      house:
+        type: string
+      price:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      stay_id:
+        type: string
+      street:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity:
     properties:
       created_at:
@@ -442,6 +471,116 @@ paths:
       summary: Create Advantage
       tags:
       - advantages
+  /contract:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all contracts for a user by their user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok" // Adjust the type based on your actual Contract struct
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get All Contracts
+      tags:
+      - contracts
+  /contract/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new contract for a specific stay by user ID
+      parameters:
+      - description: The ID of the stay
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Contract details including dateStart and dateEnd
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Contract created successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Add a New Contract
+      tags:
+      - contracts
+    put:
+      consumes:
+      - application/json
+      description: Update a contract for a specific stay by user ID
+      parameters:
+      - description: The ID of the stay
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Contract details including dateStart and dateEnd
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Contract updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update an Existing Contract
+      tags:
+      - contracts
   /favourites:
     get:
       consumes:

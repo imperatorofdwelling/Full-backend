@@ -12,6 +12,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
@@ -62,6 +63,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	searchhistoryRepo := searchhistory.ProvideSearchHistoryRepository(sqlDB)
 	searchhistoryService := searchhistory.ProvideSearchHistoryService(searchhistoryRepo)
 	searchhistoryHandler := searchhistory.ProvideSearchHistoryHandler(searchhistoryService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler)
+	contractsRepo := contracts.ProvideContractRepository(sqlDB)
+	contractsService := contracts.ProvideContractService(contractsRepo)
+	contractsHandler := contracts.ProvideContractHandler(contractsService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler)
 	return serverHTTP, nil
 }

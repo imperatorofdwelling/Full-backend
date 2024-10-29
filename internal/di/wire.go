@@ -10,6 +10,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
@@ -36,6 +37,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		staysReviewProvider.StaysReviewsProviderSet,
 		fvrtProvider.FavouriteProviderSet,
 		srchProvider.SearchHistoryProviderSet,
+		ctrctProvider.ContractProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

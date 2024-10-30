@@ -49,7 +49,7 @@ func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := r.Context().Value("user_id").(string)
 	if !ok {
-		h.Log.Error("user not logged in", nil)
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
@@ -65,7 +65,7 @@ func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 	title, okTitle := reqBody["title"]
 	description, okDescription := reqBody["description"]
 	if !okTitle || !okDescription {
-		h.Log.Error("missing required fields in request body", nil)
+		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
@@ -98,7 +98,7 @@ func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := r.Context().Value("user_id").(string)
 	if !ok {
-		h.Log.Error("user not logged in", nil)
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
@@ -136,7 +136,7 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := r.Context().Value("user_id").(string)
 	if !ok {
-		h.Log.Error("user not logged in", nil)
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
@@ -152,7 +152,7 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 	title, okTitle := reqBody["title"]
 	description, okDescription := reqBody["description"]
 	if !okTitle || !okDescription {
-		h.Log.Error("missing required fields in request body", nil)
+		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
@@ -186,7 +186,7 @@ func (h *Handler) DeleteUsersReports(w http.ResponseWriter, r *http.Request) {
 
 	userID, ok := r.Context().Value("user_id").(string)
 	if !ok {
-		h.Log.Error("user not logged in", nil)
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}

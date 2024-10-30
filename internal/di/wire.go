@@ -18,8 +18,10 @@ import (
 	srchProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	staysAdvProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
+	staysReportsProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreports"
 	staysReviewProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreviews"
 	usrProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
+	usrsReportsProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/usersreports"
 
 	"log/slog"
 )
@@ -38,6 +40,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		fvrtProvider.FavouriteProviderSet,
 		srchProvider.SearchHistoryProviderSet,
 		ctrctProvider.ContractProviderSet,
+		staysReportsProvider.StaysReportsProvideSet,
+		usrsReportsProvider.UsersReportsProvideSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

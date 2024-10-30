@@ -13,8 +13,10 @@ import (
 	srchRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/searchhistory"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
 	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
+	staysReportRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreports"
 	staysRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreviews"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	usersReportHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/usersreports"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -40,6 +42,8 @@ func NewServerHTTP(
 	favouriteHandler *fvrtHdl.FavHandler,
 	searchHandler *srchRevHdl.Handler,
 	contractHandler *ctrctHdl.Handler,
+	staysReportHandler *staysReportRevHdl.Handler,
+	usersReportHandler *usersReportHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -62,6 +66,8 @@ func NewServerHTTP(
 			favouriteHandler.NewFavouriteHandler(r)
 			searchHandler.NewHistorySearchHandler(r)
 			contractHandler.NewContractHandler(r)
+			staysReportHandler.NewStaysReportsHandler(r)
+			usersReportHandler.NewUsersReportsHandler(r)
 		})
 
 	})

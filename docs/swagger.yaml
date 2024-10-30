@@ -260,6 +260,19 @@ definitions:
       stay_id:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity:
+    properties:
+      description:
+        type: string
+      reportID:
+        type: string
+      stayName:
+        type: string
+      title:
+        type: string
+      userName:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview:
     properties:
       created_at:
@@ -821,6 +834,141 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /report:
+    get:
+      description: Retrieves all stay reports for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity'
+            type: array
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get all stay reports
+      tags:
+      - stays-reports
+  /report/{reportId}:
+    delete:
+      description: Deletes a specific stay report by report ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"message": "Stay report was deleted"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Delete a stay report
+      tags:
+      - stays-reports
+    put:
+      consumes:
+      - application/json
+      description: Updates a specific stay report
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      - description: Updated report data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Stay report updated successfully"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update a stay report
+      tags:
+      - stays-reports
+  /report/create/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new stay report for a specific stay
+      parameters:
+      - description: Stay ID
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Report data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"message": "Stay report created successfully"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create a stay report
+      tags:
+      - stays-reports
   /reservation/{reservationID}:
     delete:
       consumes:
@@ -1460,4 +1608,162 @@ paths:
       summary: Update a user by ID
       tags:
       - users
+  /user/report/:
+    get:
+      description: Retrieves all reports created by a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get All User Reports
+      tags:
+      - UsersReports
+  /user/report/{reportId}:
+    delete:
+      description: Deletes a specified report created by a user
+      parameters:
+      - description: ID of the report to delete
+        in: path
+        name: reportId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete User Report
+      tags:
+      - UsersReports
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing report for a specified user
+      parameters:
+      - description: ID of the report to update
+        in: path
+        name: reportId
+        required: true
+        type: string
+      - description: Report content with title and description
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update User Report
+      tags:
+      - UsersReports
+  /user/report/create/{toBlameId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new report on a user by another user
+      parameters:
+      - description: ID of the user being reported
+        in: path
+        name: toBlameId
+        required: true
+        type: string
+      - description: Report content with title and description
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create User Report
+      tags:
+      - UsersReports
 swagger: "2.0"

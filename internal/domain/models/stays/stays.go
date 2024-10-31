@@ -34,27 +34,43 @@ type (
 	}
 
 	Stay struct {
-		ID                  uuid.UUID `json:"id"`
-		UserID              uuid.UUID `json:"user_id"`
-		LocationID          uuid.UUID `json:"location_id"`
-		Name                string    `json:"name"`
-		ImageMain           string    `json:"image_main"`
-		Images              []string  `json:"images"`
-		Type                StayType  `json:"type"`
-		NumberOfBedrooms    int       `json:"number_of_bedrooms"`
-		NumberOfBeds        int       `json:"number_of_beds"`
-		NumberOfBathrooms   int       `json:"number_of_bathrooms"`
-		Guests              int       `json:"guests"`
-		Rating              float32   `json:"rating"`
-		IsSmokingProhibited bool      `json:"is_smoking_prohibited"`
-		Square              float32   `json:"square"`
-		Street              string    `json:"street"`
-		House               string    `json:"house"`
-		Entrance            string    `json:"entrance"`
-		Floor               string    `json:"floor"`
-		Room                string    `json:"room"`
-		Price               float32   `json:"price"`
-		CreatedAt           time.Time `json:"created_at"`
-		UpdatedAt           time.Time `json:"updated_at"`
+		ID                  uuid.UUID   `json:"id"`
+		UserID              uuid.UUID   `json:"user_id"`
+		LocationID          uuid.UUID   `json:"location_id"`
+		Name                string      `json:"name"`
+		Type                StayType    `json:"type"`
+		Images              []StayImage `json:"images"`
+		NumberOfBedrooms    int         `json:"number_of_bedrooms"`
+		NumberOfBeds        int         `json:"number_of_beds"`
+		NumberOfBathrooms   int         `json:"number_of_bathrooms"`
+		Guests              int         `json:"guests"`
+		Rating              float32     `json:"rating"`
+		IsSmokingProhibited bool        `json:"is_smoking_prohibited"`
+		Square              float32     `json:"square"`
+		Street              string      `json:"street"`
+		House               string      `json:"house"`
+		Entrance            string      `json:"entrance"`
+		Floor               string      `json:"floor"`
+		Room                string      `json:"room"`
+		Price               float32     `json:"price"`
+		CreatedAt           time.Time   `json:"created_at"`
+		UpdatedAt           time.Time   `json:"updated_at"`
+	}
+
+	StayImageEntity struct {
+		Image  []byte `json:"image"`
+		IsMain bool   `json:"is_main"`
+	}
+
+	StayImagesEntity struct {
+		Images []StayImagesEntity `json:"images"`
+	}
+
+	StayImage struct {
+		ID        uuid.UUID `json:"id"`
+		ImagePath string    `json:"image_path"`
+		IsMain    bool      `json:"is_main"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 )

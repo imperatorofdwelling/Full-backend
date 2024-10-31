@@ -1,9 +1,7 @@
-FROM golang:1.23.2
+FROM golang:1.23.1
 
 RUN go install github.com/google/wire/cmd/wire@latest
 RUN go install github.com/swaggo/swag/cmd/swag@latest
-
-ENV PATH="/go/bin:${PATH}"
 
 WORKDIR /app
 

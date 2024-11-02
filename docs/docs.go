@@ -279,13 +279,11 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Contract updated successfully",
+                    "200": {
+                        "description": "Updated contract information",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "400": {
@@ -343,7 +341,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Contract created successfully",
+                        "description": "Contract created successfully with message",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -433,8 +431,14 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successfully added to favourites"
+                    "200": {
+                        "description": "Successfully added to favourites",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "401": {
                         "description": "User not logged in",
@@ -472,8 +476,14 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Successfully removed from favourites"
+                    "200": {
+                        "description": "Successfully removed from favourites",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     },
                     "401": {
                         "description": "User not logged in",

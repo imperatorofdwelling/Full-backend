@@ -10,14 +10,14 @@ import (
 //go:generate mockery --name ContractsRepo
 type ContractsRepo interface {
 	AddContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) error
-	UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) error
+	UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) (*contracts.ContractEntity, error)
 	GetAllContracts(ctx context.Context, userId string) ([]contracts.ContractEntity, error)
 }
 
 //go:generate mockery --name ContractService
 type ContractService interface {
 	AddContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) error
-	UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) error
+	UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) (*contracts.ContractEntity, error)
 	GetAllContracts(ctx context.Context, userId string) ([]contracts.ContractEntity, error)
 }
 

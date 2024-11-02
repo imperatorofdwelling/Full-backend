@@ -545,7 +545,7 @@ paths:
       - application/json
       responses:
         "201":
-          description: Contract created successfully
+          description: Contract created successfully with message
           schema:
             additionalProperties:
               type: string
@@ -586,11 +586,10 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Contract updated successfully
+        "200":
+          description: Updated contract information
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "400":
           description: Bad Request
@@ -648,8 +647,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Successfully removed from favourites
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "401":
           description: User not logged in
           schema:
@@ -675,8 +678,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Successfully added to favourites
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "401":
           description: User not logged in
           schema:

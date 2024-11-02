@@ -66,21 +66,33 @@ func (_m *ContractsRepo) GetAllContracts(ctx context.Context, userId string) ([]
 }
 
 // UpdateContract provides a mock function with given fields: ctx, userId, stayId, dateStart, dateEnd
-func (_m *ContractsRepo) UpdateContract(ctx context.Context, userId string, stayId string, dateStart time.Time, dateEnd time.Time) error {
+func (_m *ContractsRepo) UpdateContract(ctx context.Context, userId string, stayId string, dateStart time.Time, dateEnd time.Time) (*contracts.ContractEntity, error) {
 	ret := _m.Called(ctx, userId, stayId, dateStart, dateEnd)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateContract")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, time.Time, time.Time) error); ok {
+	var r0 *contracts.ContractEntity
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, time.Time, time.Time) (*contracts.ContractEntity, error)); ok {
+		return rf(ctx, userId, stayId, dateStart, dateEnd)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, time.Time, time.Time) *contracts.ContractEntity); ok {
 		r0 = rf(ctx, userId, stayId, dateStart, dateEnd)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*contracts.ContractEntity)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, time.Time, time.Time) error); ok {
+		r1 = rf(ctx, userId, stayId, dateStart, dateEnd)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewContractsRepo creates a new instance of ContractsRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

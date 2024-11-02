@@ -169,7 +169,7 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, report)
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]interface{}{"Updated stay report": report})
 }
 
 // DeleteStaysReports handles deleting a stay report by report ID

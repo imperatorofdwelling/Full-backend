@@ -165,7 +165,7 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, report)
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]interface{}{"Updated user report": report})
 }
 
 // DeleteUsersReports deletes a user report

@@ -24,7 +24,7 @@ func (h *Handler) NewContractHandler(r chi.Router) {
 	r.Route("/contract", func(r chi.Router) {
 		r.Get("/", h.GetAllContracts)
 		r.Post("/{stayId}", h.AddContract)
-		r.Put("/{stayId}}", h.UpdateContract)
+		r.Put("/{stayId}", h.UpdateContract)
 	})
 }
 
@@ -37,7 +37,7 @@ func (h *Handler) NewContractHandler(r chi.Router) {
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
 //	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
-//	@Success		201	{object}	map[string]string	"Contract updated successfully"
+//	@Success		200	{object}	map[string]interface{}	"Updated contract information"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
@@ -90,15 +90,14 @@ func (h *Handler) UpdateContract(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call the service to add contract with parsed dates
-	err = h.Svc.UpdateContract(context.Background(), userID, stayID, dateStart, dateEnd)
+	contract, err := h.Svc.UpdateContract(context.Background(), userID, stayID, dateStart, dateEnd)
 	if err != nil {
 		h.Log.Error("failed to add contract", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusCreated, map[string]string{"message": "Contracted created successfully"})
-
+	responseApi.WriteJson(w, r, http.StatusCreated, map[string]interface{}{"Updated contract": contract})
 }
 
 // GetAllContracts godoc
@@ -146,7 +145,7 @@ func (h *Handler) GetAllContracts(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
 //	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
-//	@Success		201	{object}	map[string]string	"Contract created successfully"
+//	@Success		201	{object}	map[string]string	"Contract created successfully with message"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"

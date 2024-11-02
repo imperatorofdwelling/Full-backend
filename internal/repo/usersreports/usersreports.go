@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
-	"github.com/imperatorofdwelling/Full-backend/pkg/staysChecker"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"golang.org/x/net/context"
 )
 
@@ -20,7 +20,7 @@ func (r *Repo) CreateUsersReports(ctx context.Context, userId, toBlameId, title,
 	id, _ := uuid.NewV4()
 
 	// Checking user for existence
-	exists, err := staysChecker.CheckUserExists(ctx, r.Db, toBlameId)
+	exists, err := checkers.CheckUserExists(ctx, r.Db, toBlameId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -81,7 +81,7 @@ func (r *Repo) UpdateUsersReports(ctx context.Context, userId, reportId, title, 
 	fmt.Printf("userId: %s, reportId: %s\n", userId, reportId)
 
 	// Checking User existence
-	exists, err := staysChecker.CheckUsersReportExists(ctx, r.Db, reportId)
+	exists, err := checkers.CheckUsersReportExists(ctx, r.Db, reportId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -133,7 +133,7 @@ func (r *Repo) DeleteUsersReports(ctx context.Context, userId, reportId string) 
 	const op = "repo.UsersReports.DeleteUsersReports"
 
 	// Checking User existence
-	exists, err := staysChecker.CheckUsersReportExists(ctx, r.Db, reportId)
+	exists, err := checkers.CheckUsersReportExists(ctx, r.Db, reportId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

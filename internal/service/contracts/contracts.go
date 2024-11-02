@@ -22,14 +22,15 @@ func (s *Service) AddContract(ctx context.Context, userId, stayId string, dateSt
 	return nil
 }
 
-func (s *Service) UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) error {
+func (s *Service) UpdateContract(ctx context.Context, userId, stayId string, dateStart, dateEnd time.Time) (*contracts.ContractEntity, error) {
 	const op = "service.Contracts.UpdateContract"
 
-	err := s.Repo.UpdateContract(ctx, userId, stayId, dateStart, dateEnd)
+	contract, err := s.Repo.UpdateContract(ctx, userId, stayId, dateStart, dateEnd)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return nil
+
+	return contract, nil
 }
 
 func (s *Service) GetAllContracts(ctx context.Context, userId string) ([]contracts.ContractEntity, error) {

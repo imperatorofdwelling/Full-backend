@@ -422,7 +422,7 @@ func TestContracts_AddContract_Error(t *testing.T) {
 		req.AddCookie(cookie)
 
 		svc.On("UpdateContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-			Return(errors.New("could not add contract"))
+			Return(nil, errors.New("could not add contract"))
 
 		router.ServeHTTP(r, req)
 
@@ -481,7 +481,7 @@ func TestContracts_AddContract_Success(t *testing.T) {
 		req.AddCookie(cookie)
 
 		svc.On("UpdateContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-			Return(nil)
+			Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 

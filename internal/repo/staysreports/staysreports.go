@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
-	"github.com/imperatorofdwelling/Full-backend/pkg/staysChecker"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"golang.org/x/net/context"
 )
 
@@ -18,7 +18,7 @@ func (r *Repo) CreateStaysReports(ctx context.Context, userId, stayId, title, de
 
 	id, _ := uuid.NewV4()
 	// Checking stay for existence
-	exists, err := staysChecker.CheckStayExists(ctx, r.Db, stayId)
+	exists, err := checkers.CheckStayExists(ctx, r.Db, stayId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -75,7 +75,7 @@ func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, 
 	const op = "repo.StaysReports.UpdateStaysReports"
 
 	// Checking stay for existence
-	exists, err := staysChecker.CheckStaysReportExists(ctx, r.Db, reportId)
+	exists, err := checkers.CheckStaysReportExists(ctx, r.Db, reportId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -118,7 +118,7 @@ func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, 
 func (r *Repo) DeleteStaysReports(ctx context.Context, userId, reportId string) error {
 	const op = "repo.StaysReports.DeleteStaysReports"
 
-	exists, err := staysChecker.CheckStaysReportExists(ctx, r.Db, reportId)
+	exists, err := checkers.CheckStaysReportExists(ctx, r.Db, reportId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

@@ -10,7 +10,7 @@ import (
 type UsersReportsRepo interface {
 	CreateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error
 	GetAllUsersReports(ctx context.Context, userId string) ([]usersreports.UsersReportEntity, error)
-	UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error
+	UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) (*usersreports.UsersReportEntity, error)
 	DeleteUsersReports(ctx context.Context, userId, reportId string) error
 }
 
@@ -18,7 +18,7 @@ type UsersReportsRepo interface {
 type UsersReportsService interface {
 	CreateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error
 	GetAllUsersReports(ctx context.Context, userId string) ([]usersreports.UsersReportEntity, error)
-	UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error
+	UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) (*usersreports.UsersReportEntity, error)
 	DeleteUsersReports(ctx context.Context, userId, reportId string) error
 }
 

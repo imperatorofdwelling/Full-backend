@@ -71,30 +71,48 @@ func (r *Repo) GetAllStaysReports(ctx context.Context, userId string) ([]staysre
 	return reports, nil
 }
 
-func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, description string) error {
+func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, description string) (*staysreports.StaysReportEntity, error) {
 	const op = "repo.StaysReports.UpdateStaysReports"
 
 	// Checking stay for existence
 	exists, err := staysChecker.CheckStaysReportExists(ctx, r.Db, reportId)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	if !exists {
-		return fmt.Errorf("%s: report does not exist: %s", op, reportId)
+		return nil, fmt.Errorf("%s: report does not exist: %s", op, reportId)
 	}
 
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays_reports SET title = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE user_id = $3 AND id = $4")
+	// Preparing update statement
+	updateStmt, err := r.Db.PrepareContext(ctx, "UPDATE stays_reports SET title = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE user_id = $3 AND id = $4")
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	defer stmt.Close()
+	defer updateStmt.Close()
 
-	_, err = stmt.ExecContext(ctx, title, description, userId, reportId)
+	// Executing update statement
+	_, err = updateStmt.ExecContext(ctx, title, description, userId, reportId)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return nil
+	// Preparing query to find recently updated report
+	selectStmt, err := r.Db.PrepareContext(ctx, "SELECT sr.id, u.name AS user_name, s.name AS stay_name, sr.title, sr.description FROM stays_reports sr INNER JOIN users u ON sr.user_id = u.id INNER JOIN stays s ON sr.stay_id = s.id WHERE sr.user_id = $1 AND sr.id = $2")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer selectStmt.Close()
+
+	// Executing it
+	row := selectStmt.QueryRowContext(ctx, userId, reportId)
+
+	var report staysreports.StaysReportEntity
+	err = row.Scan(&report.ReportID, &report.UserName, &report.StayName, &report.Title, &report.Description)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &report, nil
 }
 
 func (r *Repo) DeleteStaysReports(ctx context.Context, userId, reportId string) error {

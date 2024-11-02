@@ -32,15 +32,15 @@ func (s *Service) GetAllUsersReports(ctx context.Context, userId string) ([]user
 	return reports, nil
 }
 
-func (s *Service) UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error {
+func (s *Service) UpdateUsersReports(ctx context.Context, userId, toBlameId, title, description string) (*usersreports.UsersReportEntity, error) {
 	const op = "service.UsersReports.UpdateUsersReports"
 
-	err := s.Repo.UpdateUsersReports(ctx, userId, toBlameId, title, description)
+	report, err := s.Repo.UpdateUsersReports(ctx, userId, toBlameId, title, description)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return nil
+	return report, nil
 }
 
 func (s *Service) DeleteUsersReports(ctx context.Context, userId, reportId string) error {

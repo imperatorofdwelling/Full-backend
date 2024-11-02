@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -121,10 +122,10 @@ func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param reportId path string true "ID of the report to update"
 // @Param body body map[string]string true "Report content with title and description"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} usersreports.UsersReportEntity "Updated user report object"
+// @Failure 400 {object} responseApi.ResponseError "Invalid request"
+// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
+// @Failure 500 {object} responseApi.ResponseError "Internal server error"
 // @Router /user/report/{reportId} [put]
 func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.UpdateUsersReports"
@@ -140,7 +141,7 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
-	toBlameID := chi.URLParam(r, "toBlameId")
+	toBlameID := chi.URLParam(r, "reportId")
 
 	var reqBody map[string]string
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
@@ -157,13 +158,14 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Svc.UpdateUsersReports(r.Context(), userID, toBlameID, title, description); err != nil {
+	report, err := h.Svc.UpdateUsersReports(r.Context(), userID, toBlameID, title, description)
+	if err != nil {
 		h.Log.Error("service failed to update user report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "User report updated successfully"})
+	responseApi.WriteJson(w, r, http.StatusOK, report)
 }
 
 // DeleteUsersReports deletes a user report

@@ -17,7 +17,7 @@ type UsersReport struct {
 }
 
 type UsersReportEntity struct {
-	ReportID    uuid.UUID `json:"id"`
+	ReportID    uuid.UUID `json:"report_id"`
 	UserName    string    `json:"user_name"`
 	OwnerName   string    `json:"owner_name"`
 	Title       string    `json:"title"`

@@ -10,7 +10,7 @@ import (
 type StaysReportsRepo interface {
 	CreateStaysReports(ctx context.Context, userId, stayId, title, description string) error
 	GetAllStaysReports(ctx context.Context, userId string) ([]staysreports.StaysReportEntity, error)
-	UpdateStaysReports(ctx context.Context, userId, stayId, title, description string) error
+	UpdateStaysReports(ctx context.Context, userId, stayId, title, description string) (*staysreports.StaysReportEntity, error)
 	DeleteStaysReports(ctx context.Context, userId, reportId string) error
 }
 
@@ -18,7 +18,7 @@ type StaysReportsRepo interface {
 type StaysReportsService interface {
 	CreateStaysReports(ctx context.Context, userId, stayId, title, description string) error
 	GetAllStaysReports(ctx context.Context, userId string) ([]staysreports.StaysReportEntity, error)
-	UpdateStaysReports(ctx context.Context, userId, stayId, title, description string) error
+	UpdateStaysReports(ctx context.Context, userId, stayId, title, description string) (*staysreports.StaysReportEntity, error)
 	DeleteStaysReports(ctx context.Context, userId, reportId string) error
 }
 

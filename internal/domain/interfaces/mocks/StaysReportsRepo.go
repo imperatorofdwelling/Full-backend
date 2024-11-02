@@ -82,21 +82,33 @@ func (_m *StaysReportsRepo) GetAllStaysReports(ctx context.Context, userId strin
 }
 
 // UpdateStaysReports provides a mock function with given fields: ctx, userId, stayId, title, description
-func (_m *StaysReportsRepo) UpdateStaysReports(ctx context.Context, userId string, stayId string, title string, description string) error {
+func (_m *StaysReportsRepo) UpdateStaysReports(ctx context.Context, userId string, stayId string, title string, description string) (*staysreports.StaysReportEntity, error) {
 	ret := _m.Called(ctx, userId, stayId, title, description)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateStaysReports")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
+	var r0 *staysreports.StaysReportEntity
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) (*staysreports.StaysReportEntity, error)); ok {
+		return rf(ctx, userId, stayId, title, description)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) *staysreports.StaysReportEntity); ok {
 		r0 = rf(ctx, userId, stayId, title, description)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*staysreports.StaysReportEntity)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
+		r1 = rf(ctx, userId, stayId, title, description)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewStaysReportsRepo creates a new instance of StaysReportsRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

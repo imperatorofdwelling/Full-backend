@@ -248,7 +248,7 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed to update stays report"))
+		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("failed to update stays report"))
 
 		router.ServeHTTP(r, req)
 
@@ -341,7 +341,7 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 

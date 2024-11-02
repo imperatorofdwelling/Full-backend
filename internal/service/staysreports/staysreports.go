@@ -32,15 +32,15 @@ func (s *Service) GetAllStaysReports(ctx context.Context, userId string) ([]stay
 	return reports, nil
 }
 
-func (s *Service) UpdateStaysReports(ctx context.Context, userId, reportId, title, description string) error {
+func (s *Service) UpdateStaysReports(ctx context.Context, userId, reportId, title, description string) (*staysreports.StaysReportEntity, error) {
 	const op = "service.StaysReports.UpdateStaysReports"
 
-	err := s.Repo.UpdateStaysReports(ctx, userId, reportId, title, description)
+	report, err := s.Repo.UpdateStaysReports(ctx, userId, reportId, title, description)
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return nil
+	return report, nil
 }
 
 func (s *Service) DeleteStaysReports(ctx context.Context, userId, reportId string) error {

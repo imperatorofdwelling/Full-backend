@@ -126,7 +126,7 @@ func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param reportId path string true "Report ID"
 // @Param body body map[string]string true "Updated report data"
-// @Success 200 {object} map[string]string "{"message": "Stay report updated successfully"}"
+// @Success 200 {object} staysreports.StaysReportEntity "Updated stays report object"
 // @Failure 400 {object} responseApi.ResponseError "{"error": "message"}"
 // @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
 // @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
@@ -162,14 +162,14 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Svc.UpdateStaysReports(context.Background(), userID, reportID, title, description)
+	report, err := h.Svc.UpdateStaysReports(context.Background(), userID, reportID, title, description)
 	if err != nil {
 		h.Log.Error("failed to update stays report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "Stay report updated successfully"})
+	responseApi.WriteJson(w, r, http.StatusOK, report)
 }
 
 // DeleteStaysReports handles deleting a stay report by report ID

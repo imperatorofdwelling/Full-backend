@@ -29,6 +29,13 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 	})
 }
 
+func (h *Handler) NewPublicStaysHandler(r chi.Router) {
+	r.Route("/stays", func(r chi.Router) {
+		r.Get("/images/{stayId}", h.GetStayImagesByStayID)
+		r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
+	})
+}
+
 // CreateStay godoc
 //
 //	@Summary		Create Stay
@@ -258,6 +265,18 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, stays)
 }
 
+// GetStayImagesByStayID godoc
+//
+//	@Summary		Get all stays images by stay id
+//	@Description	Get stays images by stay id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			stayId	path		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		[]model.StayImage	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/{stayId} [get]
 func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStayImagesByStayID"
 
@@ -284,6 +303,18 @@ func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) 
 	responseApi.WriteJson(w, r, http.StatusOK, stayImages)
 }
 
+// GetMainImageByStayID godoc
+//
+//	@Summary		Get main stays image by stay id
+//	@Description	Get main stays image by stay id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			stayId	path		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		model.StayImage	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/main/{stayId} [get]
 func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetMainImageByStayID"
 

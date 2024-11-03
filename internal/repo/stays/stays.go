@@ -33,7 +33,7 @@ func (r *Repo) CreateStay(ctx context.Context, stay *models.StayEntity) error {
 func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, error) {
 	const op = "repo.stays.getStayByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM stays WHERE id=$1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays WHERE id=$1")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -47,7 +47,7 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	err = row.Scan(&stay.ID)
+	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -77,7 +77,7 @@ func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
 	for rows.Next() {
 		var stay models.Stay
 
-		err = rows.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.ImageMain, &stay.Images, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		err = rows.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -189,8 +189,6 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.LocationID,
 			&stay.UserID,
 			&stay.Name,
-			&stay.ImageMain,
-			&stay.Images,
 			&stay.Type,
 			&stay.NumberOfBedrooms,
 			&stay.NumberOfBeds,
@@ -216,4 +214,53 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 	}
 
 	return stays, nil
+}
+
+func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.StayImage, error) {
+	const op = "repo.stays.GetImagesByStayID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM images WHERE stay_id=$1")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	rowsImg, err := stmt.QueryContext(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var stayImages []models.StayImage
+
+	for rowsImg.Next() {
+		var stayImage models.StayImage
+		err = rowsImg.Scan(&stayImage.ID, &stayImage.ImagePath, &stayImage.IsMain, &stayImage.CreatedAt, &stayImage.UpdatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	return stayImages, nil
+}
+
+func (r *Repo) GetMainImageByStayID(ctx context.Context, id uuid.UUID) (models.StayImage, error) {
+	const op = "repo.stays.GetMainImageByStayID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM images WHERE stay_id=$1 AND is_main=$2")
+	if err != nil {
+		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var stayImage models.StayImage
+
+	row := stmt.QueryRowContext(ctx, id, true)
+
+	err = row.Scan(&stayImage.ID, &stayImage.ImagePath, &stayImage.IsMain, &stayImage.UpdatedAt, &stayImage.CreatedAt)
+	if err != nil {
+		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return stayImage, nil
 }

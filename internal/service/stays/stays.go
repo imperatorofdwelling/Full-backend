@@ -118,3 +118,44 @@ func (s *Service) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*st
 
 	return usrStays, nil
 }
+
+func (s *Service) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]stays.StayImage, error) {
+	const op = "service.stays.GetImagesByStayID"
+
+	foundStay, err := s.GetStayByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if foundStay == nil {
+		return nil, fmt.Errorf("%s: %w", op, service.ErrStayNotFound)
+	}
+
+	images, err := s.Repo.GetImagesByStayID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return images, nil
+
+}
+
+func (s *Service) GetMainImageByStayID(ctx context.Context, id uuid.UUID) (stays.StayImage, error) {
+	const op = "service.stays.GetMainImageByStayID"
+
+	foundStay, err := s.GetStayByID(ctx, id)
+	if err != nil {
+		return stays.StayImage{}, err
+	}
+
+	if foundStay == nil {
+		return stays.StayImage{}, fmt.Errorf("%s: %w", op, service.ErrStayNotFound)
+	}
+
+	image, err := s.Repo.GetMainImageByStayID(ctx, id)
+	if err != nil {
+		return stays.StayImage{}, err
+	}
+
+	return image, nil
+}

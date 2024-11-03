@@ -118,12 +118,6 @@ definitions:
         type: string
       id:
         type: string
-      image_main:
-        type: string
-      images:
-        items:
-          type: string
-        type: array
       is_smoking_prohibited:
         type: boolean
       location_id:
@@ -133,6 +127,7 @@ definitions:
       number_of_bathrooms:
         type: integer
       number_of_bedrooms:
+        description: Images              []StayImage `json:"images"`
         type: integer
       number_of_beds:
         type: integer

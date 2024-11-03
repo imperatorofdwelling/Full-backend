@@ -1389,15 +1389,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "image_main": {
-                    "type": "string"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
                 "is_smoking_prohibited": {
                     "type": "boolean"
                 },
@@ -1411,6 +1402,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "number_of_bedrooms": {
+                    "description": "Images              []StayImage ` + "`" + `json:\"images\"` + "`" + `",
                     "type": "integer"
                 },
                 "number_of_beds": {

@@ -1,7 +1,6 @@
 package stays
 
 import (
-	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -164,7 +163,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Svc.DeleteStayByID(context.Background(), idUuid)
+	err = h.Svc.DeleteStayByID(r.Context(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to delete stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -211,7 +210,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedStay, err := h.Svc.UpdateStayByID(context.Background(), &newStay, idUuid)
+	updatedStay, err := h.Svc.UpdateStayByID(r.Context(), &newStay, idUuid)
 	if err != nil {
 		h.Log.Error("failed to update stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -249,7 +248,7 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stays, err := h.Svc.GetStaysByUserID(context.Background(), idUuid)
+	stays, err := h.Svc.GetStaysByUserID(r.Context(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to fetch stays: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -257,4 +256,56 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, stays)
+}
+
+func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetStayImagesByStayID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+	idUuid, err := uuid.FromString(stayId)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	stayImages, err := h.Svc.GetImagesByStayID(r.Context(), idUuid)
+	if err != nil {
+		h.Log.Error("failed to fetch stay images by id %s: %v", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, stayImages)
+}
+
+func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetMainImageByStayID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+	idUuid, err := uuid.FromString(stayId)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	stayImage, err := h.Svc.GetMainImageByStayID(r.Context(), idUuid)
+	if err != nil {
+		h.Log.Error("failed to fetch stay image by id %s: %v", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, stayImage)
 }

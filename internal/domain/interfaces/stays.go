@@ -16,6 +16,8 @@ type StaysRepo interface {
 	DeleteStayByID(context.Context, uuid.UUID) error
 	UpdateStayByID(context.Context, *stays.StayEntity, uuid.UUID) error
 	CheckStayIfExistsByID(context.Context, uuid.UUID) (bool, error)
+	GetImagesByStayID(context.Context, uuid.UUID) ([]stays.StayImage, error)
+	GetMainImageByStayID(context.Context, uuid.UUID) (stays.StayImage, error)
 }
 
 //go:generate mockery --name StaysService
@@ -26,6 +28,8 @@ type StaysService interface {
 	GetStaysByUserID(context.Context, uuid.UUID) ([]*stays.Stay, error)
 	DeleteStayByID(context.Context, uuid.UUID) error
 	UpdateStayByID(context.Context, *stays.StayEntity, uuid.UUID) (*stays.Stay, error)
+	GetImagesByStayID(context.Context, uuid.UUID) ([]stays.StayImage, error)
+	GetMainImageByStayID(context.Context, uuid.UUID) (stays.StayImage, error)
 }
 
 type StaysHandler interface {
@@ -35,4 +39,6 @@ type StaysHandler interface {
 	GetStaysByUserID(http.ResponseWriter, *http.Request)
 	DeleteStayByID(http.ResponseWriter, *http.Request)
 	UpdateStayByID(http.ResponseWriter, *http.Request)
+	GetStayImagesByStayID(http.ResponseWriter, *http.Request)
+	GetMainImageByStayID(http.ResponseWriter, *http.Request)
 }

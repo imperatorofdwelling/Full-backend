@@ -59,7 +59,6 @@ func TestSearchHistory_GetAllHistoryByUserId(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusUnauthorized, r.Code)
-
 	})
 }
 

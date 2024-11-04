@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 )
 
 type Repo struct {
@@ -14,12 +15,22 @@ type Repo struct {
 func (r *Repo) AddFavourite(ctx context.Context, userId, stayID string) error {
 	const op = "repo.Favourite.AddFavourite"
 
-	exists, err := r.CheckStayExists(ctx, stayID)
+	// Check if the stay exists
+	exists, err := checkers.CheckStayExists(ctx, r.Db, stayID)
 	if err != nil {
-		return fmt.Errorf("%s: checking stay existence: %w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 	if !exists {
-		return fmt.Errorf("%s: stay does not exist: %s", op, stayID)
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	// Check if the favourite already exists
+	favExists, err := checkers.CheckFavouriteExists(ctx, r.Db, userId, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if favExists {
+		return fmt.Errorf("%s: favourite already exists for user: %s and stay: %s", op, userId, stayID)
 	}
 
 	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO favourite (user_id, stay_id, created_at) VALUES ($1, $2, CURRENT_TIMESTAMP) ON CONFLICT (user_id, stay_id) DO NOTHING")
@@ -68,7 +79,7 @@ func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Fav
 		JOIN stays s ON f.stay_id = s.id
 		WHERE f.user_id = $1
 	`)
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("%s: preparing statement: %w", op, err)
 	}
@@ -95,10 +106,4 @@ func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Fav
 	}
 
 	return favourites, nil
-}
-
-func (r *Repo) CheckStayExists(ctx context.Context, stayID string) (bool, error) {
-	var exists bool
-	err := r.Db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM stays WHERE id = $1)", stayID).Scan(&exists)
-	return exists, err
 }

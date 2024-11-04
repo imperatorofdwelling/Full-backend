@@ -100,7 +100,7 @@ func TestFavHandler_AddFavouriteSuccess(t *testing.T) {
 		req.AddCookie(cookie)
 
 		router.ServeHTTP(r, req)
-		assert.Equal(t, http.StatusNoContent, r.Code)
+		assert.Equal(t, http.StatusOK, r.Code)
 	})
 }
 
@@ -359,7 +359,7 @@ func TestFavHandler_RemoveFavouriteSuccess(t *testing.T) {
 		req.AddCookie(cookie)
 
 		router.ServeHTTP(r, req)
-		assert.Equal(t, http.StatusNoContent, r.Code)
+		assert.Equal(t, http.StatusOK, r.Code)
 	})
 
 }

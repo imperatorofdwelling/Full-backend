@@ -36,6 +36,35 @@ definitions:
     - name
     - password
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract:
+    properties:
+      created_at:
+        type: string
+      date_end:
+        type: string
+      date_start:
+        type: string
+      entrance:
+        type: string
+      floor:
+        type: string
+      house:
+        type: string
+      price:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      stay_id:
+        type: string
+      street:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity:
     properties:
       created_at:
@@ -231,6 +260,19 @@ definitions:
       stay_id:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity:
+    properties:
+      description:
+        type: string
+      reportID:
+        type: string
+      stayName:
+        type: string
+      title:
+        type: string
+      userName:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview:
     properties:
       created_at:
@@ -291,6 +333,19 @@ definitions:
       phone:
         type: string
       updatedAt:
+        type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity:
+    properties:
+      description:
+        type: string
+      owner_name:
+        type: string
+      report_id:
+        type: string
+      title:
+        type: string
+      user_name:
         type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError:
@@ -442,6 +497,115 @@ paths:
       summary: Create Advantage
       tags:
       - advantages
+  /contract:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all contracts for a user by their user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok" // Adjust the type based on your actual Contract struct
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get All Contracts
+      tags:
+      - contracts
+  /contract/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Create a new contract for a specific stay by user ID
+      parameters:
+      - description: The ID of the stay
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Contract details including dateStart and dateEnd
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Contract created successfully with message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Add a New Contract
+      tags:
+      - contracts
+    put:
+      consumes:
+      - application/json
+      description: Update a contract for a specific stay by user ID
+      parameters:
+      - description: The ID of the stay
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Contract details including dateStart and dateEnd
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated contract information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update an Existing Contract
+      tags:
+      - contracts
   /favourites:
     get:
       consumes:
@@ -483,8 +647,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Successfully removed from favourites
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "401":
           description: User not logged in
           schema:
@@ -510,8 +678,12 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
+        "200":
           description: Successfully added to favourites
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "401":
           description: User not logged in
           schema:
@@ -682,6 +854,139 @@ paths:
       summary: Register a new user
       tags:
       - auth
+  /report:
+    get:
+      description: Retrieves all stay reports for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity'
+            type: array
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get all stay reports
+      tags:
+      - stays-reports
+  /report/{reportId}:
+    delete:
+      description: Deletes a specific stay report by report ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"message": "Stay report was deleted"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Delete a stay report
+      tags:
+      - stays-reports
+    put:
+      consumes:
+      - application/json
+      description: Updates a specific stay report
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      - description: Updated report data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated stays report object
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity'
+        "400":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update a stay report
+      tags:
+      - stays-reports
+  /report/create/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new stay report for a specific stay
+      parameters:
+      - description: Stay ID
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Report data
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: '{"message": "Stay report created successfully"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create a stay report
+      tags:
+      - stays-reports
   /reservation/{reservationID}:
     delete:
       consumes:
@@ -1321,4 +1626,154 @@ paths:
       summary: Update a user by ID
       tags:
       - users
+  /user/report/:
+    get:
+      description: Retrieves all reports created by a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get All User Reports
+      tags:
+      - UsersReports
+  /user/report/{reportId}:
+    delete:
+      description: Deletes a specified report created by a user
+      parameters:
+      - description: ID of the report to delete
+        in: path
+        name: reportId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete User Report
+      tags:
+      - UsersReports
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing report for a specified user
+      parameters:
+      - description: ID of the report to update
+        in: path
+        name: reportId
+        required: true
+        type: string
+      - description: Report content with title and description
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated user report object
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update User Report
+      tags:
+      - UsersReports
+  /user/report/create/{toBlameId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new report on a user by another user
+      parameters:
+      - description: ID of the user being reported
+        in: path
+        name: toBlameId
+        required: true
+        type: string
+      - description: Report content with title and description
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create User Report
+      tags:
+      - UsersReports
 swagger: "2.0"

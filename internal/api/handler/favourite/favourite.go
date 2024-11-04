@@ -34,7 +34,7 @@ func (h *FavHandler) NewFavouriteHandler(r chi.Router) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId		path		string		true	"ID of the stay to be added to favourites"
-//	@Success		204		{object}		nil		"Successfully added to favourites"
+//	@Success		200		{object}		map[string]string	"Successfully added to favourites"
 //	@Failure		401		{object}	responseApi.ResponseError	"User not logged in"
 //	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/favourites/{stayId} [post]
@@ -62,7 +62,7 @@ func (h *FavHandler) AddFavourite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusNoContent, nil)
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "Added to favourites!"})
 }
 
 // RemoveFavourite godoc
@@ -73,7 +73,7 @@ func (h *FavHandler) AddFavourite(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId		path		string		true	"ID of the stay to be removed from favourites"
-//	@Success		204		{object}		nil		"Successfully removed from favourites"
+//	@Success		200		{object}		map[string]string	"Successfully removed from favourites"
 //	@Failure		401		{object}	responseApi.ResponseError	"User not logged in"
 //	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/favourites/{stayId} [delete]
@@ -101,7 +101,7 @@ func (h *FavHandler) RemoveFavourite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusNoContent, nil)
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "Removed from favourites!"})
 }
 
 // GetAllFavourites godoc

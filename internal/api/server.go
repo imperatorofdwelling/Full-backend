@@ -62,6 +62,8 @@ func NewServerHTTP(
 			userHandler.NewPublicUserHandler(r)
 			locationHandler.NewLocationHandler(r)
 			// just added stays handler
+			reservationHandler.NewReservationHandler(r)
+			staysReviewsHandler.NewStaysReviewsHandler(r)
 			staysHandler.NewStaysHandler(r)
 			favouriteHandler.NewFavouriteHandler(r)
 			searchHandler.NewHistorySearchHandler(r)

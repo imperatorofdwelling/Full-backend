@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"time"
 )
 
@@ -34,11 +35,18 @@ func (r *Repo) CreateReservation(ctx context.Context, reservation *reservation.R
 func (r *Repo) UpdateReservationByID(ctx context.Context, reservation *reservation.ReservationUpdateEntity) error {
 	const op = "repo.reservation.UpdateReservationByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE reservations SET arrived = $1, departure = $2, updated_at = $3 WHERE stay_id = $4")
+	exists, err := checkers.CheckReservationExists(ctx, r.Db, reservation.ID.String())
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+	if !exists {
+		return fmt.Errorf("%s: reservation not found", op)
+	}
 
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE reservations SET arrived = $1, departure = $2, updated_at = $3 WHERE id = $4")
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, reservation.Arrived, reservation.Departure, time.Now(), reservation.ID)
@@ -86,21 +94,22 @@ func (r *Repo) CheckReservationIfExists(ctx context.Context, id uuid.UUID) (bool
 
 	return exists, nil
 }
-
 func (r *Repo) GetReservationByID(ctx context.Context, id uuid.UUID) (*reservation.Reservation, error) {
 	const op = "repo.reservation.GetReservationByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM reservations WHERE id = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM reservations WHERE id = $1")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-
 	defer stmt.Close()
 
 	var reserv reservation.Reservation
 
 	err = stmt.QueryRowContext(ctx, id).Scan(&reserv.ID, &reserv.UserID, &reserv.StayID, &reserv.Arrived, &reserv.Departure, &reserv.UpdatedAt, &reserv.CreatedAt)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("%s: no reservation found with id %v", op, id)
+		}
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 

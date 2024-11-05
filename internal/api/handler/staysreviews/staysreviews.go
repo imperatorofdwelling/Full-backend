@@ -105,14 +105,14 @@ func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Svc.UpdateStaysReview(r.Context(), &newStaysReview, uuID)
+	stayRev, err := h.Svc.UpdateStaysReview(r.Context(), &newStaysReview, uuID)
 	if err != nil {
 		h.Log.Error("failed to update stay review", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, "stay review updated")
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]interface{}{"message": "Updated stay review", "review": stayRev})
 }
 
 // DeleteStaysReview godoc

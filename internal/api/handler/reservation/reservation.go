@@ -22,7 +22,7 @@ type Handler struct {
 func (h *Handler) NewReservationHandler(r chi.Router) {
 	r.Route("/reservation", func(r chi.Router) {
 		r.Post("/create", h.CreateReservation)
-		r.Put("/update", h.UpdateReservation)
+		r.Put("/update/{reservationID}", h.UpdateReservation)
 		r.Delete("/{reservationID}", h.DeleteReservationByID)
 		r.Get("/{reservationID}", h.GetReservationByID)
 		r.Get("/user/userID", h.GetAllReservationsByUser)
@@ -89,14 +89,24 @@ func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	id := chi.URLParam(r, "reservationID")
+	uuID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
 	var newReserv reservation.ReservationUpdateEntity
 
-	err := render.DecodeJSON(r.Body, &newReserv)
+	err = render.DecodeJSON(r.Body, &newReserv)
 	if err != nil {
 		h.Log.Error("failed to decode JSON", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
+
+	newReserv.ID = uuID
 
 	err = h.Svc.UpdateReservation(context.Background(), &newReserv)
 	if err != nil {
@@ -105,7 +115,14 @@ func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, "successfully updated reservation")
+	reserv, err := h.Svc.GetReservationByID(context.Background(), uuID)
+	if err != nil {
+		h.Log.Error("failed to find reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]interface{}{"Updated reservation": reserv})
 }
 
 // DeleteReservationByID godoc

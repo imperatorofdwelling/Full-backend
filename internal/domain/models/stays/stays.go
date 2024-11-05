@@ -39,7 +39,7 @@ type (
 		LocationID          uuid.UUID `json:"location_id"`
 		Name                string    `json:"name"`
 		ImageMain           string    `json:"image_main"`
-		Images              []string  `json:"images"`
+		Images              []byte    `json:"images"`
 		Type                StayType  `json:"type"`
 		NumberOfBedrooms    int       `json:"number_of_bedrooms"`
 		NumberOfBeds        int       `json:"number_of_beds"`

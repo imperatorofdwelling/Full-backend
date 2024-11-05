@@ -33,7 +33,12 @@ func (r *Repo) CreateStay(ctx context.Context, stay *models.StayEntity) error {
 func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, error) {
 	const op = "repo.stays.getStayByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM stays WHERE id=$1")
+	stmt, err := r.Db.PrepareContext(ctx, `
+        SELECT id, location_id, user_id, name, image_main, images, type, number_of_bedrooms, 
+               number_of_beds, number_of_bathrooms, guests, rating, is_smoking_prohibited, 
+               square, street, house, entrance, floor, room, price, created_at, updated_at 
+        FROM stays WHERE id=$1
+    `)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -47,7 +52,30 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	err = row.Scan(&stay.ID)
+	err = row.Scan(
+		&stay.ID,
+		&stay.LocationID,
+		&stay.UserID,
+		&stay.Name,
+		&stay.ImageMain,
+		&stay.Images,
+		&stay.Type,
+		&stay.NumberOfBedrooms,
+		&stay.NumberOfBeds,
+		&stay.NumberOfBathrooms,
+		&stay.Guests,
+		&stay.Rating,
+		&stay.IsSmokingProhibited,
+		&stay.Square,
+		&stay.Street,
+		&stay.House,
+		&stay.Entrance,
+		&stay.Floor,
+		&stay.Room,
+		&stay.Price,
+		&stay.CreatedAt,
+		&stay.UpdatedAt,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -91,7 +119,7 @@ func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
 func (r *Repo) UpdateStayByID(ctx context.Context, stay *models.StayEntity, id uuid.UUID) error {
 	const op = "repo.stays.updateStayByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, type=$5, number_of_bedrooms=$6, number_of_beds=$7, number_of_bathrooms=$8, guests=$9, is_smoking_prohibited=$10, square=$11, street=$12, house=$13, entrance=$14, floor=$15, room=$16, price=$17, updated_at=$18 WHERE id=$19")
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, type=$3, number_of_bedrooms=$4, number_of_beds=$5, number_of_bathrooms=$6, guests=$7, is_smoking_prohibited=$8, square=$9, street=$10, house=$11, entrance=$12, floor=$13, room=$14, price=$15, updated_at=$16 WHERE id=$17")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

@@ -1,7 +1,6 @@
 package favourite
 
 import (
-	"database/sql"
 	"github.com/gofrs/uuid"
 	"time"
 )
@@ -16,8 +15,8 @@ type (
 	}
 
 	Favourite struct {
-		UserID      uuid.UUID      `json:"user_id"`
-		StayID      uuid.UUID      `json:"stay_id"`
-		Description sql.NullString `json:"description"`
+		UserID uuid.UUID `json:"user_id"`
+		StayID uuid.UUID `json:"stay_id"`
+		City   string    `json:"city"`
 	}
 )

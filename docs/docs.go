@@ -989,6 +989,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/reservation/update/{reservationId}": {
+            "put": {
+                "description": "Update an existing reservation by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Update Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the reservation to update",
+                        "name": "reservationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Details to update the reservation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated reservation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Reservation not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/reservation/user/{userID}": {
             "get": {
                 "description": "Get reservation by user id",
@@ -1098,59 +1158,6 @@ const docTemplate = `{
                         "name": "reservationID",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/reservation/{reservationId}": {
-            "put": {
-                "description": "Update reservation by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reservations"
-                ],
-                "summary": "Update Reservation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "reservation id",
-                        "name": "reservationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update reservation request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity"
-                        }
                     }
                 ],
                 "responses": {
@@ -1612,7 +1619,7 @@ const docTemplate = `{
         },
         "/staysreviews/update/{id}": {
             "put": {
-                "description": "Update Stays_review by id",
+                "description": "Update a stays review by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1622,17 +1629,17 @@ const docTemplate = `{
                 "tags": [
                     "staysReviews"
                 ],
-                "summary": "Update Stays_review",
+                "summary": "Update Stays Review",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "stays review id",
+                        "description": "ID of the stays review to update",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "update stays review request",
+                        "description": "Details to update the stays review",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -1643,19 +1650,26 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Successfully updated stays review",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Error",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
-                    "default": {
-                        "description": "Error",
+                    "404": {
+                        "description": "Stays review not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
@@ -2405,7 +2419,7 @@ const docTemplate = `{
                 "images": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 },
                 "is_smoking_prohibited": {

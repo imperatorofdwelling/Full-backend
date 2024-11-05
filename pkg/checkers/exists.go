@@ -34,3 +34,9 @@ func CheckFavouriteExists(ctx context.Context, db *sql.DB, userID, stayID string
 	err := db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM favourite WHERE user_id = $1 AND stay_id = $2)", userID, stayID).Scan(&exists)
 	return exists, err
 }
+
+func CheckReservationExists(ctx context.Context, db *sql.DB, reservationID string) (bool, error) {
+	var exists bool
+	err := db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM reservations WHERE id = $1)", reservationID).Scan(&exists)
+	return exists, err
+}

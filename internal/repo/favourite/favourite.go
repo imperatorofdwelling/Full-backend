@@ -63,20 +63,17 @@ func (r *Repo) RemoveFavourite(ctx context.Context, userId, stayID string) error
 
 	return nil
 }
+
 func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error) {
 	const op = "repo.Favourite.GetAllFavourites"
 
 	stmt, err := r.Db.PrepareContext(ctx, `
 		SELECT f.user_id, 
 		       f.stay_id, 
-		       CONCAT(
-		           'Name: ', s.name, ', ',
-		           'Type: ', s.type, ', ',
-		           'Room: ', s.room, ', ',
-		           'Price: ', s.price::text
-		       ) AS description
+		       l.city
 		FROM favourite f
 		JOIN stays s ON f.stay_id = s.id
+		JOIN locations l ON s.location_id = l.id
 		WHERE f.user_id = $1
 	`)
 
@@ -95,7 +92,8 @@ func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Fav
 
 	for rows.Next() {
 		var fav model.Favourite
-		if err := rows.Scan(&fav.UserID, &fav.StayID, &fav.Description); err != nil {
+		// Now scanning only the necessary fields
+		if err := rows.Scan(&fav.UserID, &fav.StayID, &fav.City); err != nil {
 			return nil, fmt.Errorf("%s: scanning row: %w", op, err)
 		}
 		favourites = append(favourites, fav)

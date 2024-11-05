@@ -173,7 +173,7 @@ definitions:
         type: string
       images:
         items:
-          type: string
+          type: integer
         type: array
       is_smoking_prohibited:
         type: boolean
@@ -1044,41 +1044,6 @@ paths:
       summary: Get Reservation
       tags:
       - reservations
-  /reservation/{reservationId}:
-    put:
-      consumes:
-      - application/json
-      description: Update reservation by id
-      parameters:
-      - description: reservation id
-        in: path
-        name: reservationId
-        required: true
-        type: string
-      - description: update reservation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Update Reservation
-      tags:
-      - reservations
   /reservation/create:
     post:
       consumes:
@@ -1107,6 +1072,46 @@ paths:
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Reservation
+      tags:
+      - reservations
+  /reservation/update/{reservationId}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing reservation by its ID
+      parameters:
+      - description: ID of the reservation to update
+        in: path
+        name: reservationId
+        required: true
+        type: string
+      - description: Details to update the reservation
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated reservation
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
+          description: Reservation not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update Reservation
       tags:
       - reservations
   /reservation/user/{userID}:
@@ -1487,14 +1492,14 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update Stays_review by id
+      description: Update a stays review by its ID
       parameters:
-      - description: stays review id
+      - description: ID of the stays review to update
         in: path
         name: id
         required: true
         type: string
-      - description: update stays review request
+      - description: Details to update the stays review
         in: body
         name: request
         required: true
@@ -1504,18 +1509,23 @@ paths:
       - application/json
       responses:
         "200":
-          description: ok
+          description: Successfully updated stays review
           schema:
-            type: string
+            additionalProperties: true
+            type: object
         "400":
-          description: Error
+          description: Invalid request
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        default:
-          description: Error
+        "404":
+          description: Stays review not found
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Update Stays_review
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update Stays Review
       tags:
       - staysReviews
   /user/{id}:

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -137,5 +138,16 @@ func (h *FavHandler) GetAllFavourites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, favourites)
+	cityMap := make(map[string][]uuid.UUID)
+
+	for _, fav := range favourites {
+		cityMap[fav.City] = append(cityMap[fav.City], fav.StayID)
+	}
+
+	response := make([]map[string][]uuid.UUID, 0)
+	for city, stays := range cityMap {
+		response = append(response, map[string][]uuid.UUID{city: stays})
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]any{"data": cityMap})
 }

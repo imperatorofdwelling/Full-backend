@@ -71,16 +71,17 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 // UpdateReservation godoc
 //
 //	@Summary		Update Reservation
-//	@Description	Update reservation by id
+//	@Description	Update an existing reservation by its ID
 //	@Tags			reservations
 //	@Accept			application/json
 //	@Produce		json
-//	@Param			reservationId	path		string		true	"reservation id"
-//	@Param			request	body	reservation.ReservationUpdateEntity			true	"update reservation request"
-//	@Success		200	{string}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
-//	@Router			/reservation/{reservationId} [put]
+//	@Param			reservationId	path		string		true	"ID of the reservation to update"
+//	@Param			request		body	reservation.ReservationUpdateEntity	true	"Details to update the reservation"
+//	@Success		200	{object}	map[string]interface{}	"Successfully updated reservation"
+//	@Failure		400	{object}	responseApi.ResponseError		"Invalid request"
+//	@Failure		404	{object}	responseApi.ResponseError		"Reservation not found"
+//	@Failure		500	{object}	responseApi.ResponseError		"Internal server error"
+//	@Router			/reservation/update/{reservationId} [put]
 func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.UpdateReservation"
 

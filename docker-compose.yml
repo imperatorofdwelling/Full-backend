@@ -2,6 +2,9 @@ version: "3.7"
 
 volumes:
   local_postgres_data:
+networks:
+  proxynet:
+    driver: bridge
 
 services:
   db:

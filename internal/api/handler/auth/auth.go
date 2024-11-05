@@ -177,6 +177,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
 			return
 		}
+		// TODO зафиксить ошибку
 		userID, ok := claims["user_id"].(string)
 		if !ok {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))

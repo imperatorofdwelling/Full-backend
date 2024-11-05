@@ -55,11 +55,11 @@ func NewServerHTTP(
 	r.Route("/api/v1/", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			authHandler.NewAuthHandler(r)
+			userHandler.NewPublicUserHandler(r)
 		})
 
 		r.Group(func(r chi.Router) {
 			r.Use(authHandler.JWTMiddleware)
-			userHandler.NewPublicUserHandler(r)
 			locationHandler.NewLocationHandler(r)
 			// just added stays handler
 			reservationHandler.NewReservationHandler(r)

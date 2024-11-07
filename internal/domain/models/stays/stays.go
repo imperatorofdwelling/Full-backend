@@ -56,18 +56,15 @@ type (
 		UpdatedAt           time.Time `json:"updated_at"`
 	}
 
-	StayImageEntity struct {
-		Image  []byte `json:"image"`
-		IsMain bool   `json:"is_main"`
-	}
-
 	StayImagesEntity struct {
-		Images []StayImagesEntity `json:"images"`
+		Images []byte    `json:"images"`
+		StayID uuid.UUID `json:"stay_id"`
 	}
 
 	StayImage struct {
 		ID        uuid.UUID `json:"id"`
-		ImagePath string    `json:"image_path"`
+		StayID    uuid.UUID `json:"stay_id"`
+		ImageName string    `json:"image_name"`
 		IsMain    bool      `json:"is_main"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`

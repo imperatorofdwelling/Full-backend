@@ -13,6 +13,10 @@ import (
 	"net/http"
 )
 
+const (
+	MaxImageMemorySize = 5 * (1024 * 1024)
+)
+
 type Handler struct {
 	Svc interfaces.StaysService
 	Log *slog.Logger
@@ -20,12 +24,12 @@ type Handler struct {
 
 func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
-		r.Post("/create", h.CreateStay)
-		r.Get("/{stayId}", h.GetStayByID)
-		r.Get("/", h.GetStays)
-		r.Delete("/{stayId}", h.DeleteStayByID)
-		r.Put("/{stayId}", h.UpdateStayByID)
-		r.Get("/user/{userId}", h.GetStaysByUserID)
+		//r.Post("/create", h.CreateStay)
+		//r.Get("/{stayId}", h.GetStayByID)
+		//r.Get("/", h.GetStays)
+		//r.Delete("/{stayId}", h.DeleteStayByID)
+		//r.Put("/{stayId}", h.UpdateStayByID)
+		//r.Get("/user/{userId}", h.GetStaysByUserID)
 	})
 }
 
@@ -33,6 +37,8 @@ func (h *Handler) NewPublicStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
 		r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 		r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
+		r.Post("/images", h.CreateImages)
+		r.Post("/images/main", h.CreateMainImage)
 	})
 }
 
@@ -339,4 +345,107 @@ func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, stayImage)
+}
+
+// CreateImages godoc
+//
+//	@Summary		Create images
+//	@Description	Create images
+//	@Tags			stays
+//	@Accept			multipart/form-data
+//	@Param			images	formData		[]file		true	"images"
+//	@Param			stay_id	formData		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images [post]
+func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.CreateImages"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	err := r.ParseMultipartForm(MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	formValues := r.MultipartForm.Value
+
+	formFiles := r.MultipartForm.File
+
+	images := formFiles["images"]
+	stayID := formValues["stay_id"][0]
+
+	stayIDUuid, err := uuid.FromString(stayID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.CreateImages(r.Context(), images, stayIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created")
+}
+
+// CreateMainImage godoc
+//
+//	@Summary		Create main image
+//	@Description	Create main image
+//	@Tags			stays
+//	@Accept			multipart/form-data
+//	@Param			images	formData		file		true	"images"
+//	@Param			stay_id	formData		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/main [post]
+func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.CreateMainImage"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	err := r.ParseMultipartForm(MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	formValues := r.MultipartForm.Value
+	formFiles := r.MultipartForm.File
+
+	mainImage := formFiles["images"][0]
+	stayID := formValues["stay_id"][0]
+
+	stayIDUuid, err := uuid.FromString(stayID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.CreateMainImage(r.Context(), mainImage, stayIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created")
 }

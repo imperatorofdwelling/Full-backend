@@ -219,7 +219,7 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.StayImage, error) {
 	const op = "repo.stays.GetImagesByStayID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM images WHERE stay_id=$1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays_images WHERE stay_id=$1")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -235,7 +235,7 @@ func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.St
 
 	for rowsImg.Next() {
 		var stayImage models.StayImage
-		err = rowsImg.Scan(&stayImage.ID, &stayImage.ImagePath, &stayImage.IsMain, &stayImage.CreatedAt, &stayImage.UpdatedAt)
+		err = rowsImg.Scan(&stayImage.ID, &stayImage.StayID, &stayImage.ImageName, &stayImage.IsMain, &stayImage.CreatedAt, &stayImage.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -247,7 +247,7 @@ func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.St
 func (r *Repo) GetMainImageByStayID(ctx context.Context, id uuid.UUID) (models.StayImage, error) {
 	const op = "repo.stays.GetMainImageByStayID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM images WHERE stay_id=$1 AND is_main=$2")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays_images WHERE stay_id=$1 AND is_main=$2")
 	if err != nil {
 		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -257,10 +257,28 @@ func (r *Repo) GetMainImageByStayID(ctx context.Context, id uuid.UUID) (models.S
 
 	row := stmt.QueryRowContext(ctx, id, true)
 
-	err = row.Scan(&stayImage.ID, &stayImage.ImagePath, &stayImage.IsMain, &stayImage.UpdatedAt, &stayImage.CreatedAt)
+	err = row.Scan(&stayImage.ID, &stayImage.StayID, &stayImage.ImageName, &stayImage.IsMain, &stayImage.UpdatedAt, &stayImage.CreatedAt)
 	if err != nil {
 		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return stayImage, nil
+}
+
+func (r *Repo) CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error {
+	const op = "repo.stays.CreateStayImage"
+
+	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO stays_images(image_name, stay_id, is_main, created_at, updated_at) VALUES($1, $2, $3, $4, $5)")
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, fileName, stayID, isMain, time.Now(), time.Now())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }

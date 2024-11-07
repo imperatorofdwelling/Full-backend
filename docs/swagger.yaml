@@ -127,7 +127,6 @@ definitions:
       number_of_bathrooms:
         type: integer
       number_of_bedrooms:
-        description: Images              []StayImage `json:"images"`
         type: integer
       number_of_beds:
         type: integer
@@ -196,6 +195,21 @@ definitions:
     - street
     - type
     - user_id
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      image_name:
+        type: string
+      is_main:
+        type: boolean
+      stay_id:
+        type: string
+      updated_at:
+        type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq:
     properties:
@@ -806,6 +820,137 @@ paths:
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create Stay
+      tags:
+      - stays
+  /stays/images:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create images
+      parameters:
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: images
+        required: true
+        type: array
+      - description: stay id
+        in: formData
+        name: stay_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create images
+      tags:
+      - stays
+  /stays/images/{stayId}:
+    get:
+      consumes:
+      - application/json
+      description: Get stays images by stay id
+      parameters:
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get all stays images by stay id
+      tags:
+      - stays
+  /stays/images/main:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create main image
+      parameters:
+      - description: images
+        in: formData
+        name: images
+        required: true
+        type: file
+      - description: stay id
+        in: formData
+        name: stay_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create main image
+      tags:
+      - stays
+  /stays/images/main/{stayId}:
+    get:
+      consumes:
+      - application/json
+      description: Get main stays image by stay id
+      parameters:
+      - description: stay id
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get main stays image by stay id
       tags:
       - stays
   /stays/user/{userId}:

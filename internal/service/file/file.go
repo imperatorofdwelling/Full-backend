@@ -15,11 +15,16 @@ const (
 	SvgImageType ImageType = ".svg"
 )
 
-const filePath = "./assets/images/advantages"
+type ImagePath string
+
+const (
+	FilePathAdvantages  ImagePath = "./assets/images/advantages"
+	FilePathStaysImages ImagePath = "./assets/images/stays_images"
+)
 
 type Service struct{}
 
-func (s *Service) UploadImage(img []byte, t ImageType) (string, error) {
+func (s *Service) UploadImage(img []byte, t ImageType, path ImagePath) (string, error) {
 	const op = "service.FileService.CreateImage"
 
 	fileName, err := s.GenRandomFileName()
@@ -27,7 +32,7 @@ func (s *Service) UploadImage(img []byte, t ImageType) (string, error) {
 		return "", err
 	}
 
-	fileWithPath := fmt.Sprintf("%s/%s%s", filePath, fileName, t)
+	fileWithPath := fmt.Sprintf("%s/%s%s", path, fileName, t)
 
 	file, err := os.Create(fileWithPath)
 	if err != nil {

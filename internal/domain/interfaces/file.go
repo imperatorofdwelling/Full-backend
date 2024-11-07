@@ -5,7 +5,7 @@ import (
 )
 
 type FileService interface {
-	UploadImage([]byte, file.ImageType) (string, error)
+	UploadImage([]byte, file.ImageType, file.ImagePath) (string, error)
 	RemoveFile(string) error
 	GenRandomFileName() (string, error)
 }

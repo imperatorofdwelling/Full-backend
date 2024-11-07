@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -18,6 +19,7 @@ type StaysRepo interface {
 	CheckStayIfExistsByID(context.Context, uuid.UUID) (bool, error)
 	GetImagesByStayID(context.Context, uuid.UUID) ([]stays.StayImage, error)
 	GetMainImageByStayID(context.Context, uuid.UUID) (stays.StayImage, error)
+	CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error
 }
 
 //go:generate mockery --name StaysService
@@ -30,6 +32,8 @@ type StaysService interface {
 	UpdateStayByID(context.Context, *stays.StayEntity, uuid.UUID) (*stays.Stay, error)
 	GetImagesByStayID(context.Context, uuid.UUID) ([]stays.StayImage, error)
 	GetMainImageByStayID(context.Context, uuid.UUID) (stays.StayImage, error)
+	CreateImages(context.Context, []*multipart.FileHeader, uuid.UUID) error
+	CreateMainImage(context.Context, *multipart.FileHeader, uuid.UUID) error
 }
 
 type StaysHandler interface {
@@ -41,4 +45,6 @@ type StaysHandler interface {
 	UpdateStayByID(http.ResponseWriter, *http.Request)
 	GetStayImagesByStayID(http.ResponseWriter, *http.Request)
 	GetMainImageByStayID(http.ResponseWriter, *http.Request)
+	CreateImages(http.ResponseWriter, *http.Request)
+	CreateMainImage(http.ResponseWriter, *http.Request)
 }

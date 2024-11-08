@@ -43,7 +43,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	advantageService := providers2.ProvideAdvantageService(advantageRepo, fileService)
 	advantageHandler := providers2.ProvideAdvantageHandler(advantageService, log)
 	staysRepo := providers4.ProvideStaysRepo(sqlDB)
-	staysService := providers4.ProvideStaysService(staysRepo, locationService, fileService)
+	staysService := providers4.ProvideStaysService(staysRepo, locationService, fileService, userService)
 	staysHandler := providers4.ProvideStaysHandler(staysService, log)
 	staysadvantageRepo := staysadvantage.ProvideStaysAdvantageRepo(sqlDB)
 	staysadvantageService := staysadvantage.ProvideStaysAdvantageService(staysadvantageRepo, staysService, advantageService)

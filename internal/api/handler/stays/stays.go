@@ -39,6 +39,7 @@ func (h *Handler) NewPublicStaysHandler(r chi.Router) {
 		r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 		r.Post("/images", h.CreateImages)
 		r.Post("/images/main", h.CreateMainImage)
+		r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
 	})
 }
 
@@ -448,4 +449,43 @@ func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created")
+}
+
+// DeleteStayImage godoc
+//
+//	@Summary		Delete image by id
+//	@Description	Delete image by id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			imageId	path		string		true	"stay image id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/delete/{imageId} [delete]
+func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.DeleteStayImage"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	imageID := chi.URLParam(r, "imageId")
+	imageIDUuid, err := uuid.FromString(imageID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.DeleteStayImage(r.Context(), imageIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusNoContent, "successfully deleted")
+
 }

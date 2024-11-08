@@ -890,6 +890,35 @@ paths:
       summary: Get all stays images by stay id
       tags:
       - stays
+  /stays/images/delete/{imageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete image by id
+      parameters:
+      - description: stay image id
+        in: path
+        name: imageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Delete image by id
+      tags:
+      - stays
   /stays/images/main:
     post:
       consumes:

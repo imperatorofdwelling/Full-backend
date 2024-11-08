@@ -276,3 +276,27 @@ func (s *Service) CreateMainImage(ctx context.Context, fileHeader *multipart.Fil
 
 	return nil
 }
+
+func (s *Service) DeleteStayImage(ctx context.Context, imageID uuid.UUID) error {
+	const op = "service.stays.DeleteStayImage"
+
+	stayImage, err := s.Repo.GetStayImageByID(ctx, imageID)
+	if err != nil {
+		return err
+	}
+
+	if stayImage.ID == uuid.Nil {
+		return fmt.Errorf("%s: %w", op, service.ErrStayImageNotFound)
+	}
+
+	err = s.FileSvc.RemoveFile(stayImage.ImageName, file.FilePathStaysImages)
+	if err != nil {
+		return err
+	}
+
+	err = s.Repo.DeleteStayImage(ctx, imageID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -265,6 +265,33 @@ func (r *Repo) GetMainImageByStayID(ctx context.Context, id uuid.UUID) (models.S
 	return stayImage, nil
 }
 
+func (r *Repo) GetStayImageByID(ctx context.Context, imageID uuid.UUID) (models.StayImage, error) {
+	const op = "repo.stays.GetStayImageByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays_images WHERE id=$1")
+	if err != nil {
+		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	var stayImage models.StayImage
+
+	row := stmt.QueryRowContext(ctx, imageID)
+	err = row.Scan(
+		&stayImage.ID,
+		&stayImage.StayID,
+		&stayImage.ImageName,
+		&stayImage.IsMain,
+		&stayImage.UpdatedAt,
+		&stayImage.CreatedAt)
+	if err != nil {
+		return models.StayImage{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return stayImage, nil
+}
+
 func (r *Repo) CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error {
 	const op = "repo.stays.CreateStayImage"
 
@@ -276,6 +303,24 @@ func (r *Repo) CreateStayImage(ctx context.Context, fileName string, isMain bool
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, fileName, stayID, isMain, time.Now(), time.Now())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) DeleteStayImage(ctx context.Context, imageId uuid.UUID) error {
+	const op = "repo.stays.DeleteStayImage"
+
+	stmt, err := r.Db.PrepareContext(ctx, "DELETE FROM stays_images WHERE id=$1")
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, imageId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

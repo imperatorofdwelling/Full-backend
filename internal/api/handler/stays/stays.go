@@ -24,12 +24,12 @@ type Handler struct {
 
 func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
-		//r.Post("/create", h.CreateStay)
-		//r.Get("/{stayId}", h.GetStayByID)
-		//r.Get("/", h.GetStays)
-		//r.Delete("/{stayId}", h.DeleteStayByID)
-		//r.Put("/{stayId}", h.UpdateStayByID)
-		//r.Get("/user/{userId}", h.GetStaysByUserID)
+		r.Post("/create", h.CreateStay)
+		r.Get("/{stayId}", h.GetStayByID)
+		r.Get("/", h.GetStays)
+		r.Delete("/{stayId}", h.DeleteStayByID)
+		r.Put("/{stayId}", h.UpdateStayByID)
+		r.Get("/user/{userId}", h.GetStaysByUserID)
 	})
 }
 

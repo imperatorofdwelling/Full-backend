@@ -18,3 +18,4 @@ migrate-down:
 docker:
 	docker-compose up --build
 test:
+	go test -cover ./internal/api/handler/...

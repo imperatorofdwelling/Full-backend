@@ -2180,11 +2180,15 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "isHashed",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "isHashed": {
+                    "type": "boolean"
                 },
                 "password": {
                     "type": "string"
@@ -2195,12 +2199,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "isHashed",
                 "name",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "isHashed": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

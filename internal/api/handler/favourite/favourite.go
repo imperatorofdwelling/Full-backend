@@ -149,5 +149,5 @@ func (h *FavHandler) GetAllFavourites(w http.ResponseWriter, r *http.Request) {
 		response = append(response, map[string][]uuid.UUID{city: stays})
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, map[string]any{"data": cityMap})
+	responseApi.WriteJson(w, r, http.StatusOK, cityMap)
 }

@@ -17,22 +17,28 @@ definitions:
     properties:
       email:
         type: string
+      isHashed:
+        type: boolean
       password:
         type: string
     required:
     - email
+    - isHashed
     - password
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration:
     properties:
       email:
         type: string
+      isHashed:
+        type: boolean
       name:
         type: string
       password:
         type: string
     required:
     - email
+    - isHashed
     - name
     - password
     type: object

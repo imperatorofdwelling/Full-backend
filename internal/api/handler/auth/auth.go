@@ -15,6 +15,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/imperatorofdwelling/Full-backend/pkg/validator"
+	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -57,21 +58,40 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !userCurrent.IsHashed {
+		// password hashing
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userCurrent.Password), 12)
+		if err != nil {
+			h.Log.Error("failed to hash password", slog.String("error", err.Error()))
+			responseApi.WriteError(w, r, http.StatusInternalServerError, "internal server error")
+			return
+		}
+		userCurrent.Password = string(hashedPassword)
+	}
+
 	// creating a new validator for registration
 	v := validator.New()
 	auth.ValidateRegistration(v, &userCurrent)
 
 	if !v.IsValid() {
-		responseApi.WriteJson(w, r, http.StatusBadRequest, v.Errors)
+		responseApi.WriteError(w, r, http.StatusBadRequest, v.Errors)
 		return
 	}
 
 	userCreated, err := h.Svc.Register(context.Background(), userCurrent)
 	if err != nil {
-		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrNotFound) {
-			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		h.Log.Error("Error during registration", slog.String("error", err.Error()))
+
+		if errors.Is(err, service.ErrUserAlreadyExists) {
+			responseApi.WriteError(w, r, http.StatusBadRequest, fmt.Sprintf("%v", service.ErrUserAlreadyExists))
 			return
 		}
+
+		if errors.Is(err, service.ErrNotFound) {
+			responseApi.WriteError(w, r, http.StatusBadRequest, fmt.Sprintf("%v", service.ErrNotFound))
+			return
+		}
+
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -102,30 +122,31 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("jwt-token")
 	if err == nil {
-		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("already logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, errors.New("already logged in"))
 		return
 	}
 
 	var userCurrent model.Login
 	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
+		responseApi.WriteError(w, r, http.StatusBadRequest, errors.New("failed to decode request body"))
 		return
 	}
 
 	userID, err := h.Svc.Login(context.Background(), userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
-			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(service.ErrNotFound))
 			return
 		}
 		if errors.Is(err, service.ErrValid) {
-			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(service.ErrValid))
 			return
 		}
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
 		"user_id": userID,

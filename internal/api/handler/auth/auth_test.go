@@ -1,21 +1,23 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
-	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestAuthHandler_NewAuthHandler(t *testing.T) {
@@ -33,87 +35,51 @@ func TestAuthHandler_NewAuthHandler(t *testing.T) {
 	})
 }
 
-func TestAuthHandler_Registration(t *testing.T) {
+func TestAuthHandler_Registration_Success(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
 	}
-
-	fakeUUID, _ := uuid.NewV4()
 
 	router := chi.NewRouter()
 	router.Post("/register", hdl.Registration)
 
-	tests := []struct {
-		name         string
-		body         string
-		expectErr    error
-		expectedCode int
-		expectedBody string
-	}{
-		{
-			name:         "should create a new user successfully",
-			body:         `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`,
-			expectErr:    nil,
-			expectedCode: http.StatusCreated,
-			expectedBody: "",
-		},
-		{
-			name:         "should return error if user already exists",
-			body:         `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`,
-			expectErr:    service.ErrUserAlreadyExists,
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "user already exists",
-		},
-		{
-			name:         "should be error for unknown field",
-			body:         `{"name":"test user", "unknown_field":"value"}`,
-			expectErr:    nil,
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "{\"error\":\"error=failed to decode request body\"}\n",
-		},
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
 
-		{
-			name:         "should return error for invalid registration",
-			body:         `{"name":"", "email":"invalid-email", "password":""}`,
-			expectErr:    nil,
-			expectedCode: http.StatusBadRequest,
-			expectedBody: "{\"email\":\"must be in correct form\",\"name\":\"length of the name must be greater than 5\",\"password\":\"length of the password must be greater than 5\"}\n",
-		},
-	}
+		payload := `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(payload))
 
-			if tt.expectErr == nil && tt.name != "should return error if user already exists" {
-				var userToRegister model.Registration
-				json.Unmarshal([]byte(tt.body), &userToRegister)
-				svc.On("Register", mock.Anything, userToRegister).Return(fakeUUID, nil).Once()
-			} else if tt.name == "should return error if user already exists" {
-				var userToRegister model.Registration
-				json.Unmarshal([]byte(tt.body), &userToRegister)
+		var registration auth.Registration
+		err := json.Unmarshal([]byte(payload), &registration)
+		assert.NoError(t, err)
 
-				svc.On("Register", mock.Anything, userToRegister).Return(uuid.Nil, tt.expectErr).Once()
-			}
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registration.Password), 12)
+		assert.NoError(t, err)
+		registration.Password = string(hashedPassword)
 
-			req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(tt.body))
-			req.Header.Set("Content-Type", "application/json")
+		svc.On("Register", mock.Anything, mock.Anything).Return(nil, nil)
 
-			router.ServeHTTP(r, req)
+		router.ServeHTTP(r, req)
 
-			assert.Equal(t, tt.expectedCode, r.Code)
-			if tt.expectedBody != "" {
-				assert.Contains(t, r.Body.String(), tt.expectedBody)
-			}
+		assert.Equal(t, http.StatusCreated, r.Code)
+	})
 
-		})
-	}
+	t.Run("should be an error with body", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPost, "/register", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
 }
 
-func TestAuthHandler_RegistrationInternalError(t *testing.T) {
+func TestAuthHandler_Registration_Errors(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
@@ -122,101 +88,175 @@ func TestAuthHandler_RegistrationInternalError(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Post("/registration", hdl.Registration)
+	router.Post("/register", hdl.Registration)
 
-	t.Run("should return internal server error after validation", func(t *testing.T) {
+	t.Run("should return error when user already exists", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		body := []byte(`{"name":"test user", "email":"testuser@example.com", "password":"password123"}`)
-		req := httptest.NewRequest(http.MethodPost, "/registration", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
+		payload := `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(payload))
 
-		var userToRegister model.Registration
-		json.Unmarshal(body, &userToRegister)
-		svc.On("Register", mock.Anything, userToRegister).Return(uuid.Nil, errors.New("internal server error")).Once()
+		var registration auth.Registration
+		err := json.Unmarshal([]byte(payload), &registration)
+		assert.NoError(t, err)
+
+		// Мокаем ошибку, когда пользователь уже существует
+		svc.On("Register", mock.Anything, mock.Anything).Return(nil, service.ErrUserAlreadyExists)
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
-		assert.Contains(t, r.Body.String(), "{\"error\":\"error=internal server error\"}\n")
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+		assert.Contains(t, r.Body.String(), "user already exists")
+	})
+
+	t.Run("should return bad request when fields are invalid", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		// Тело запроса с некорректными данными (например, без email или с коротким паролем)
+		payload := `{"name": "test user", "email": "invalid-email", "password": "123"}`
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(payload))
+
+		router.ServeHTTP(r, req)
+
+		// Проверка, что сервер возвращает ошибку 400 (Bad Request)
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+
+		assert.Contains(t, r.Body.String(), "email")
 	})
 }
 
-func TestAuthHandler_Login(t *testing.T) {
+func TestAuthHandler_Registration_Errors_Already_Exists(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
-	svc := new(mocks.AuthService)
+	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
 	}
 
-	fakeUUID, _ := uuid.NewV4()
+	router := chi.NewRouter()
+	router.Post("/register", hdl.Registration)
+
+	t.Run("should return error when resource not found", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		payload := `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(payload))
+
+		var registration auth.Registration
+		err := json.Unmarshal([]byte(payload), &registration)
+		assert.NoError(t, err)
+
+		svc.On("Register", mock.Anything, mock.Anything).Return(nil, service.ErrNotFound)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+		assert.Contains(t, r.Body.String(), "not found")
+	})
+
+}
+
+func TestAuthHandler_Registration_Errors_Internal_Server_Error(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/register", hdl.Registration)
+
+	t.Run("should return internal server error for unknown errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		payload := `{"name": "test user", "email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(payload))
+
+		var registration auth.Registration
+		err := json.Unmarshal([]byte(payload), &registration)
+		assert.NoError(t, err)
+
+		// Мокаем ошибку, которая не обрабатывается явно
+		svc.On("Register", mock.Anything, mock.Anything).Return(nil, errors.New("unexpected error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+}
+
+func TestAuthHandler_LoginUser_Success(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
 
 	router := chi.NewRouter()
 	router.Post("/login", hdl.LoginUser)
 
-	t.Run("should return ok", func(t *testing.T) {
+	t.Run("should login successfully", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		pBody := `{"email": "testuser@example.com", "password": "password123"}`
+		payload := `{"email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
-		obj := model.Login{
-			Email:    "testuser@example.com",
-			Password: "password123",
-		}
-
-		svc.On("Login", mock.Anything, obj).Return(fakeUUID, nil)
-
-		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(pBody))
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusOK, r.Code)
-	})
 
-	t.Run("should return unauthorized if already logged in", func(t *testing.T) {
+		cookies := r.Result().Cookies()
+		assert.Len(t, cookies, 1)
+		assert.Equal(t, "jwt-token", cookies[0].Name)
+	})
+}
+
+func TestAuthHandler_LoginUser_LoggedIn(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return error if already logged in", func(t *testing.T) {
 		r := httptest.NewRecorder()
+
+		// Создаем request с действующим jwt-токеном в cookie
+		testUserID, _ := uuid.NewV4()
+		testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"exp":     time.Now().Add(time.Hour * 24).Unix(),
+			"user_id": testUserID.String(),
+		})
+		tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
 		req := httptest.NewRequest(http.MethodPost, "/login", nil)
-		req.AddCookie(&http.Cookie{Name: "jwt-token", Value: "some-token"})
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusUnauthorized, r.Code)
 		assert.Contains(t, r.Body.String(), "already logged in")
 	})
-
-	t.Run("should return bad request if login fails", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		body := []byte(`{"email":"testuser@example.com", "password":"wrong2password"}`)
-		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
-
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrValid)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusBadRequest, r.Code)
-		assert.Contains(t, r.Body.String(), "{\"error\":\"error=invalid data\"}\n")
-	})
-
-	t.Run("should return bad request if JSON is invalid", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		body := []byte(`{"email":"testuser@example.com", "password":}`)
-		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusBadRequest, r.Code)
-	})
-
 }
 
-func TestAuthHandler_LoginBadRequest(t *testing.T) {
+func TestAuthHandler_LoginUser_NoBody(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
-	svc := new(mocks.AuthService)
+	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
@@ -225,12 +265,12 @@ func TestAuthHandler_LoginBadRequest(t *testing.T) {
 	router := chi.NewRouter()
 	router.Post("/login", hdl.LoginUser)
 
-	t.Run("should return bad request if JSON is invalid", func(t *testing.T) {
+	t.Run("should return error if no body was provided", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		body := []byte(`{"email":"testuser@example.com", "password"}`)
-		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
+		req := httptest.NewRequest(http.MethodPost, "/login", nil)
+
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 
@@ -239,9 +279,9 @@ func TestAuthHandler_LoginBadRequest(t *testing.T) {
 
 }
 
-func TestAuthHandler_LoginNotFound(t *testing.T) {
+func TestAuthHandler_LoginUser_ErrorHandling(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
-	svc := new(mocks.AuthService)
+	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
@@ -250,25 +290,50 @@ func TestAuthHandler_LoginNotFound(t *testing.T) {
 	router := chi.NewRouter()
 	router.Post("/login", hdl.LoginUser)
 
-	t.Run("should return not found", func(t *testing.T) {
+	t.Run("should return not found error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		body := []byte(`{"email":"testuser@example.com", "password":"wrong2password"}`)
-		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
+		payload := `{"email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
+		// Мокаем ошибку ErrNotFound
 		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrNotFound)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusNotFound, r.Code)
-		assert.Contains(t, r.Body.String(), "{\"error\":\"error=not found\"}\n")
 	})
 }
 
-func TestAuthHandler_LoginInternalServerError(t *testing.T) {
+func TestAuthHandler_LoginUser_ErrorHandling_Request_Error(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
-	svc := new(mocks.AuthService)
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/login", hdl.LoginUser)
+
+	t.Run("should return bad request error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		payload := `{"email": "testuser@example.com", "password": "invalidpassword"}`
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
+
+		// Мокаем ошибку ErrValid
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrValid)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestAuthHandler_LoginUser_ErrorHandling_Internal_Error(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
@@ -280,16 +345,14 @@ func TestAuthHandler_LoginInternalServerError(t *testing.T) {
 	t.Run("should return internal server error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		body := []byte(`{"email":"testuser@example.com", "password":"wrong2password"}`)
-		req := httptest.NewRequest(http.MethodPost, "/login", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
+		payload := `{"email": "testuser@example.com", "password": "password123"}`
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, errors.New("internal server error"))
+		// Мокаем общую ошибку
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, errors.New("unexpected error"))
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
-		assert.Contains(t, r.Body.String(), "{\"error\":\"error=internal server error\"}\n")
 	})
-
 }

@@ -30,11 +30,7 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 		r.Delete("/{stayId}", h.DeleteStayByID)
 		r.Put("/{stayId}", h.UpdateStayByID)
 		r.Get("/user/{userId}", h.GetStaysByUserID)
-	})
-}
 
-func (h *Handler) NewPublicStaysHandler(r chi.Router) {
-	r.Route("/stays", func(r chi.Router) {
 		r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 		r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 		r.Post("/images", h.CreateImages)

@@ -12,6 +12,10 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"image"
+	"image/color"
+	"image/png"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -31,7 +35,6 @@ func TestStaysHandler_NewStaysHandler(t *testing.T) {
 
 	t.Run("should be no errors private router", func(t *testing.T) {
 		hdl.NewStaysHandler(router)
-		//hdl.NewPublicStaysHandler(router)
 	})
 
 }
@@ -660,4 +663,362 @@ func TestStaysHandler_GetMainImageByStayID(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
+}
+
+func TestStaysHandler_CreateImages(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	mockUUID, _ := uuid.NewV4()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", mockUUID.String())
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		svc.On("CreateImages", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images", &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images", hdl.CreateImages)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusCreated, r.Code)
+	})
+
+	t.Run("should be error creating images", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("CreateImages", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", mockUUID.String())
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images", hdl.CreateImages)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", invalidUUID)
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		svc.On("CreateImages", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images", hdl.CreateImages)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error parsing multipart form data", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+
+		svc.On("CreateImages", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images", &buf)
+
+		router.HandleFunc("/stays/images", hdl.CreateImages)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestStaysHandler_DeleteStayImage(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteStayImage", mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/stays/images/delete/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/stays/images/delete/{imageId}", hdl.DeleteStayImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusNoContent, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodDelete, "/stays/images/delete/"+invalidUUID, nil)
+
+		router.HandleFunc("/stays/images/delete/{imageId}", hdl.DeleteStayImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error deleting stay image", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteStayImage", mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/stays/images/delete/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/stays/images/delete/{imageId}", hdl.DeleteStayImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestStaysHandler_CreateMainImage(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.StaysService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	mockUUID, _ := uuid.NewV4()
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", mockUUID.String())
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		svc.On("CreateMainImage", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images/main", &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images/main", hdl.CreateMainImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusCreated, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", invalidUUID)
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images/main", &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images/main", hdl.CreateMainImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error creating main image", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("CreateMainImage", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		_ = writer.WriteField("stay_id", mockUUID.String())
+
+		mockImg := createMockPng()
+
+		part, err := writer.CreateFormFile("images", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images/main", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/stays/images/main", hdl.CreateMainImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should be error parsing multipart form data", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("CreateMainImage", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/stays/images/main", bytes.NewReader([]byte{}))
+
+		router.HandleFunc("/stays/images/main", hdl.CreateMainImage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func createMockPng() *image.RGBA {
+	width := 200
+	height := 100
+
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+
+	cyan := color.RGBA{100, 200, 200, 0xff}
+
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			switch {
+			case x < width/2 && y < height/2:
+				img.Set(x, y, cyan)
+			case x >= width/2 && y >= height/2:
+				img.Set(x, y, color.White)
+			default:
+			}
+		}
+	}
+
+	return img
 }

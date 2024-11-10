@@ -7,12 +7,14 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/pkg/validator"
 	"log/slog"
 	"net/http"
 	"time"
@@ -49,9 +51,18 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var userCurrent model.Registration
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
+		return
+	}
+
+	// creating a new validator for registration
+	v := validator.New()
+	auth.ValidateRegistration(v, &userCurrent)
+
+	if !v.IsValid() {
+		responseApi.WriteJson(w, r, http.StatusBadRequest, v.Errors)
 		return
 	}
 
@@ -96,8 +107,10 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userCurrent model.Login
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
+		return
 	}
 
 	userID, err := h.Svc.Login(context.Background(), userCurrent)
@@ -114,7 +127,8 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"user_id": userID,
 	})
 	tokenString, err := token.SignedString([]byte("your-secret-key"))
 	if err != nil {
@@ -148,26 +162,26 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 			}
 			return []byte("your-secret-key"), nil
 		})
-		if err != nil {
+		if err != nil || !token.Valid {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
 			return
 		}
-		if !token.Valid {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
-			return
-		}
+
 		// Extract the user ID from the token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
 			return
 		}
-		// TODO зафиксить ошибку
+
 		userID, ok := claims["user_id"].(string)
 		if !ok {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
 			return
 		}
+
+		h.Log.Info("User ID extracted from token: ", slog.String("user_id", userID))
+
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), "user_id", userID)
 		r = r.WithContext(ctx)

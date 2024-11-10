@@ -142,7 +142,7 @@ func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
 
 		pBuf := bytes.NewBuffer(pBytes)
 
-		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil).Once()
 
 		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+uuidStayReview.String(), pBuf)
 
@@ -202,7 +202,7 @@ func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
 
 		pBuf := bytes.NewBuffer(pBytes)
 
-		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+		svc.On("UpdateStaysReview", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("failed")).Once()
 
 		req := httptest.NewRequest(http.MethodPut, "/staysreviews/update/"+uuidStayReview.String(), pBuf)
 

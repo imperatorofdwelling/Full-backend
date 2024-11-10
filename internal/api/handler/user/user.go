@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -54,6 +55,12 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var id = chi.URLParam(r, "id")
+	_, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
 
 	result, err := h.Svc.GetUserByID(context.Background(), id)
 	if err != nil {
@@ -64,7 +71,14 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
-	responseApi.WriteJson(w, r, http.StatusNoContent, result)
+
+	responseApi.WriteJson(w, r, http.StatusOK,
+		struct {
+			Data model.User `json:"data"`
+		}{
+			Data: result,
+		})
+
 }
 
 // UpdateUserByID
@@ -73,17 +87,16 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Description Update a user with the provided ID
 // @ID updateUserByID
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   id   path     string     true  "User ID"
-// @Param   body	body     model.User true  "User update data"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Security ApiKeyAuth
+// @Param   model.User	body     model.User true  "User update data"
 // @Success 200 {object} model.User
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 409 {object} responseApi.ResponseError "Email already exists"
 // @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
 	h.Log = h.Log.With(
@@ -98,6 +111,13 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 
 	var id = chi.URLParam(r, "id")
 
+	parsedID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
 	var updateUser model.User
 	if err := render.DecodeJSON(r.Body, &updateUser); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
@@ -105,8 +125,10 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.Svc.UpdateUserByID(context.Background(), id, updateUser)
+	// Передача контекста
+	result, err := h.Svc.UpdateUserByID(context.Background(), parsedID.String(), updateUser)
 	if err != nil {
+		// Обработка ошибок
 		if errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
 			return
@@ -122,6 +144,7 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
+
 	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 
@@ -131,15 +154,16 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 // @Description Delete a user with the provided ID
 // @ID deleteUserByID
 // @Tags users
-// @Accept  json
-// @Produce  json
-// @Param   id   path     string     true  "User ID"
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
 // @Security ApiKeyAuth
-// @Success 204
+// @Success 204 {object} nil "User successfully deleted"
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
 // @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 404 {object} responseApi.ResponseError "User not found"
 // @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.DeleteUserByID"
 	h.Log = h.Log.With(

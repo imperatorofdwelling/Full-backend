@@ -64,7 +64,11 @@ func (r *Repo) FindByNameMatch(ctx context.Context, match string) (*[]models.Loc
 func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error) {
 	const op = "repo.location.GetByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT 1 FROM locations WHERE id = $1")
+	stmt, err := r.Db.PrepareContext(ctx, `
+        SELECT id, city, federal_district, fias_id, kladr_id, lat, lon, okato, oktmo, 
+               population, region_iso_code, region_name, created_at, updated_at 
+        FROM locations WHERE id = $1
+    `)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -78,7 +82,7 @@ func (r *Repo) GetByID(ctx context.Context, id uuid.UUID) (*models.Location, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	if err := row.Scan(
+	if err = row.Scan(
 		&location.ID,
 		&location.City,
 		&location.FederalDistrict,

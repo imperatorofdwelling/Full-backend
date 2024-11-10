@@ -12,13 +12,18 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
+	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreports"
 	providers5 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreviews"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/usersreports"
 	"log/slog"
 )
 
@@ -54,6 +59,21 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	staysreviewsRepo := providers5.ProvideStaysReviewsRepository(sqlDB)
 	staysreviewsService := providers5.ProvideStaysReviewsService(staysreviewsRepo)
 	staysreviewsHandler := providers5.ProvideStaysReviewsHandler(staysreviewsService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler)
+	favouriteRepo := user2.ProvideFavouriteRepository(sqlDB)
+	favouriteService := user2.ProvideFavouriteService(favouriteRepo)
+	favHandler := user2.ProvideFavouriteHandler(favouriteService, log)
+	searchhistoryRepo := searchhistory.ProvideSearchHistoryRepository(sqlDB)
+	searchhistoryService := searchhistory.ProvideSearchHistoryService(searchhistoryRepo)
+	searchhistoryHandler := searchhistory.ProvideSearchHistoryHandler(searchhistoryService, log)
+	contractsRepo := contracts.ProvideContractRepository(sqlDB)
+	contractsService := contracts.ProvideContractService(contractsRepo)
+	contractsHandler := contracts.ProvideContractHandler(contractsService, log)
+	staysreportsRepo := staysreports.ProvideStaysReportRepo(sqlDB)
+	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo)
+	staysreportsHandler := staysreports.ProvideStaysReportHandler(staysreportsService, log)
+	usersreportsRepo := usersreports.ProvideUsersReportRepo(sqlDB)
+	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo)
+	usersreportsHandler := usersreports.ProvideUsersReportHandler(usersreportsService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler)
 	return serverHTTP, nil
 }

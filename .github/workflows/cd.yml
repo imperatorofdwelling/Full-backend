@@ -6,24 +6,18 @@ on:
       - main
 
 jobs:
-#  swag_and_wire:
-#    runs-on: self-hosted
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v2
-#      - name: Install Go, Swag, and Wire
-#        run: |
-#          go install github.com/swaggo/swag/cmd/swag@latest
-#          go install github.com/google/wire/cmd/wire@latest
-#          echo "export PATH=\$PATH:$(go env GOPATH)/bin" >> $GITHUB_ENV
-#      - name: Swagger
-#        run: swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
-#      - name: Wire
-#        run: wire ./internal/di
-
-  deploy:
+  ci:
     runs-on: self-hosted
-#    needs: swag_and_wire
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Generate Swagger documentation
+      - name: Generate Swagger Documentation
+        run: make swag
+  cd:
+    runs-on: self-hosted
+    needs: ci
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -38,5 +32,5 @@ jobs:
 
       - name: Verify deployment
         run: |
-          # Добавьте команду для проверки, что код обновился
-          # Например, curl или проверка статуса контейнера
+          # Replace this with a command to verify the service is running and updated
+          curl -f http://localhost:8080/api/v1/swagger/doc.json || exit 1

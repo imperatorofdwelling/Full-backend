@@ -9,11 +9,22 @@ jobs:
   ci:
     runs-on: self-hosted
     steps:
+      - name: check pwd
+        run: pwd
+      - name: check files
+        run: ls
+      - name: Go Mod Tidy
+        run: go mod tidy
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          path: ./Full-backend
+      - name: Set working directory
+        run: cd path/to/your/go/project
       # Generate Swagger documentation
       - name: Generate Swagger Documentation
         run: make swag
+        working-directory: ./Full-backend
   cd:
     runs-on: self-hosted
     needs: ci

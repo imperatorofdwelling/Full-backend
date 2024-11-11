@@ -11,9 +11,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      # Ensure `wire` and `swag` are in the path
-      - name: Update PATH
-        run: echo "${{ runner.os }}/bin" >> $GITHUB_PATH
+      - name: Install Wire
+        run: go install github.com/google/wire/cmd/wire@latest
+
       # Generate Swagger documentation
       - name: Generate Swagger Documentation
         run: make swag

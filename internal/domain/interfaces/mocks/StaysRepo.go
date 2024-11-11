@@ -63,6 +63,24 @@ func (_m *StaysRepo) CreateStay(_a0 context.Context, _a1 *stays.StayEntity) erro
 	return r0
 }
 
+// CreateStayImage provides a mock function with given fields: ctx, fileName, isMain, stayID
+func (_m *StaysRepo) CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error {
+	ret := _m.Called(ctx, fileName, isMain, stayID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateStayImage")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool, uuid.UUID) error); ok {
+		r0 = rf(ctx, fileName, isMain, stayID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteStayByID provides a mock function with given fields: _a0, _a1
 func (_m *StaysRepo) DeleteStayByID(_a0 context.Context, _a1 uuid.UUID) error {
 	ret := _m.Called(_a0, _a1)
@@ -79,6 +97,82 @@ func (_m *StaysRepo) DeleteStayByID(_a0 context.Context, _a1 uuid.UUID) error {
 	}
 
 	return r0
+}
+
+// DeleteStayImage provides a mock function with given fields: _a0, _a1
+func (_m *StaysRepo) DeleteStayImage(_a0 context.Context, _a1 uuid.UUID) error {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteStayImage")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetImagesByStayID provides a mock function with given fields: _a0, _a1
+func (_m *StaysRepo) GetImagesByStayID(_a0 context.Context, _a1 uuid.UUID) ([]stays.StayImage, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetImagesByStayID")
+	}
+
+	var r0 []stays.StayImage
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]stays.StayImage, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []stays.StayImage); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]stays.StayImage)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetMainImageByStayID provides a mock function with given fields: _a0, _a1
+func (_m *StaysRepo) GetMainImageByStayID(_a0 context.Context, _a1 uuid.UUID) (stays.StayImage, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMainImageByStayID")
+	}
+
+	var r0 stays.StayImage
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (stays.StayImage, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) stays.StayImage); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(stays.StayImage)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetStayByID provides a mock function with given fields: _a0, _a1
@@ -100,6 +194,34 @@ func (_m *StaysRepo) GetStayByID(_a0 context.Context, _a1 uuid.UUID) (*stays.Sta
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*stays.Stay)
 		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetStayImageByID provides a mock function with given fields: _a0, _a1
+func (_m *StaysRepo) GetStayImageByID(_a0 context.Context, _a1 uuid.UUID) (stays.StayImage, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStayImageByID")
+	}
+
+	var r0 stays.StayImage
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (stays.StayImage, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) stays.StayImage); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Get(0).(stays.StayImage)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {

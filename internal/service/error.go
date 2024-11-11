@@ -9,14 +9,15 @@ var (
 
 	ErrLocationNotFound = errors.New("location not found")
 
-	ErrStayNotFound = errors.New("stay not found")
+	ErrStayNotFound      = errors.New("stay not found")
+	ErrStayImageNotFound = errors.New("stay image not found")
 
 	ErrAdvantageNotFound = errors.New("advantage not found")
 
 	ErrNotFoundReservation = errors.New("reservation not found")
 
 	ErrStaysReviewNotFound = errors.New("stays review not found")
-	ErrEmailAlreadyExists = errors.New("email already exists")
-	ErrNotFound           = errors.New("not found")
-	ErrUpdateFailed       = errors.New("update failed")
+	ErrEmailAlreadyExists  = errors.New("email already exists")
+	ErrNotFound            = errors.New("not found")
+	ErrUpdateFailed        = errors.New("update failed")
 )

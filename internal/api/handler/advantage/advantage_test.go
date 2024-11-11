@@ -97,6 +97,45 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 		},
 	}
 
+	t.Run("should be error creating advantage", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		err := writer.WriteField("title", "testTitle")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/svg+xml")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = part.Write(createMockSvg(MaxAdvantageImgSize - 1000))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+
+		svc.On("CreateAdvantage", mock.Anything, mock.Anything).Return(errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodPost, "/advantage/create", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/advantage/create", hdl.CreateAdvantage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+
+	})
+
 	for _, tc := range testCases {
 		t.Run(tc.title, func(t *testing.T) {
 			r := httptest.NewRecorder()
@@ -125,7 +164,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 
 			err = writer.Close()
 
-			svc.On("CreateAdvantage", mock.Anything, mock.Anything).Return(nil, nil)
+			svc.On("CreateAdvantage", mock.Anything, mock.Anything).Return(nil, nil).Once()
 
 			req := httptest.NewRequest(http.MethodPost, "/advantage/create", &buf)
 
@@ -162,7 +201,7 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 		err := writer.Close()
 		assert.NoError(t, err)
 
-		svc.On("CreateAdvantage", mock.Anything, mock.Anything).Return(nil, nil)
+		svc.On("CreateAdvantage", mock.Anything, mock.Anything).Return(nil, nil).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/advantage/create", &buf)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -417,6 +456,58 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 		},
 	}
 
+	t.Run("should be error updating advantage", func(t *testing.T) {
+		log := logger.New(logger.EnvLocal)
+		svc := mocks.AdvantageService{}
+		hdl := Handler{
+			Svc: &svc,
+			Log: log,
+		}
+		router := chi.NewRouter()
+
+		mockID, err := uuid.NewV4()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		err = writer.WriteField("title", "testTitle")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/svg+xml")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = part.Write(createMockSvg(MaxAdvantageImgSize - 1000))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+
+		svc.On("UpdateAdvantageByID", mock.Anything, mock.Anything, mock.Anything).Return(advantage.Advantage{}, errors.New("failed")).Once()
+
+		req := httptest.NewRequest(http.MethodPatch, "/advantage/"+mockID.String(), &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/advantage/{advantageId}", hdl.UpdateAdvantage)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+
+	})
+
 	for _, testCase := range testCases {
 		t.Run(testCase.title, func(t *testing.T) {
 			log := logger.New(logger.EnvLocal)
@@ -438,7 +529,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 				UpdatedAt: mockTime,
 			}
 
-			svc.On("UpdateAdvantageByID", mock.Anything, mock.Anything, mock.Anything).Return(expected, nil)
+			svc.On("UpdateAdvantageByID", mock.Anything, mock.Anything, mock.Anything).Return(expected, nil).Once()
 
 			var buf bytes.Buffer
 			writer := multipart.NewWriter(&buf)

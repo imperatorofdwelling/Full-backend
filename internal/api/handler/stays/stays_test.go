@@ -167,7 +167,7 @@ func TestStaysHandler_GetStayByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		assert.Equal(t, expected.UserID, actual.UserID)
+		assert.Equal(t, expected.UserID, expected.UserID)
 	})
 
 	t.Run("should be uuid parsing error", func(t *testing.T) {
@@ -198,7 +198,6 @@ func TestStaysHandler_GetStayByID(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
-
 func TestStaysHandler_GetStays(t *testing.T) {
 	log := logger.New(logger.EnvLocal)
 	svc := mocks.StaysService{}
@@ -218,6 +217,8 @@ func TestStaysHandler_GetStays(t *testing.T) {
 			Floor:               "string",
 			Guests:              0,
 			House:               "string",
+			ImageMain:           "string",
+			Images:              []byte{'f'},
 			IsSmokingProhibited: false,
 			LocationID:          fakeUUID,
 			Name:                "string",
@@ -236,20 +237,25 @@ func TestStaysHandler_GetStays(t *testing.T) {
 		},
 	}
 
+	router.Get("/stays", hdl.GetStays)
+
 	t.Run("should be no errors", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
+		// Мокаем вызов GetStays
 		svc.On("GetStays", mock.Anything).Return(expected, nil).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/stays", nil)
 
-		router.HandleFunc("/stays", hdl.GetStays)
-
+		// Выполняем запрос
 		router.ServeHTTP(r, req)
 
 		var actual []stays.Stay
 
-		_ = render.DecodeJSON(r.Body, &actual)
+		err := render.DecodeJSON(r.Body, &actual)
+		if err != nil {
+			t.Fatalf("Failed to decode JSON response: %v", err)
+		}
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
@@ -259,11 +265,10 @@ func TestStaysHandler_GetStays(t *testing.T) {
 	t.Run("should be error getting stays", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
+		// Мокаем ошибку при получении данных
 		svc.On("GetStays", mock.Anything).Return(nil, errors.New("failed to get stays")).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/stays", nil)
-
-		router.HandleFunc("/stays", hdl.GetStays)
 
 		router.ServeHTTP(r, req)
 

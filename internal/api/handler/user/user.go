@@ -72,12 +72,7 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK,
-		struct {
-			Data model.User `json:"data"`
-		}{
-			Data: result,
-		})
+	responseApi.WriteJson(w, r, http.StatusOK, result)
 
 }
 

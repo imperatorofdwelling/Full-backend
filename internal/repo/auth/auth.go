@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -38,22 +39,34 @@ func (r *Repository) Register(ctx context.Context, user model.Registration) (uui
 func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
 	const op = "repo.user.Login"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1 AND password = $2")
-	if err != nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
-	}
+	var storedPassword string
+	var userID uuid.UUID
 
-	defer stmt.Close()
-
-	userID, err := uuid.NewV4()
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, password FROM users WHERE email = $1")
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
 	}
+	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, user.Email, user.Password).Scan(&userID)
+	err = stmt.QueryRowContext(ctx, user.Email).Scan(&userID, &storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+			return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+		}
+		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if user.IsHashed {
+		if storedPassword == user.Password {
+			return userID, nil
+		}
+		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(user.Password))
+	if err != nil {
+		if err == bcrypt.ErrMismatchedHashAndPassword {
+			return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 		}
 		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
 	}

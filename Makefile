@@ -3,7 +3,7 @@ run: build
 build:
 	go build -o bin/app cmd/app/main.go
 swag:
-	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
+	/home/bjiake/go/bin/swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	cd ./internal/di && google-wire
 migration-create:

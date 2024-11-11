@@ -18,13 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          path: ./Full-backend
-      - name: Set working directory
-        run: cd path/to/your/go/project
+          path: .
       # Generate Swagger documentation
       - name: Generate Swagger Documentation
         run: make swag
-        working-directory: ./Full-backend
+        working-directory: .
   cd:
     runs-on: self-hosted
     needs: ci

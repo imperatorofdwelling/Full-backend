@@ -13,6 +13,6 @@ migrate-up:
 migrate-down:
 	go run cmd/migrator/main.go down
 docker:
-	docker-compose up --build
+	docker-compose up --build -d
 test:
-	go test -cover ./internal/api/handler/...
+	go test ./internal/api/handler/...

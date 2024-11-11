@@ -2,10 +2,9 @@ run: build
 	./bin/app
 build:
 	go build -o bin/app cmd/app/main.go
-swag: wire
+swag:
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	echo "Current directory:" $(shell pwd)
 	cd ./internal/di && wire
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))

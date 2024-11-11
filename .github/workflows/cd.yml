@@ -17,6 +17,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: .
+      - name: Generate Wire dependency
+        run: make wire
+        working-directory: .
       - name: Generate Swagger Documentation
         run: make swag
         working-directory: .

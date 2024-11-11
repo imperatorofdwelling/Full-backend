@@ -6,7 +6,7 @@ swag: wire
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	echo "Current directory:" $(shell pwd)
-	wire ./internal/di
+	cd ./internal/di && wire
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:

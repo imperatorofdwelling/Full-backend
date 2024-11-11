@@ -9,17 +9,14 @@ jobs:
   ci:
     runs-on: self-hosted
     steps:
-      - name: check pwd
-        run: pwd
-      - name: check files
-        run: ls
       - name: Go Mod Tidy
         run: go mod tidy
+      - name: Go Mod Download
+        run: go mod download
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           path: .
-      # Generate Swagger documentation
       - name: Generate Swagger Documentation
         run: make swag
         working-directory: .

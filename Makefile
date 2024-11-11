@@ -5,7 +5,7 @@ build:
 swag:
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	cd ./internal/di && wire
+	cd ./internal/di && google-wire
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:

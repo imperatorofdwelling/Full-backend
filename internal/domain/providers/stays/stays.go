@@ -43,11 +43,13 @@ func ProvideStaysHandler(svc interfaces.StaysService, log *slog.Logger) *staysHd
 	return hdl
 }
 
-func ProvideStaysService(repo interfaces.StaysRepo, locSvc interfaces.LocationService) *staysSvc.Service {
+func ProvideStaysService(repo interfaces.StaysRepo, locSvc interfaces.LocationService, fileSvc interfaces.FileService, userSvc interfaces.UserService) *staysSvc.Service {
 	svcOnce.Do(func() {
 		svc = &staysSvc.Service{
-			Repo:   repo,
-			LocSvc: locSvc,
+			Repo:    repo,
+			LocSvc:  locSvc,
+			FileSvc: fileSvc,
+			UserSvc: userSvc,
 		}
 	})
 

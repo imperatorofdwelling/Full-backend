@@ -1,8 +1,8 @@
 run: build
 	./bin/app
-build:
+build: swag
 	go build -o bin/app cmd/app/main.go
-swag:
+swag: wire
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	google-wire ./internal/di
@@ -18,4 +18,4 @@ migrate-down:
 docker:
 	docker-compose up --build
 test:
-	go test ./internal/api/handler/... -cover
+	go test -cover ./internal/api/handler/...

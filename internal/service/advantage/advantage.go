@@ -28,14 +28,14 @@ func (s *Service) CreateAdvantage(ctx context.Context, adv *advantage.AdvantageE
 		return fmt.Errorf("%s: %s already exists", op, adv.Title)
 	}
 
-	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType)
+	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, service.FilePathAdvantages)
 	if err != nil {
 		return err
 	}
 
 	err = s.Repo.CreateAdvantage(ctx, adv.Title, fWithPath)
 	if err != nil {
-		errF := s.FileSvc.RemoveFile(fWithPath)
+		errF := s.FileSvc.RemoveFile(fWithPath, service.FilePathAdvantages)
 		if errF != nil {
 			return errF
 		}
@@ -54,7 +54,7 @@ func (s *Service) RemoveAdvantage(ctx context.Context, advID uuid.UUID) error {
 	}
 
 	if adv.Image != "" {
-		err = s.FileSvc.RemoveFile(adv.Image)
+		err = s.FileSvc.RemoveFile(adv.Image, service.FilePathAdvantages)
 		if err != nil {
 			return err
 		}
@@ -94,14 +94,14 @@ func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *ad
 	var newAdv advantage.Advantage
 
 	if adv.Image != nil {
-		image, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType)
+		image, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, service.FilePathAdvantages)
 		if err != nil {
 			return advantage.Advantage{}, err
 		}
 
 		newAdv.Image = image
 
-		err = s.FileSvc.RemoveFile(advFound.Image)
+		err = s.FileSvc.RemoveFile(advFound.Image, service.FilePathAdvantages)
 		if err != nil {
 			return advantage.Advantage{}, err
 		}

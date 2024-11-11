@@ -11,9 +11,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Install Wire
-        run: go install github.com/google/wire/cmd/wire@latest
-
       # Generate Swagger documentation
       - name: Generate Swagger Documentation
         run: make swag

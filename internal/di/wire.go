@@ -10,10 +10,12 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	chatProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
 	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	srchProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -42,6 +44,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		ctrctProvider.ContractProviderSet,
 		staysReportsProvider.StaysReportsProvideSet,
 		usrsReportsProvider.UsersReportsProvideSet,
+		msgProvider.MessageProviderSet,
+		chatProvider.ChatProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

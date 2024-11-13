@@ -1,0 +1,11 @@
+CREATE TABLE message (
+    id UUID PRIMARY KEY,
+    chat_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    text VARCHAR(255) NOT NULL,
+    media VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chat_id) REFERENCES chat(chat_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

@@ -135,6 +135,11 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.Svc.SendMessage(context.Background(), id, userID, msg)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "Message sent!")
 }

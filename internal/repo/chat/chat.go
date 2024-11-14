@@ -99,7 +99,7 @@ func (r *Repo) GetMessagesByChatID(ctx context.Context, chatID string) ([]*messa
 	}
 
 	stmt, err := r.Db.PrepareContext(ctx, `
-			SELECT id, text, media, updated_at 
+			SELECT user_id, text, media, updated_at 
 			FROM message WHERE chat_id = $1
 			ORDER BY updated_at ASC  
 	`)
@@ -118,7 +118,7 @@ func (r *Repo) GetMessagesByChatID(ctx context.Context, chatID string) ([]*messa
 	for rows.Next() {
 		var message message.Entity
 
-		err = rows.Scan(&message.ID, &message.Text, &message.Media, &message.UpdatedAt)
+		err = rows.Scan(&message.UserID, &message.Text, &message.Media, &message.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -154,7 +154,7 @@ func (r *Repo) SendMessage(ctx context.Context, senderId, receiverId string, msg
 
 	var createdAt, updatedAt time.Time
 
-	err = insertStmt.QueryRowContext(ctx, messageID, chatId, senderId, msg.Text, msg.Media).Scan(&createdAt, &updatedAt)
+	err = insertStmt.QueryRowContext(ctx, messageID, chatId, receiverId, msg.Text, msg.Media).Scan(&createdAt, &updatedAt)
 	if err != nil {
 		return fmt.Errorf("%s: failed to insert message: %w", op, err)
 	}

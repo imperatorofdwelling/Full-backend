@@ -33,7 +33,7 @@ func (r *Repo) GetMessagesByUserID(ctx context.Context, userId string) ([]*messa
 	for row.Next() {
 		var msg message.Entity
 
-		err = row.Scan(&msg.ID, &msg.Text, &msg.Media, &msg.UpdatedAt)
+		err = row.Scan(&msg.UserID, &msg.Text, &msg.Media, &msg.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}

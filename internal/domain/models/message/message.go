@@ -16,7 +16,7 @@ type Message struct {
 }
 
 type Entity struct {
-	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"user_id"`
 	Text      string    `json:"text"`
 	Media     *string   `json:"media"`
 	UpdatedAt time.Time `json:"updated_at"`

@@ -115,6 +115,31 @@ definitions:
       updatedAt:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity:
+    properties:
+      city:
+        type: string
+      federal_district:
+        type: string
+      fias_id:
+        type: string
+      kladr_id:
+        type: string
+      lat:
+        type: string
+      lon:
+        type: string
+      okato:
+        type: string
+      oktmo:
+        type: string
+      population:
+        type: number
+      region_iso_code:
+        type: string
+      region_name:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation:
     properties:
       arrived:
@@ -770,7 +795,95 @@ paths:
       summary: Add Search History
       tags:
       - search-history
-  /locations/{locationName}:
+  /locations:
+    get:
+      consumes:
+      - application/json
+      description: Get all locations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get all locations
+      tags:
+      - locations
+  /locations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Update location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: location request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update location by id
+      tags:
+      - locations
+    get:
+      consumes:
+      - application/json
+      description: Find location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Find location by id
+      tags:
+      - locations
+  /locations/match/{locationName}:
     get:
       consumes:
       - application/json

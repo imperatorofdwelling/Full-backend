@@ -12,7 +12,6 @@ type LocationRepo interface {
 	FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error)
 	GetAll(ctx context.Context) (*[]models.Location, error)
-	GetOneByID(ctx context.Context, id uuid.UUID) (*models.Location, error)
 	DeleteByID(ctx context.Context, id uuid.UUID) error
 	UpdateByID(ctx context.Context, id uuid.UUID, location models.LocationEntity) error
 }
@@ -22,7 +21,6 @@ type LocationService interface {
 	FindByNameMatch(ctx context.Context, match string) (*[]models.Location, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*models.Location, error)
 	GetAll(ctx context.Context) (*[]models.Location, error)
-	GetOneByID(ctx context.Context, id uuid.UUID) (*models.Location, error)
 	DeleteByID(ctx context.Context, id uuid.UUID) error
 	UpdateByID(ctx context.Context, id uuid.UUID, location models.LocationEntity) error
 }

@@ -591,45 +591,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/locations": {
-            "get": {
-                "description": "Get all locations",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Get all locations",
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/locations/match/{locationName}": {
+        "/locations/{locationName}": {
             "get": {
                 "description": "Find city by matching name",
                 "consumes": [
@@ -659,50 +621,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/locations/{id}": {
-            "get": {
-                "description": "Find location by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Find location by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "location id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
                         }
                     },
                     "400": {

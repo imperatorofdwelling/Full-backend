@@ -25,6 +25,8 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 		r.Get("/match/{locationName}", h.FindByNameMatch)
 		r.Get("/", h.GetAll)
 		r.Get("/{id}", h.GetOneByID)
+		r.Delete("/{id}", h.DeleteByID)
+		r.Put("/{id}", h.UpdateByID)
 	})
 }
 
@@ -127,6 +129,18 @@ func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, location)
 }
 
+// DeleteByID godoc
+//
+//	@Summary		Delete location by id
+//	@Description	Delete location by id
+//	@Tags			locations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			id	path		string		true	"location id"
+//	@Success		200	{object}		location.Location	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/locations/{id} [delete]
 func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.DeleteByID"
 
@@ -153,6 +167,19 @@ func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusNoContent, "successfully deleted")
 }
 
+// UpdateByID godoc
+//
+//	@Summary		Update location by id
+//	@Description	Update location by id
+//	@Tags			locations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			id	path		string		true	"location id"
+//	@Param			request	body		location.LocationEntity		true	"location request"
+//	@Success		200	{object}		location.Location	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/locations/{id} [delete]
 func (h *Handler) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.UpdateByID"
 

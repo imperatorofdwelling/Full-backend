@@ -217,8 +217,6 @@ func TestStaysHandler_GetStays(t *testing.T) {
 			Floor:               "string",
 			Guests:              0,
 			House:               "string",
-			ImageMain:           "string",
-			Images:              []byte{'f'},
 			IsSmokingProhibited: false,
 			LocationID:          fakeUUID,
 			Name:                "string",

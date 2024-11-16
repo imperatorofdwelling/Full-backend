@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -28,7 +30,7 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 	t.Run("should be correct response", func(t *testing.T) {
 		r := httptest.NewRecorder()
 		payload := "алейск"
-		expected := []models.Location{
+		expected := &[]models.Location{
 			{
 				City:            "Алейск",
 				FederalDistrict: "Сибирский",
@@ -44,22 +46,27 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 			},
 		}
 
-		svc.On("FindByNameMatch", context.Background(), payload).Return(&expected, nil)
+		svc.On("FindByNameMatch", mock.Anything, mock.Anything).Return(expected, nil).Once()
 
-		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/locations/%s", payload), nil)
+		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/locations/match/%s", payload), nil)
 		assert.NoError(t, err)
 
-		router.HandleFunc("/locations/{locationName}", hdl.FindByNameMatch)
+		router.HandleFunc("/locations/match/{locationName}", hdl.FindByNameMatch)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual []models.Location
+		var actual struct {
+			Data []models.Location `json:"data"`
+		}
 
-		err = json.Unmarshal(r.Body.Bytes(), &actual)
+		err = render.DecodeJSON(r.Body, &actual)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-		assert.Equal(t, expected, actual)
+		assert.Equal(t, expected, &actual.Data)
 	})
 
 	t.Run("should be error response", func(t *testing.T) {
@@ -68,14 +75,14 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		expectedErr := fmt.Errorf("location not found")
 
-		svc.On("FindByNameMatch", context.Background(), payload).Return(nil, expectedErr)
+		svc.On("FindByNameMatch", context.Background(), payload).Return(nil, expectedErr).Once()
 
-		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/locations/%s", payload), nil)
+		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("/locations/match/%s", payload), nil)
 		assert.NoError(t, err)
 
 		router := chi.NewRouter()
 
-		router.HandleFunc("/locations/{locationName}", hdl.FindByNameMatch)
+		router.HandleFunc("/locations/match/{locationName}", hdl.FindByNameMatch)
 
 		router.ServeHTTP(r, req)
 

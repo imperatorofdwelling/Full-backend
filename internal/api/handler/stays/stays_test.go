@@ -217,8 +217,6 @@ func TestStaysHandler_GetStays(t *testing.T) {
 			Floor:               "string",
 			Guests:              0,
 			House:               "string",
-			ImageMain:           "string",
-			Images:              []byte{'f'},
 			IsSmokingProhibited: false,
 			LocationID:          fakeUUID,
 			Name:                "string",
@@ -250,7 +248,9 @@ func TestStaysHandler_GetStays(t *testing.T) {
 		// Выполняем запрос
 		router.ServeHTTP(r, req)
 
-		var actual []stays.Stay
+		var actual struct {
+			Data []stays.Stay `json:"data"`
+		}
 
 		err := render.DecodeJSON(r.Body, &actual)
 		if err != nil {
@@ -259,7 +259,7 @@ func TestStaysHandler_GetStays(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		assert.Equal(t, expected[0].ID, actual[0].ID)
+		assert.Equal(t, expected[0].ID, actual.Data[0].ID)
 	})
 
 	t.Run("should be error getting stays", func(t *testing.T) {
@@ -559,14 +559,16 @@ func TestStaysHandler_GetStayImagesByStayID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual []stays.StayImage
+		var actual struct {
+			Data []stays.StayImage `json:"data"`
+		}
 
 		err := json.Unmarshal(r.Body.Bytes(), &actual)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, expected[0].ImageName, actual[0].ImageName)
+		assert.Equal(t, expected[0].ImageName, actual.Data[0].ImageName)
 	})
 
 	t.Run("should be parsing uuid error", func(t *testing.T) {
@@ -631,14 +633,16 @@ func TestStaysHandler_GetMainImageByStayID(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var actual stays.StayImage
+		var actual struct {
+			Data stays.StayImage `json:"data"`
+		}
 
 		err := json.Unmarshal(r.Body.Bytes(), &actual)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, expected.ImageName, actual.ImageName)
+		assert.Equal(t, expected.ImageName, actual.Data.ImageName)
 	})
 
 	t.Run("should be parsing uuid error", func(t *testing.T) {

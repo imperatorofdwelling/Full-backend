@@ -115,7 +115,7 @@ func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 	idUUID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to find location", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -153,7 +153,7 @@ func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 	idUUID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to find location", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
@@ -192,7 +192,7 @@ func (h *Handler) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	idUUID, err := uuid.FromString(id)
 	if err != nil {
 		h.Log.Error("failed to find location", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 

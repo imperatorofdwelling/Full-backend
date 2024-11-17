@@ -9,6 +9,7 @@ import (
 	chatHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/chat"
 	ctrctHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/contracts"
 	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
+	imgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/image"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	msgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/message"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
@@ -48,6 +49,7 @@ func NewServerHTTP(
 	usersReportHandler *usersReportHdl.Handler,
 	messageHandler *msgHdl.Handler,
 	chatHandler *chatHdl.Handler,
+	imageHandler *imgHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -76,6 +78,7 @@ func NewServerHTTP(
 			usersReportHandler.NewUsersReportsHandler(r)
 			messageHandler.NewMessageHandler(r)
 			chatHandler.NewChatHandler(r)
+			imageHandler.NewImageHandler(r)
 		})
 
 	})

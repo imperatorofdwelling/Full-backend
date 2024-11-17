@@ -13,7 +13,8 @@ import (
 	chatProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
 	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
-	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	//flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	imgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/image"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
@@ -34,7 +35,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		locProvider.LocationProviderSet,
 		authProvider.ProviderSet,
 		advProvider.AdvantageProviderSet,
-		flProvider.FileProviderSet,
+		//flProvider.FileProviderSet,
 		staysProvider.StaysProviderSet,
 		staysAdvProvider.StaysAdvantageProviderSet,
 		resProvider.ReservationProviderSet,
@@ -46,6 +47,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		usrsReportsProvider.UsersReportsProvideSet,
 		msgProvider.MessageProviderSet,
 		chatProvider.ChatProviderSet,
+		imgProvider.ImageProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

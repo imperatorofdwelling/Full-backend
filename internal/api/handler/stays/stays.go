@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -24,18 +25,23 @@ type Handler struct {
 
 func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
-		r.Post("/create", h.CreateStay)
-		r.Get("/{stayId}", h.GetStayByID)
-		r.Get("/", h.GetStays)
-		r.Delete("/{stayId}", h.DeleteStayByID)
-		r.Put("/{stayId}", h.UpdateStayByID)
-		r.Get("/user/{userId}", h.GetStaysByUserID)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateStay)
+			r.Get("/{stayId}", h.GetStayByID)
+			r.Delete("/{stayId}", h.DeleteStayByID)
+			r.Put("/{stayId}", h.UpdateStayByID)
+			r.Post("/images", h.CreateImages)
+			r.Post("/images/main", h.CreateMainImage)
+			r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
+		})
 
-		r.Get("/images/{stayId}", h.GetStayImagesByStayID)
-		r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
-		r.Post("/images", h.CreateImages)
-		r.Post("/images/main", h.CreateMainImage)
-		r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
+		r.Group(func(r chi.Router) {
+			r.Get("/", h.GetStays)
+			r.Get("/user/{userId}", h.GetStaysByUserID)
+			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
+			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
+		})
 	})
 }
 

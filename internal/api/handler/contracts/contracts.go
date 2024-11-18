@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/contracts"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -22,9 +23,12 @@ type Handler struct {
 
 func (h *Handler) NewContractHandler(r chi.Router) {
 	r.Route("/contract", func(r chi.Router) {
-		r.Get("/", h.GetAllContracts)
-		r.Post("/{stayId}", h.AddContract)
-		r.Put("/{stayId}", h.UpdateContract)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Get("/", h.GetAllContracts)
+			r.Post("/{stayId}", h.AddContract)
+			r.Put("/{stayId}", h.UpdateContract)
+		})
 	})
 }
 

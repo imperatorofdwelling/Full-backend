@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -21,10 +22,15 @@ type Handler struct {
 
 func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 	r.Route("/report", func(r chi.Router) {
-		r.Post("/create/{stayId}", h.CreateStaysReports)
-		r.Get("/", h.GetAllStaysReports)
-		r.Put("/{reportId}", h.UpdateStaysReports)
-		r.Delete("/{reportId}", h.DeleteStaysReports)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Get("/", h.GetAllStaysReports)
+			r.Put("/{reportId}", h.UpdateStaysReports)
+			r.Delete("/{reportId}", h.DeleteStaysReports)
+		})
+		r.Group(func(r chi.Router) {
+			r.Post("/create/{stayId}", h.CreateStaysReports)
+		})
 	})
 }
 

@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -21,11 +22,14 @@ type Handler struct {
 
 func (h *Handler) NewReservationHandler(r chi.Router) {
 	r.Route("/reservation", func(r chi.Router) {
-		r.Post("/create", h.CreateReservation)
-		r.Put("/update/{reservationID}", h.UpdateReservation)
-		r.Delete("/{reservationID}", h.DeleteReservationByID)
-		r.Get("/{reservationID}", h.GetReservationByID)
-		r.Get("/user/userID", h.GetAllReservationsByUser)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateReservation)
+			r.Put("/update/{reservationID}", h.UpdateReservation)
+			r.Delete("/{reservationID}", h.DeleteReservationByID)
+			r.Get("/{reservationID}", h.GetReservationByID)
+			r.Get("/user/userID", h.GetAllReservationsByUser)
+		})
 	})
 }
 

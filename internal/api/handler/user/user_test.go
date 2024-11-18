@@ -48,7 +48,7 @@ func TestUserHandler_NewPublicUserHandler(t *testing.T) {
 	router := chi.NewRouter()
 
 	t.Run("should be no error", func(t *testing.T) {
-		hdl.NewPublicUserHandler(router)
+		hdl.NewUserHandler(router)
 	})
 }
 

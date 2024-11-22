@@ -21,10 +21,12 @@ type Handler struct {
 
 func (h *Handler) NewChatHandler(r chi.Router) {
 	r.Route("/chat", func(r chi.Router) {
-		r.Get("/", h.GetChatsByUserID)
-		r.Get("/{chatId}", h.GetMessagesByChatID)
-		r.Post("/{ownerId}", h.SendMessage)
-		//r.HandleFunc("/ws/{chatId}", h.handleWebSocket)
+		r.Group(func(r chi.Router) {
+			r.Get("/", h.GetChatsByUserID)
+			r.Get("/{chatId}", h.GetMessagesByChatID)
+			r.Post("/{ownerId}", h.SendMessage)
+			//r.HandleFunc("/ws/{chatId}", h.handleWebSocket)
+		})
 	})
 }
 

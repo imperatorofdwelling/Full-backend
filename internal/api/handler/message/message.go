@@ -22,10 +22,12 @@ type Handler struct {
 
 func (h *Handler) NewMessageHandler(r chi.Router) {
 	r.Route("/message", func(r chi.Router) {
-		r.Get("/", h.GetMessagesByUserID)
-		r.Get("/{messageId}", h.GetMessageByMessageID)
-		r.Put("/{messageId}", h.UpdateMessageByID)
-		r.Delete("/{messageId}", h.DeleteMessageByID)
+		r.Group(func(r chi.Router) {
+			r.Get("/", h.GetMessagesByUserID)
+			r.Get("/{messageId}", h.GetMessageByMessageID)
+			r.Put("/{messageId}", h.UpdateMessageByID)
+			r.Delete("/{messageId}", h.DeleteMessageByID)
+		})
 	})
 }
 

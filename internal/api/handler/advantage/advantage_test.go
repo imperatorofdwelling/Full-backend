@@ -341,14 +341,16 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 
-		var resp []advantage.Advantage
+		var resp struct {
+			Data []advantage.Advantage `json:"data"`
+		}
 
 		err = json.Unmarshal(r.Body.Bytes(), &resp)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, payload[0].Title, resp[0].Title)
+		assert.Equal(t, payload[0].Title, resp.Data[0].Title)
 		assert.ObjectsAreEqualValues(payload, resp)
 
 		svc.AssertExpectations(t)

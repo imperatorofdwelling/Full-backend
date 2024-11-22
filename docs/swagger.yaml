@@ -537,6 +537,100 @@ paths:
       summary: Create Advantage
       tags:
       - advantages
+  /chat:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all chats for a user by their user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of chats for the user
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Chats by User ID
+      tags:
+      - chats
+  /chat/{chatId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all messages for a chat by its chat ID
+      parameters:
+      - description: The ID of the chat
+        in: path
+        name: chatId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of messages for the chat
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Chat not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Messages by Chat ID
+      tags:
+      - chats
+  /chat/{ownerId}:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to a specified chat by its owner ID and user ID
+      parameters:
+      - description: The ID of the chat owner
+        in: path
+        name: ownerId
+        required: true
+        type: string
+      - description: Message content to send
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Message sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Send a message to a chat
+      tags:
+      - chats
   /contract:
     get:
       consumes:
@@ -952,6 +1046,127 @@ paths:
       summary: Login an existing user
       tags:
       - auth
+  /message:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all messages for a user by their user ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of messages for the user
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Messages by User ID
+      tags:
+      - messages
+  /message/{messageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a message by its message ID
+      parameters:
+      - description: The ID of the message
+        in: path
+        name: messageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Message deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Message not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Delete Message by Message ID
+      tags:
+      - messages
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single message by its message ID
+      parameters:
+      - description: The ID of the message
+        in: path
+        name: messageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The message details
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Message not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Message by Message ID
+      tags:
+      - messages
+    put:
+      consumes:
+      - application/json
+      description: Update an existing message by message ID
+      parameters:
+      - description: The ID of the message
+        in: path
+        name: messageId
+        required: true
+        type: string
+      - description: Updated message content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated message
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update an Existing Message
+      tags:
+      - messages
   /registration:
     post:
       consumes:

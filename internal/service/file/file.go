@@ -24,16 +24,26 @@ const (
 
 type Service struct{}
 
-func (s *Service) UploadImage(img []byte, t ImageType, path ImagePath) (string, error) {
+func (s *Service) UploadImage(img []byte, t ImageType, category string) (string, error) {
 	const op = "service.FileService.CreateImage"
 
+	// Ensure the category directory exists
+	categoryPath := fmt.Sprintf("./assets/images/%s", category)
+	err := os.MkdirAll(categoryPath, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to create directory %s: %w", op, categoryPath, err)
+	}
+
+	// Generate a random file name
 	fileName, err := s.GenRandomFileName()
 	if err != nil {
 		return "", err
 	}
 
-	fileWithPath := fmt.Sprintf("%s/%s%s", path, fileName, t)
+	// Create the full file path
+	fileWithPath := fmt.Sprintf("%s/%s%s", categoryPath, fileName, t)
 
+	// Create and write to the file
 	file, err := os.Create(fileWithPath)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)

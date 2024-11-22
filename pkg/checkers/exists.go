@@ -40,3 +40,9 @@ func CheckReservationExists(ctx context.Context, db *sql.DB, reservationID strin
 	err := db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM reservations WHERE id = $1)", reservationID).Scan(&exists)
 	return exists, err
 }
+
+func CheckChatExists(ctx context.Context, db *sql.DB, chatID string) (bool, error) {
+	var exists bool
+	err := db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM chat WHERE chat_id = $1)", chatID).Scan(&exists)
+	return exists, err
+}

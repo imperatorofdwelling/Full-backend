@@ -28,7 +28,7 @@ func (s *Service) CreateAdvantage(ctx context.Context, adv *advantage.AdvantageE
 		return fmt.Errorf("%s: %s already exists", op, adv.Title)
 	}
 
-	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, service.FilePathAdvantages)
+	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, "advantage")
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (s *Service) UpdateAdvantageByID(ctx context.Context, id uuid.UUID, adv *ad
 	var newAdv advantage.Advantage
 
 	if adv.Image != nil {
-		image, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, service.FilePathAdvantages)
+		image, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, "advantage")
 		if err != nil {
 			return advantage.Advantage{}, err
 		}

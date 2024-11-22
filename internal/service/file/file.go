@@ -15,6 +15,11 @@ const (
 	SvgImageType ImageType = ".svg"
 )
 
+const (
+	FilePathAdvantages  string = "./assets/images/advantages"
+	FilePathStaysImages string = "./assets/images/stays_images"
+)
+
 const filePath = "./assets/images/advantages"
 
 type Service struct{}

@@ -19,8 +19,8 @@ jobs:
       - name: Generate Swagger Documentation
         run: make swag
         working-directory: .
-      # - name: Test
-      #  run: make test
+      - name: Test
+        run: make test
   cd:
     runs-on: self-hosted
     needs: ci

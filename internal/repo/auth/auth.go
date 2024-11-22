@@ -2,13 +2,14 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
-	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -63,12 +64,11 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, er
 		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(user.Password))
-	if err != nil {
-		if err == bcrypt.ErrMismatchedHashAndPassword {
-			return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
-		}
-		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+	hashedPassword := sha256.Sum256([]byte(user.Password))
+	hashedPasswordHex := hex.EncodeToString(hashedPassword[:])
+
+	if hashedPasswordHex != storedPassword {
+		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
 	return userID, nil

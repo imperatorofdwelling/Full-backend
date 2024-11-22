@@ -12,10 +12,13 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/image"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -74,6 +77,13 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	usersreportsRepo := usersreports.ProvideUsersReportRepo(sqlDB)
 	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo)
 	usersreportsHandler := usersreports.ProvideUsersReportHandler(usersreportsService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler)
+	messageRepo := message.ProvideMessageRepo(sqlDB)
+	messageService := message.ProvideMessageService(messageRepo)
+	messageHandler := message.ProvideMessageHandler(messageService, log)
+	chatRepo := chat.ProvideChatRepo(sqlDB)
+	chatService := chat.ProvideChatService(chatRepo)
+	chatHandler := chat.ProvideChatHandler(chatService, log)
+	imageHandler := image.ProvideImageHandler(fileService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, imageHandler)
 	return serverHTTP, nil
 }

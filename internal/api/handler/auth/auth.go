@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
@@ -15,7 +17,6 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/imperatorofdwelling/Full-backend/pkg/validator"
-	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -62,13 +63,8 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 
 	if !userCurrent.IsHashed {
 		// password hashing
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userCurrent.Password), 12)
-		if err != nil {
-			h.Log.Error("failed to hash password", slog.String("error", err.Error()))
-			responseApi.WriteError(w, r, http.StatusInternalServerError, "internal server error")
-			return
-		}
-		userCurrent.Password = string(hashedPassword)
+		hashedPassword := sha256.Sum256([]byte(userCurrent.Password))
+		userCurrent.Password = hex.EncodeToString(hashedPassword[:])
 	}
 
 	// creating a new validator for registration

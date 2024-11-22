@@ -7,12 +7,14 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	serviceImg "github.com/imperatorofdwelling/Full-backend/internal/service/file"
 )
 
 type Service struct {
 	Repo    interfaces.StaysAdvantageRepo
 	StaySvc interfaces.StaysService
 	AdvSvc  interfaces.AdvantageService
+	FileSvc interfaces.FileService
 }
 
 func (s *Service) CreateStaysAdvantage(ctx context.Context, stayReq *models.StayAdvantageCreateReq) error {
@@ -36,11 +38,16 @@ func (s *Service) CreateStaysAdvantage(ctx context.Context, stayReq *models.Stay
 		return fmt.Errorf("%s: %w", op, service.ErrAdvantageNotFound)
 	}
 
+	fWithPath, err := s.FileSvc.UploadImage([]byte(adv.Image), serviceImg.SvgImageType, "stays-advantage")
+	if err != nil {
+		return err
+	}
+
 	stayAdvantage := models.StayAdvantageEntity{
 		StayID:      stay.ID,
 		AdvantageID: adv.ID,
 		Title:       adv.Title,
-		Image:       adv.Image,
+		Image:       fWithPath,
 	}
 
 	err = s.Repo.CreateStaysAdvantage(ctx, &stayAdvantage)

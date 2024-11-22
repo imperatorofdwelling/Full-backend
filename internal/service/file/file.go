@@ -15,25 +15,35 @@ const (
 	SvgImageType ImageType = ".svg"
 )
 
-type ImagePath string
-
 const (
-	FilePathAdvantages  ImagePath = "./assets/images/advantages"
-	FilePathStaysImages ImagePath = "./assets/images/stays_images"
+	FilePathAdvantages  string = "./assets/images/advantages"
+	FilePathStaysImages string = "./assets/images/stays_images"
 )
+
+const filePath = "./assets/images/advantages"
 
 type Service struct{}
 
-func (s *Service) UploadImage(img []byte, t ImageType, path ImagePath) (string, error) {
+func (s *Service) UploadImage(img []byte, t ImageType, category string) (string, error) {
 	const op = "service.FileService.CreateImage"
 
+	// Ensure the category directory exists
+	categoryPath := fmt.Sprintf("./assets/images/%s", category)
+	err := os.MkdirAll(categoryPath, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to create directory %s: %w", op, categoryPath, err)
+	}
+
+	// Generate a random file name
 	fileName, err := s.GenRandomFileName()
 	if err != nil {
 		return "", err
 	}
 
-	fileWithPath := fmt.Sprintf("%s/%s%s", path, fileName, t)
+	// Create the full file path
+	fileWithPath := fmt.Sprintf("%s/%s%s", categoryPath, fileName, t)
 
+	// Create and write to the file
 	file, err := os.Create(fileWithPath)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
@@ -47,16 +57,10 @@ func (s *Service) UploadImage(img []byte, t ImageType, path ImagePath) (string, 
 	return fileWithPath, nil
 }
 
-func (s *Service) RemoveFile(fileName string, path ImagePath) error {
+func (s *Service) RemoveFile(fileName string) error {
 	const op = "service.FileService.RemoveFile"
 
-	if fileName == "" {
-		return fmt.Errorf("%s: %s", op, "file name is empty")
-	}
-
-	fileWithPath := fmt.Sprintf("%s/%s", path, fileName)
-
-	file, err := os.Open(fileWithPath)
+	file, err := os.Open(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("%s: %s", op, "file does not exist")
@@ -70,7 +74,7 @@ func (s *Service) RemoveFile(fileName string, path ImagePath) error {
 		return err
 	}
 
-	err = os.Remove(fileWithPath)
+	err = os.Remove(fileName)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}

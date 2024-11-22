@@ -289,7 +289,7 @@ func (s *Service) DeleteStayImage(ctx context.Context, imageID uuid.UUID) error 
 		return fmt.Errorf("%s: %w", op, service.ErrStayImageNotFound)
 	}
 
-	err = s.FileSvc.RemoveFile(stayImage.ImageName, file.FilePathStaysImages)
+	err = s.FileSvc.RemoveFile(stayImage.ImageName)
 	if err != nil {
 		return err
 	}

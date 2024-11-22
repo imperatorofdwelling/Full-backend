@@ -15,12 +15,7 @@ const (
 	SvgImageType ImageType = ".svg"
 )
 
-type ImagePath string
-
-const (
-	FilePathAdvantages  ImagePath = "./assets/images/advantages"
-	FilePathStaysImages ImagePath = "./assets/images/stays_images"
-)
+const filePath = "./assets/images/advantages"
 
 type Service struct{}
 
@@ -57,16 +52,10 @@ func (s *Service) UploadImage(img []byte, t ImageType, category string) (string,
 	return fileWithPath, nil
 }
 
-func (s *Service) RemoveFile(fileName string, path ImagePath) error {
+func (s *Service) RemoveFile(fileName string) error {
 	const op = "service.FileService.RemoveFile"
 
-	if fileName == "" {
-		return fmt.Errorf("%s: %s", op, "file name is empty")
-	}
-
-	fileWithPath := fmt.Sprintf("%s/%s", path, fileName)
-
-	file, err := os.Open(fileWithPath)
+	file, err := os.Open(fileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("%s: %s", op, "file does not exist")
@@ -80,7 +69,7 @@ func (s *Service) RemoveFile(fileName string, path ImagePath) error {
 		return err
 	}
 
-	err = os.Remove(fileWithPath)
+	err = os.Remove(fileName)
 	if err != nil {
 		return fmt.Errorf("%s: %v", op, err)
 	}

@@ -79,6 +79,7 @@ func NewServerHTTP(
 			messageHandler.NewMessageHandler(r)
 			chatHandler.NewChatHandler(r)
 			imageHandler.NewImageHandler(r)
+			advantageHandler.NewAdvantageHandler(r)
 		})
 
 	})

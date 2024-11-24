@@ -28,7 +28,7 @@ func (s *Service) CreateAdvantage(ctx context.Context, adv *advantage.AdvantageE
 		return fmt.Errorf("%s: %s already exists", op, adv.Title)
 	}
 
-	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, "advantage")
+	fWithPath, err := s.FileSvc.UploadImage(adv.Image, service.SvgImageType, service.FilePathAdvantages)
 	if err != nil {
 		return err
 	}

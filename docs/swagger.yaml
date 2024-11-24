@@ -140,6 +140,17 @@ definitions:
       region_name:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity:
+    properties:
+      media:
+        type: string
+      text:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation:
     properties:
       arrived:
@@ -298,6 +309,25 @@ definitions:
       advantage_id:
         type: string
       stay_id:
+        type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      report_attach:
+        type: string
+      stay_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
         type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity:
@@ -1247,24 +1277,29 @@ paths:
       summary: Delete a stay report
       tags:
       - stays-reports
-    put:
+    patch:
       consumes:
-      - application/json
-      description: Updates a specific stay report
+      - multipart/form-data
+      description: Updates specific fields of a stay report, such as title, description,
+        or image
       parameters:
       - description: Report ID
         in: path
         name: reportId
         required: true
         type: string
-      - description: Updated report data
-        in: body
-        name: body
-        required: true
-        schema:
-          additionalProperties:
-            type: string
-          type: object
+      - description: Updated title
+        in: formData
+        name: title
+        type: string
+      - description: Updated description
+        in: formData
+        name: description
+        type: string
+      - description: Image file (JPEG or PNG)
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:
@@ -1273,18 +1308,18 @@ paths:
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity'
         "400":
-          description: '{"error": "message"}'
+          description: Bad Request
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "401":
-          description: '{"error": "user not logged in"}'
+          description: Unauthorized
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
-          description: '{"error": "message"}'
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Update a stay report
+      summary: Partially update a stay report
       tags:
       - stays-reports
   /report/create/{stayId}:
@@ -1513,6 +1548,33 @@ paths:
       summary: Get all stays
       tags:
       - stays
+  /stays-reports:
+    get:
+      description: Fetches a specific stay report associated with the logged-in user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved stay report object
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
+          description: '{"error": "report not found"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "could not fetch report"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve stay report by user ID
+      tags:
+      - stays-reports
   /stays/{stayId}:
     delete:
       consumes:

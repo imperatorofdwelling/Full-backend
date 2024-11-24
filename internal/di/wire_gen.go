@@ -72,7 +72,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	contractsService := contracts.ProvideContractService(contractsRepo)
 	contractsHandler := contracts.ProvideContractHandler(contractsService, log)
 	staysreportsRepo := staysreports.ProvideStaysReportRepo(sqlDB)
-	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo)
+	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo, fileService)
 	staysreportsHandler := staysreports.ProvideStaysReportHandler(staysreportsService, log)
 	usersreportsRepo := usersreports.ProvideUsersReportRepo(sqlDB)
 	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo)

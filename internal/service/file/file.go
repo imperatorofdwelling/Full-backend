@@ -10,14 +10,16 @@ import (
 type ImageType string
 
 const (
-	JpgImageType ImageType = ".jpg"
-	PngImageType ImageType = ".png"
-	SvgImageType ImageType = ".svg"
+	JpgImageType     ImageType = ".jpg"
+	PngImageType     ImageType = ".png"
+	SvgImageType     ImageType = ".svg"
+	UnknownImageType ImageType = "unknown"
 )
 
 const (
-	FilePathAdvantages  string = "./assets/images/advantages"
-	FilePathStaysImages string = "./assets/images/stays_images"
+	FilePathAdvantages         string = "./assets/images/advantages"
+	FilePathStaysImages        string = "./assets/images/stays_images"
+	FilePathStaysReportsImages string = "./assets/images/stays_reports_images"
 )
 
 const filePath = "./assets/images/advantages"
@@ -28,7 +30,7 @@ func (s *Service) UploadImage(img []byte, t ImageType, category string) (string,
 	const op = "service.FileService.CreateImage"
 
 	// Ensure the category directory exists
-	categoryPath := fmt.Sprintf("./assets/images/%s", category)
+	categoryPath := fmt.Sprintf(category)
 	err := os.MkdirAll(categoryPath, os.ModePerm)
 	if err != nil {
 		return "", fmt.Errorf("%s: failed to create directory %s: %w", op, categoryPath, err)

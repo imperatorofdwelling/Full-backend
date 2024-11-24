@@ -1291,66 +1291,6 @@
             }
         },
         "/report/{reportId}": {
-            "put": {
-                "description": "Updates a specific stay report",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stays-reports"
-                ],
-                "summary": "Update a stay report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Report ID",
-                        "name": "reportId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated report data",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Updated stays report object",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
-                        }
-                    },
-                    "400": {
-                        "description": "{\"error\": \"message\"}",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    },
-                    "401": {
-                        "description": "{\"error\": \"user not logged in\"}",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"error\": \"message\"}",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Deletes a specific stay report by report ID",
                 "tags": [
@@ -1384,6 +1324,72 @@
                     },
                     "500": {
                         "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates specific fields of a stay report, such as title, description, or image",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Partially update a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated title",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file (JPEG or PNG)",
+                        "name": "image",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated stays report object",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
@@ -1661,6 +1667,49 @@
                     },
                     "default": {
                         "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays-reports": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Fetches a specific stay report associated with the logged-in user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Retrieve stay report by user ID",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved stay report object",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport"
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "{\"error\": \"report not found\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"could not fetch report\"}",
                         "schema": {
                             "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
@@ -3056,6 +3105,23 @@
                 }
             }
         },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation": {
             "type": "object",
             "properties": {
@@ -3290,6 +3356,35 @@
                     "type": "string"
                 },
                 "stay_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "report_attach": {
+                    "type": "string"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

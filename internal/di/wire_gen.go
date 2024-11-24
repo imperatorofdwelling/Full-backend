@@ -75,7 +75,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo, fileService)
 	staysreportsHandler := staysreports.ProvideStaysReportHandler(staysreportsService, log)
 	usersreportsRepo := usersreports.ProvideUsersReportRepo(sqlDB)
-	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo)
+	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo, fileService)
 	usersreportsHandler := usersreports.ProvideUsersReportHandler(usersreportsService, log)
 	messageRepo := message.ProvideMessageRepo(sqlDB)
 	messageService := message.ProvideMessageService(messageRepo)

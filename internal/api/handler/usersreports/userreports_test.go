@@ -1,6 +1,7 @@
 package usersreports
 
 import (
+	"bytes"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
@@ -10,9 +11,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"strings"
+	"net/textproto"
 	"testing"
 	"time"
 )
@@ -42,8 +44,9 @@ func TestUsersReportsHandler_UserIdError(t *testing.T) {
 
 	router := chi.NewRouter()
 	router.Get("/user/report", hdl.GetAllUsersReports)
+	router.Get("/user/report/{reportId}", hdl.GetUsersReportById)
 	router.Post("/user/report/create/{toBlameId}", hdl.CreateUsersReports)
-	router.Put("/user/report/{reportId}", hdl.UpdateUsersReports)
+	router.Patch("/user/report/{reportId}", hdl.UpdateUsersReports)
 	router.Delete("/user/report/{reportId}", hdl.DeleteUsersReports)
 
 	testUserID, _ := uuid.NewV4()
@@ -52,10 +55,24 @@ func TestUsersReportsHandler_UserIdError(t *testing.T) {
 	})
 	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
 
-	t.Run("get user error", func(t *testing.T) {
+	t.Run("get all user error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
 		req := httptest.NewRequest(http.MethodGet, "/user/report", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+	t.Run("get one user error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/user/report/"+testUserID.String(), nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
@@ -80,10 +97,10 @@ func TestUsersReportsHandler_UserIdError(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, r.Code)
 	})
-	t.Run("put user error", func(t *testing.T) {
+	t.Run("patch user error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		req := httptest.NewRequest(http.MethodPut, "/user/report/"+testUserID.String(), nil)
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
@@ -123,8 +140,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 	router.Use(handler.JWTMiddleware("your-secret-key", log))
 
 	router.Get("/user/report", hdl.GetAllUsersReports)
+	router.Get("/user/report/{reportId}", hdl.GetUsersReportById)
 	router.Post("/user/report/create/{toBlameId}", hdl.CreateUsersReports)
-	router.Put("/user/report/{reportId}", hdl.UpdateUsersReports)
+	router.Patch("/user/report/{reportId}", hdl.UpdateUsersReports)
 	router.Delete("/user/report/{reportId}", hdl.DeleteUsersReports)
 
 	testUserID, _ := uuid.NewV4()
@@ -153,7 +171,7 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 	t.Run("should be params errors put", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		req := httptest.NewRequest(http.MethodPut, "/user/report/"+testUserID.String(), nil)
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
@@ -166,7 +184,7 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
-	t.Run("should be params errors put", func(t *testing.T) {
+	t.Run("should be params errors delete", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
 		req := httptest.NewRequest(http.MethodDelete, "/user/report/"+testUserID.String(), nil)
@@ -182,80 +200,300 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
-	t.Run("should be not full params errors post", func(t *testing.T) {
+	t.Run("should return error when no image is provided post", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		payload := `{"title": "smth"}`
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), strings.NewReader(payload))
+		writer.WriteField("title", "Test Title")
+		writer.WriteField("description", "Test Description")
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		svc.On("CreateUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("failed to fetch reports"))
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
-	t.Run("should be not full params errors put", func(t *testing.T) {
+	t.Run("should be error with the image type post", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		payload := `{"title": "smth"}`
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-		req := httptest.NewRequest(http.MethodPut, "/user/report/"+testUserID.String(), strings.NewReader(payload))
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/svg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
-
-		svc.On("UpdateUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("failed to fetch reports"))
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
-	t.Run("should be body params empty errors post", func(t *testing.T) {
+	t.Run("should be error with the image type patch", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		payload := `{"title": "smth", "description": "smth"}`
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), strings.NewReader(payload))
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/svg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed to create stays report"))
-
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
+		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
-	t.Run("should be body params empty errors put", func(t *testing.T) {
+	t.Run("should be no errors with jpeg post", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		payload := `{"title": "smth", "description": "smth"}`
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
 
-		req := httptest.NewRequest(http.MethodPut, "/user/report/"+testUserID.String(), strings.NewReader(payload))
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("failed to update stays report"))
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+	t.Run("should be no errors with jpeg patch", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+	t.Run("should be errors with jpeg content post", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// incorrect image type
+		jpegContent := []byte{}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
+	t.Run("should be svc error creating post", func(t *testing.T) {
+		r := httptest.NewRecorder()
 
-	t.Run("should be get service error", func(t *testing.T) {
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.WriteField("title", "Test Title")
+		writer.WriteField("description", "Test Description")
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(errors.New("svc error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+	t.Run("should be svc error creating patch", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.WriteField("title", "Test Title")
+		writer.WriteField("description", "Test Description")
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil, errors.New("svc error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+	t.Run("should be svc all get error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
 		req := httptest.NewRequest(http.MethodGet, "/user/report", nil)
@@ -265,7 +503,23 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		svc.On("GetAllUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("failed to update stays report"))
+		svc.On("GetAllUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("error while getting all of the info"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+	t.Run("should be svc one get error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/user/report/"+testUserID.String(), nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("GetUsersReportById", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("error while getting all of the info"))
 
 		router.ServeHTTP(r, req)
 
@@ -286,8 +540,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 	router.Use(handler.JWTMiddleware("your-secret-key", log))
 
 	router.Get("/user/report", hdl.GetAllUsersReports)
+	router.Get("/user/report/{reportId}", hdl.GetUsersReportById)
 	router.Post("/user/report/create/{toBlameId}", hdl.CreateUsersReports)
-	router.Put("/user/report/{reportId}", hdl.UpdateUsersReports)
+	router.Patch("/user/report/{reportId}", hdl.UpdateUsersReports)
 	router.Delete("/user/report/{reportId}", hdl.DeleteUsersReports)
 
 	testUserID, _ := uuid.NewV4()
@@ -297,6 +552,92 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 	})
 	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
 
+	t.Run("should no svc error creating", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.WriteField("title", "Test Title")
+		writer.WriteField("description", "Test Description")
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusCreated, r.Code)
+	})
+	t.Run("should no svc error creating patch", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.WriteField("title", "Test Title")
+		writer.WriteField("description", "Test Description")
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/report/"+testUserID.String(), body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil, nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
 	t.Run("should be delete success", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
@@ -313,7 +654,7 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
-	t.Run("should be get success", func(t *testing.T) {
+	t.Run("should be get all success", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
 		req := httptest.NewRequest(http.MethodGet, "/user/report", nil)
@@ -323,46 +664,26 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		svc.On("GetAllUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+		svc.On("GetAllUsersReports", mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
-	t.Run("should be put success", func(t *testing.T) {
+	t.Run("should be get one success", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		payload := `{"title": "smth", "description": "smth"}`
-
-		req := httptest.NewRequest(http.MethodPut, "/user/report/"+testUserID.String(), strings.NewReader(payload))
+		req := httptest.NewRequest(http.MethodGet, "/user/report/"+testUserID.String(), nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+		svc.On("GetUsersReportById", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusOK, r.Code)
-	})
-	t.Run("should be post success", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		payload := `{"title": "smth", "description": "smth"}`
-
-		req := httptest.NewRequest(http.MethodPost, "/user/report/create/"+testUserID.String(), strings.NewReader(payload))
-		cookie := &http.Cookie{
-			Name:  "jwt-token",
-			Value: tokenString,
-		}
-		req.AddCookie(cookie)
-
-		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusCreated, r.Code)
 	})
 }

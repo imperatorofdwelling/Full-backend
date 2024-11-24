@@ -7,6 +7,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -15,10 +16,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
-)
-
-const (
-	MaxImageMemorySize = 2 * (1024 * 1024)
 )
 
 type Handler struct {
@@ -36,19 +33,23 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 	})
 }
 
-// CreateStaysReports handles the creation of a stay report
-// @Summary Create a stay report
-// @Description Creates a new stay report for a specific stay
-// @Tags stays-reports
-// @Accept json
-// @Produce json
-// @Param stayId path string true "Stay ID"
-// @Param body body map[string]string true "Report data"
-// @Success 201 {object} map[string]string "{"message": "Stay report created successfully"}"
-// @Failure 400 {object} responseApi.ResponseError "{"error": "message"}"
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
-// @Router /report/create/{stayId} [post]
+// CreateStaysReports creates a new stay report.
+//
+// @Summary      Create a new stay report
+// @Description  Creates a report for a specific stay, including an optional image and required details like title and description.
+// @Tags         StaysReports
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        stayId       path      string                true   "ID of the stay being reported"
+// @Param        title        formData  string                true   "Title of the report"
+// @Param        description  formData  string                true   "Description of the report"
+// @Param        image        formData  file                  false  "Optional image file (JPEG or PNG)"
+// @Success      201          {object}  map[string]string     "Confirmation message"
+// @Failure      400          {object}  map[string]string     "Error message for invalid input or unsupported image type"
+// @Failure      401          {object}  map[string]string     "Error message for unauthorized access"
+// @Failure      500          {object}  map[string]string     "Error message for internal server error"
+// @Security     ApiKeyAuth
+// @Router       /report/create/{stayId} [post]
 func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.CreateStaysReports"
 
@@ -67,10 +68,10 @@ func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 	stayID := chi.URLParam(r, "stayId")
 
 	// Restrict request body size
-	r.Body = http.MaxBytesReader(w, r.Body, MaxImageMemorySize)
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
 
 	// Parse multipart form
-	err := r.ParseMultipartForm(MaxImageMemorySize)
+	err := r.ParseMultipartForm(file.MaxImageMemorySize)
 	if err != nil {
 		h.Log.Error("failed to parse form", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
@@ -232,9 +233,9 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, MaxImageMemorySize)
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
 
-	if err := r.ParseMultipartForm(MaxImageMemorySize); err != nil {
+	if err := r.ParseMultipartForm(file.MaxImageMemorySize); err != nil {
 		h.Log.Error("failed to parse form", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return

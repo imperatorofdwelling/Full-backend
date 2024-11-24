@@ -17,9 +17,14 @@ const (
 )
 
 const (
+	MaxImageMemorySize = 2 * (1024 * 1024)
+)
+
+const (
 	FilePathAdvantages         string = "./assets/images/advantages"
 	FilePathStaysImages        string = "./assets/images/stays_images"
 	FilePathStaysReportsImages string = "./assets/images/stays_reports_images"
+	FilePathUsersReportsImages string = "./assets/images/users_reports_images"
 )
 
 const filePath = "./assets/images/advantages"

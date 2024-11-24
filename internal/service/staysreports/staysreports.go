@@ -17,7 +17,12 @@ type Service struct {
 func (s *Service) CreateStaysReports(ctx context.Context, userId, stayId, title, description string, image []byte) error {
 	const op = "service.StaysReports.CreateStaysReports"
 
-	fWithPath, err := s.FileSvc.UploadImage(image, service.PngImageType, service.FilePathStaysReportsImages)
+	imageType, err := checkers.DetectImageType(image)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	fWithPath, err := s.FileSvc.UploadImage(image, imageType, service.FilePathStaysReportsImages)
 	if err != nil {
 		return err
 	}

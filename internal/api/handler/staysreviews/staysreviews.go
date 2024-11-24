@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -20,11 +21,17 @@ type Handler struct {
 
 func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 	r.Route("/staysreviews", func(r chi.Router) {
-		r.Post("/create", h.CreateStaysReview)
-		r.Put("/update/{id}", h.UpdateStaysReview)
-		r.Delete("/{id}", h.DeleteStaysReview)
-		r.Get("/{id}", h.FindOneStaysReview)
-		r.Get("/", h.FindAllStaysReviews)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateStaysReview)
+			r.Put("/update/{id}", h.UpdateStaysReview)
+			r.Delete("/{id}", h.DeleteStaysReview)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Get("/{id}", h.FindOneStaysReview)
+			r.Get("/", h.FindAllStaysReviews)
+		})
 	})
 }
 

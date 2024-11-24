@@ -28,8 +28,10 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) NewAuthHandler(r chi.Router) {
-	r.Post("/registration", h.Registration)
-	r.Post("/login", h.LoginUser)
+	r.Group(func(r chi.Router) {
+		r.Post("/registration", h.Registration)
+		r.Post("/login", h.LoginUser)
+	})
 }
 
 // Registration
@@ -162,46 +164,4 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
-}
-
-func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("jwt-token")
-		if err != nil {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(err))
-			return
-		}
-		tokenString := cookie.Value
-		// Verify the token as before
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return []byte("your-secret-key"), nil
-		})
-		if err != nil || !token.Valid {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
-			return
-		}
-
-		// Extract the user ID from the token
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
-			return
-		}
-
-		userID, ok := claims["user_id"].(string)
-		if !ok {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
-			return
-		}
-
-		h.Log.Info("User ID extracted from token: ", slog.String("user_id", userID))
-
-		// Store the user ID in the request context
-		ctx := context.WithValue(r.Context(), "user_id", userID)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
 }

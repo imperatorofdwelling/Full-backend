@@ -59,28 +59,22 @@ func NewServerHTTP(
 	r.Use(middleware.Timeout(10 * time.Second))
 
 	r.Route("/api/v1/", func(r chi.Router) {
-		r.Group(func(r chi.Router) {
-			authHandler.NewAuthHandler(r)
-			userHandler.NewPublicUserHandler(r)
-		})
-
-		r.Group(func(r chi.Router) {
-			r.Use(authHandler.JWTMiddleware)
-			locationHandler.NewLocationHandler(r)
-			// just added stays handler
-			reservationHandler.NewReservationHandler(r)
-			staysReviewsHandler.NewStaysReviewsHandler(r)
-			staysHandler.NewStaysHandler(r)
-			favouriteHandler.NewFavouriteHandler(r)
-			searchHandler.NewHistorySearchHandler(r)
-			contractHandler.NewContractHandler(r)
-			staysReportHandler.NewStaysReportsHandler(r)
-			usersReportHandler.NewUsersReportsHandler(r)
-			messageHandler.NewMessageHandler(r)
-			chatHandler.NewChatHandler(r)
-			imageHandler.NewImageHandler(r)
-		})
-
+		authHandler.NewAuthHandler(r)
+		advantageHandler.NewAdvantageHandler(r)
+		staysAdvHandler.NewStaysAdvantageHandler(r)
+		userHandler.NewUserHandler(r)
+		locationHandler.NewLocationHandler(r)
+		reservationHandler.NewReservationHandler(r)
+		staysReviewsHandler.NewStaysReviewsHandler(r)
+		staysHandler.NewStaysHandler(r)
+		favouriteHandler.NewFavouriteHandler(r)
+		searchHandler.NewHistorySearchHandler(r)
+		contractHandler.NewContractHandler(r)
+		staysReportHandler.NewStaysReportsHandler(r)
+		usersReportHandler.NewUsersReportsHandler(r)
+		messageHandler.NewMessageHandler(r)
+		chatHandler.NewChatHandler(r)
+		imageHandler.NewImageHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -21,9 +22,12 @@ type FavHandler struct {
 
 func (h *FavHandler) NewFavouriteHandler(r chi.Router) {
 	r.Route("/favourites", func(r chi.Router) {
-		r.Post("/{stayId}", h.AddFavourite)
-		r.Delete("/{stayId}", h.RemoveFavourite)
-		r.Get("/", h.GetAllFavourites)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/{stayId}", h.AddFavourite)
+			r.Delete("/{stayId}", h.RemoveFavourite)
+			r.Get("/", h.GetAllFavourites)
+		})
 	})
 }
 

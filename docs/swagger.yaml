@@ -140,6 +140,17 @@ definitions:
       region_name:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity:
+    properties:
+      media:
+        type: string
+      text:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation:
     properties:
       arrived:

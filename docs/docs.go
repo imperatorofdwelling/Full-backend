@@ -3063,6 +3063,23 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation": {
             "type": "object",
             "properties": {

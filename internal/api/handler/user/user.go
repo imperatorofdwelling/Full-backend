@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -21,16 +22,17 @@ type UserHandler struct {
 	Log *slog.Logger
 }
 
-func (h *UserHandler) NewPublicUserHandler(r chi.Router) {
-	r.Route("/user", func(r chi.Router) {
-		r.Get("/{id}", h.GetUserByID)
-	})
-}
-
 func (h *UserHandler) NewUserHandler(r chi.Router) {
 	r.Route("/user", func(r chi.Router) {
-		r.Put("/{id}", h.UpdateUserByID)
-		r.Delete("/{id}", h.DeleteUserByID)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Put("/{id}", h.UpdateUserByID)
+			r.Delete("/{id}", h.DeleteUserByID)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Get("/{id}", h.GetUserByID)
+		})
 	})
 }
 

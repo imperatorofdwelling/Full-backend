@@ -3,7 +3,7 @@ run: build
 build: swag
 	go build -o bin/app cmd/app/main.go
 swag: wire
-	/home/bjiake/go/bin/swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
+	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	wire ./internal/di
 migration-create:
@@ -13,7 +13,7 @@ migrate-up:
 migrate-down:
 	go run cmd/migrator/main.go down
 docker:
-	docker-compose up --build -d
+	docker compose -p iod up --build -d
 test:
 	go test ./internal/api/handler/...
 mock:

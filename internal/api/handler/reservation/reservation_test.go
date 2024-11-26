@@ -130,7 +130,7 @@ func TestReservationHandler_UpdateReservation(t *testing.T) {
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusOK, r.Code)
+		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
 
 	t.Run("should be error decoding body", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestReservationHandler_UpdateReservation(t *testing.T) {
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
+		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
 }
 
@@ -343,5 +343,85 @@ func TestReservationHandler_GetAllReservationsByUser(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestReservationHandler_UpdateReservation_2(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	svc := mocks.ReservationService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	payload := reservation.ReservationEntity{
+		StayID:    fakeUUID,
+		UserID:    fakeUUID,
+		Arrived:   time.Now(),
+		Departure: time.Now().Add(24 * time.Hour),
+	}
+
+	pBytes, _ := json.Marshal(payload)
+
+	t.Run("should be error decoding JSON payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		// Send an invalid JSON (e.g., empty string) to simulate the decoding error
+		req := httptest.NewRequest(http.MethodPut, "/reservation/update/"+fakeUUID.String(), strings.NewReader("invalid-json"))
+
+		router.HandleFunc("/reservation/update/{reservationID}", hdl.UpdateReservation)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return internal server error when updating reservation fails", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/reservation/update/"+fakeUUID.String(), bytes.NewBuffer(pBytes))
+
+		router.HandleFunc("/reservation/update/{reservationID}", hdl.UpdateReservation)
+
+		svc.On("UpdateReservation", mock.Anything, mock.Anything).Return(errors.New("failed to update reservation")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should return internal server error when getting updated reservation fails", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/reservation/update/"+fakeUUID.String(), bytes.NewBuffer(pBytes))
+
+		router.HandleFunc("/reservation/update/{reservationID}", hdl.UpdateReservation)
+
+		svc.On("UpdateReservation", mock.Anything, mock.Anything).Return(nil).Once()
+
+		svc.On("GetReservationByID", mock.Anything, fakeUUID).Return(nil, errors.New("failed to find reservation")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should return internal server error when getting updated reservation fails", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/reservation/update/"+fakeUUID.String(), bytes.NewBuffer(pBytes))
+
+		router.HandleFunc("/reservation/update/{reservationID}", hdl.UpdateReservation)
+
+		svc.On("UpdateReservation", mock.Anything, mock.Anything).Return(nil).Once()
+
+		svc.On("GetReservationByID", mock.Anything, fakeUUID).Return(nil, nil).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
 	})
 }

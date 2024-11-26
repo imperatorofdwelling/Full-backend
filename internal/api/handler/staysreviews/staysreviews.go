@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -20,11 +21,17 @@ type Handler struct {
 
 func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 	r.Route("/staysreviews", func(r chi.Router) {
-		r.Post("/create", h.CreateStaysReview)
-		r.Put("/update/{id}", h.UpdateStaysReview)
-		r.Delete("/{id}", h.DeleteStaysReview)
-		r.Get("/{id}", h.FindOneStaysReview)
-		r.Get("/", h.FindAllStaysReviews)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateStaysReview)
+			r.Put("/update/{id}", h.UpdateStaysReview)
+			r.Delete("/{id}", h.DeleteStaysReview)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Get("/{id}", h.FindOneStaysReview)
+			r.Get("/", h.FindAllStaysReviews)
+		})
 	})
 }
 
@@ -69,16 +76,17 @@ func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 
 // UpdateStaysReview godoc
 //
-//	@Summary		Update Stays_review
-//	@Description	Update Stays_review by id
+//	@Summary		Update Stays Review
+//	@Description	Update a stays review by its ID
 //	@Tags			staysReviews
 //	@Accept			application/json
 //	@Produce		json
-//	@Param			id	path		string		true	"stays review id"
-//	@Param			request	body	model.StaysReviewEntity			true	"update stays review request"
-//	@Success		200	{string}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Param			id	path		string		true	"ID of the stays review to update"
+//	@Param			request	body	model.StaysReviewEntity	true	"Details to update the stays review"
+//	@Success		200	{object}	map[string]interface{}	"Successfully updated stays review"
+//	@Failure		400	{object}	responseApi.ResponseError		"Invalid request"
+//	@Failure		404	{object}	responseApi.ResponseError		"Stays review not found"
+//	@Failure		500	{object}	responseApi.ResponseError		"Internal server error"
 //	@Router			/staysreviews/update/{id} [put]
 func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.UpdateStaysReview"
@@ -105,14 +113,14 @@ func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Svc.UpdateStaysReview(r.Context(), &newStaysReview, uuID)
+	stayRev, err := h.Svc.UpdateStaysReview(r.Context(), &newStaysReview, uuID)
 	if err != nil {
 		h.Log.Error("failed to update stay review", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, "stay review updated")
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]interface{}{"message": "Updated stay review", "review": stayRev})
 }
 
 // DeleteStaysReview godoc

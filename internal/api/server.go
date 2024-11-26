@@ -6,12 +6,20 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
 	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
+	chatHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/chat"
+	ctrctHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/contracts"
+	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
+	imgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/image"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
+	msgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/message"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
+	srchRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/searchhistory"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
 	staysAdvHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysadvantage"
+	staysReportRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreports"
 	staysRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreviews"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	usersReportHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/usersreports"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -34,6 +42,14 @@ func NewServerHTTP(
 	staysAdvHandler *staysAdvHdl.Handler,
 	reservationHandler *reservationHdl.Handler,
 	staysReviewsHandler *staysRevHdl.Handler,
+	favouriteHandler *fvrtHdl.FavHandler,
+	searchHandler *srchRevHdl.Handler,
+	contractHandler *ctrctHdl.Handler,
+	staysReportHandler *staysReportRevHdl.Handler,
+	usersReportHandler *usersReportHdl.Handler,
+	messageHandler *msgHdl.Handler,
+	chatHandler *chatHdl.Handler,
+	imageHandler *imgHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -43,16 +59,22 @@ func NewServerHTTP(
 	r.Use(middleware.Timeout(10 * time.Second))
 
 	r.Route("/api/v1/", func(r chi.Router) {
-		r.Group(func(r chi.Router) {
-			authHandler.NewAuthHandler(r)
-		})
-
-		r.Group(func(r chi.Router) {
-			r.Use(authHandler.JWTMiddleware)
-			userHandler.NewUserHandler(r)
-			locationHandler.NewLocationHandler(r)
-		})
-
+		authHandler.NewAuthHandler(r)
+		advantageHandler.NewAdvantageHandler(r)
+		staysAdvHandler.NewStaysAdvantageHandler(r)
+		userHandler.NewUserHandler(r)
+		locationHandler.NewLocationHandler(r)
+		reservationHandler.NewReservationHandler(r)
+		staysReviewsHandler.NewStaysReviewsHandler(r)
+		staysHandler.NewStaysHandler(r)
+		favouriteHandler.NewFavouriteHandler(r)
+		searchHandler.NewHistorySearchHandler(r)
+		contractHandler.NewContractHandler(r)
+		staysReportHandler.NewStaysReportsHandler(r)
+		usersReportHandler.NewUsersReportsHandler(r)
+		messageHandler.NewMessageHandler(r)
+		chatHandler.NewChatHandler(r)
+		imageHandler.NewImageHandler(r)
 	})
 
 	r.Get("/api/v1/swagger/*", httpSwagger.Handler(

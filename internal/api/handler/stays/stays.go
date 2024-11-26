@@ -1,17 +1,21 @@
 package stays
 
 import (
-	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
+)
+
+const (
+	MaxImageMemorySize = 5 * (1024 * 1024)
 )
 
 type Handler struct {
@@ -21,12 +25,23 @@ type Handler struct {
 
 func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
-		r.Post("/create", h.CreateStay)
-		r.Get("/{stayId}", h.GetStayByID)
-		r.Get("/", h.GetStays)
-		r.Delete("/{stayId}", h.DeleteStayByID)
-		r.Put("/{stayId}", h.UpdateStayByID)
-		r.Get("/user/{userId}", h.GetStaysByUserID)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateStay)
+			r.Get("/{stayId}", h.GetStayByID)
+			r.Delete("/{stayId}", h.DeleteStayByID)
+			r.Put("/{stayId}", h.UpdateStayByID)
+			r.Post("/images", h.CreateImages)
+			r.Post("/images/main", h.CreateMainImage)
+			r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Get("/", h.GetStays)
+			r.Get("/user/{userId}", h.GetStaysByUserID)
+			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
+			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
+		})
 	})
 }
 
@@ -164,7 +179,7 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Svc.DeleteStayByID(context.Background(), idUuid)
+	err = h.Svc.DeleteStayByID(r.Context(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to delete stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -211,7 +226,7 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updatedStay, err := h.Svc.UpdateStayByID(context.Background(), &newStay, idUuid)
+	updatedStay, err := h.Svc.UpdateStayByID(r.Context(), &newStay, idUuid)
 	if err != nil {
 		h.Log.Error("failed to update stay by id %s: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -249,7 +264,7 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stays, err := h.Svc.GetStaysByUserID(context.Background(), idUuid)
+	stays, err := h.Svc.GetStaysByUserID(r.Context(), idUuid)
 	if err != nil {
 		h.Log.Error("failed to fetch stays: %v", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -257,4 +272,222 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, stays)
+}
+
+// GetStayImagesByStayID godoc
+//
+//	@Summary		Get all stays images by stay id
+//	@Description	Get stays images by stay id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			stayId	path		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		[]model.StayImage	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/{stayId} [get]
+func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetStayImagesByStayID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+	idUuid, err := uuid.FromString(stayId)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	stayImages, err := h.Svc.GetImagesByStayID(r.Context(), idUuid)
+	if err != nil {
+		h.Log.Error("failed to fetch stay images by id %s: %v", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, stayImages)
+}
+
+// GetMainImageByStayID godoc
+//
+//	@Summary		Get main stays image by stay id
+//	@Description	Get main stays image by stay id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			stayId	path		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		model.StayImage	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/main/{stayId} [get]
+func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetMainImageByStayID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+	idUuid, err := uuid.FromString(stayId)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	stayImage, err := h.Svc.GetMainImageByStayID(r.Context(), idUuid)
+	if err != nil {
+		h.Log.Error("failed to fetch stay image by id %s: %v", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, stayImage)
+}
+
+// CreateImages godoc
+//
+//	@Summary		Create images
+//	@Description	Create images
+//	@Tags			stays
+//	@Accept			multipart/form-data
+//	@Param			images	formData		[]file		true	"images"
+//	@Param			stay_id	formData		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images [post]
+func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.CreateImages"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	err := r.ParseMultipartForm(MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	formValues := r.MultipartForm.Value
+
+	formFiles := r.MultipartForm.File
+
+	images := formFiles["images"]
+	stayID := formValues["stay_id"][0]
+
+	stayIDUuid, err := uuid.FromString(stayID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.CreateImages(r.Context(), images, stayIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created")
+}
+
+// CreateMainImage godoc
+//
+//	@Summary		Create main image
+//	@Description	Create main image
+//	@Tags			stays
+//	@Accept			multipart/form-data
+//	@Param			images	formData		file		true	"images"
+//	@Param			stay_id	formData		string		true	"stay id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/main [post]
+func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.CreateMainImage"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	err := r.ParseMultipartForm(MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	formValues := r.MultipartForm.Value
+	formFiles := r.MultipartForm.File
+
+	mainImage := formFiles["images"][0]
+	stayID := formValues["stay_id"][0]
+
+	stayIDUuid, err := uuid.FromString(stayID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.CreateMainImage(r.Context(), mainImage, stayIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created")
+}
+
+// DeleteStayImage godoc
+//
+//	@Summary		Delete image by id
+//	@Description	Delete image by id
+//	@Tags			stays
+//	@Accept			application/json
+//	@Param			imageId	path		string		true	"stay image id"
+//	@Produce		json
+//	@Success		200	{object}		string	"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/images/delete/{imageId} [delete]
+func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.DeleteStayImage"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	imageID := chi.URLParam(r, "imageId")
+	imageIDUuid, err := uuid.FromString(imageID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.DeleteStayImage(r.Context(), imageIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusNoContent, "successfully deleted")
+
 }

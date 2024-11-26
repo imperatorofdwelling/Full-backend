@@ -2,17 +2,21 @@ package handler
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/pkg/jsonReader"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"github.com/imperatorofdwelling/Full-backend/pkg/validator"
 	"log/slog"
 	"net/http"
 	"time"
@@ -24,8 +28,10 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) NewAuthHandler(r chi.Router) {
-	r.Post("/registration", h.Registration)
-	r.Post("/login", h.LoginUser)
+	r.Group(func(r chi.Router) {
+		r.Post("/registration", h.Registration)
+		r.Post("/login", h.LoginUser)
+	})
 }
 
 // Registration
@@ -49,18 +55,41 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	)
 
 	var userCurrent model.Registration
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("failed to decode request body")))
 		return
 	}
 
+	if !userCurrent.IsHashed {
+		// password hashing
+		hashedPassword := sha256.Sum256([]byte(userCurrent.Password))
+		userCurrent.Password = hex.EncodeToString(hashedPassword[:])
+	}
+
+	// creating a new validator for registration
+	v := validator.New()
+	auth.ValidateRegistration(v, &userCurrent)
+
+	if !v.IsValid() {
+		responseApi.WriteError(w, r, http.StatusBadRequest, v.Errors)
+		return
+	}
+
 	userCreated, err := h.Svc.Register(context.Background(), userCurrent)
 	if err != nil {
-		if errors.Is(err, service.ErrUserAlreadyExists) || errors.Is(err, service.ErrNotFound) {
-			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		h.Log.Error("Error during registration", slog.String("error", err.Error()))
+
+		if errors.Is(err, service.ErrUserAlreadyExists) {
+			responseApi.WriteError(w, r, http.StatusBadRequest, fmt.Sprintf("%v", service.ErrUserAlreadyExists))
 			return
 		}
+
+		if errors.Is(err, service.ErrNotFound) {
+			responseApi.WriteError(w, r, http.StatusBadRequest, fmt.Sprintf("%v", service.ErrNotFound))
+			return
+		}
+
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
@@ -91,30 +120,34 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("jwt-token")
 	if err == nil {
-		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("already logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, errors.New("already logged in"))
 		return
 	}
 
 	var userCurrent model.Login
-	if err := render.DecodeJSON(r.Body, &userCurrent); err != nil {
+	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, errors.New("failed to decode request body"))
+		return
 	}
 
 	userID, err := h.Svc.Login(context.Background(), userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
-			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(service.ErrNotFound))
 			return
 		}
 		if errors.Is(err, service.ErrValid) {
-			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(service.ErrValid))
 			return
 		}
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"user_id": userID,
 	})
 	tokenString, err := token.SignedString([]byte("your-secret-key"))
 	if err != nil {
@@ -131,46 +164,4 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, cookie)
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
-}
-
-func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("jwt-token")
-		if err != nil {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(err))
-			return
-		}
-		tokenString := cookie.Value
-		// Verify the token as before
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return []byte("your-secret-key"), nil
-		})
-		if err != nil {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
-			return
-		}
-		if !token.Valid {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
-			return
-		}
-		// Extract the user ID from the token
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
-			return
-		}
-		// TODO зафиксить ошибку
-		userID, ok := claims["user_id"].(string)
-		if !ok {
-			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
-			return
-		}
-		// Store the user ID in the request context
-		ctx := context.WithValue(r.Context(), "user_id", userID)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
 }

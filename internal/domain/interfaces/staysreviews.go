@@ -20,7 +20,7 @@ type StaysReviewsRepo interface {
 //go:generate mockery --name StaysReviewsService
 type StaysReviewsService interface {
 	CreateStaysReview(context.Context, *staysreviews.StaysReviewEntity) error
-	UpdateStaysReview(context.Context, *staysreviews.StaysReviewEntity, uuid.UUID) error
+	UpdateStaysReview(context.Context, *staysreviews.StaysReviewEntity, uuid.UUID) (*staysreviews.StaysReview, error)
 	DeleteStaysReview(context.Context, uuid.UUID) error
 	FindOneStaysReview(context.Context, uuid.UUID) (*staysreviews.StaysReview, error)
 	FindAllStaysReviews(context.Context) ([]staysreviews.StaysReview, error)

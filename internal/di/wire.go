@@ -10,13 +10,21 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
-	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	chatProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
+	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
+	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
+	//flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	imgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/image"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
+	srchProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
 	staysAdvProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysadvantage"
+	staysReportsProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreports"
 	staysReviewProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/staysreviews"
 	usrProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/user"
+	usrsReportsProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/usersreports"
 
 	"log/slog"
 )
@@ -27,11 +35,19 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		locProvider.LocationProviderSet,
 		authProvider.ProviderSet,
 		advProvider.AdvantageProviderSet,
-		flProvider.FileProviderSet,
+		//flProvider.FileProviderSet,
 		staysProvider.StaysProviderSet,
 		staysAdvProvider.StaysAdvantageProviderSet,
 		resProvider.ReservationProviderSet,
 		staysReviewProvider.StaysReviewsProviderSet,
+		fvrtProvider.FavouriteProviderSet,
+		srchProvider.SearchHistoryProviderSet,
+		ctrctProvider.ContractProviderSet,
+		staysReportsProvider.StaysReportsProvideSet,
+		usrsReportsProvider.UsersReportsProvideSet,
+		msgProvider.MessageProviderSet,
+		chatProvider.ChatProviderSet,
+		imgProvider.ImageProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

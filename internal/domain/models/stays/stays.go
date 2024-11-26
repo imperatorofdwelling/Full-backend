@@ -38,8 +38,6 @@ type (
 		UserID              uuid.UUID `json:"user_id"`
 		LocationID          uuid.UUID `json:"location_id"`
 		Name                string    `json:"name"`
-		ImageMain           string    `json:"image_main"`
-		Images              []string  `json:"images"`
 		Type                StayType  `json:"type"`
 		NumberOfBedrooms    int       `json:"number_of_bedrooms"`
 		NumberOfBeds        int       `json:"number_of_beds"`
@@ -56,5 +54,19 @@ type (
 		Price               float32   `json:"price"`
 		CreatedAt           time.Time `json:"created_at"`
 		UpdatedAt           time.Time `json:"updated_at"`
+	}
+
+	StayImagesEntity struct {
+		Images []byte    `json:"images"`
+		StayID uuid.UUID `json:"stay_id"`
+	}
+
+	StayImage struct {
+		ID        uuid.UUID `json:"id"`
+		StayID    uuid.UUID `json:"stay_id"`
+		ImageName string    `json:"image_name"`
+		IsMain    bool      `json:"is_main"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 )

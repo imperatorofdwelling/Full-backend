@@ -38,20 +38,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/advantage.Advantage"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -96,13 +96,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -140,13 +140,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -188,25 +188,589 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/advantage.Advantage"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
             }
         },
-        "/locations/{locationName}": {
+        "/chat": {
+            "get": {
+                "description": "Retrieve all chats for a user by their user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chats"
+                ],
+                "summary": "Get Chats by User ID",
+                "responses": {
+                    "200": {
+                        "description": "List of chats for the user",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/{chatId}": {
+            "get": {
+                "description": "Retrieve all messages for a chat by its chat ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chats"
+                ],
+                "summary": "Get Messages by Chat ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the chat",
+                        "name": "chatId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of messages for the chat",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Chat not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/{ownerId}": {
+            "post": {
+                "description": "Send a message to a specified chat by its owner ID and user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chats"
+                ],
+                "summary": "Send a message to a chat",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the chat owner",
+                        "name": "ownerId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Message content to send",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message sent successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract": {
+            "get": {
+                "description": "Retrieve all contracts for a user by their user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contracts"
+                ],
+                "summary": "Get All Contracts",
+                "responses": {
+                    "200": {
+                        "description": "ok\" // Adjust the type based on your actual Contract struct",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/contract/{stayId}": {
+            "put": {
+                "description": "Update a contract for a specific stay by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contracts"
+                ],
+                "summary": "Update an Existing Contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the stay",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Contract details including dateStart and dateEnd",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated contract information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new contract for a specific stay by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contracts"
+                ],
+                "summary": "Add a New Contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the stay",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Contract details including dateStart and dateEnd",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Contract created successfully with message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/favourites": {
+            "get": {
+                "description": "Retrieves a list of favourite stays for the user based on the user ID from context.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favourites"
+                ],
+                "summary": "Get all favourite stays for a user",
+                "responses": {
+                    "200": {
+                        "description": "List of favourite stays",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/favourites/{stayId}": {
+            "post": {
+                "description": "Add a stay to the user's favourites list using their user ID from context and the stay ID from the URL.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favourites"
+                ],
+                "summary": "Add a stay to user favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the stay to be added to favourites",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully added to favourites",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a stay from the user's favourites list using their user ID from context and the stay ID from the URL.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favourites"
+                ],
+                "summary": "Remove a stay from user favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the stay to be removed from favourites",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully removed from favourites",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/history": {
+            "get": {
+                "description": "Get all search history for a user by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search-history"
+                ],
+                "summary": "Get Search History",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new entry to the search history for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "search-history"
+                ],
+                "summary": "Add Search History",
+                "parameters": [
+                    {
+                        "description": "Name of the search history entry",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "message",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/locations": {
+            "get": {
+                "description": "Get all locations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Get all locations",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/locations/match/{locationName}": {
             "get": {
                 "description": "Find city by matching name",
                 "consumes": [
@@ -234,20 +798,115 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/location.Location"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/locations/{id}": {
+            "get": {
+                "description": "Find location by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Find location by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "location id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Update location by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Update location by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "location id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "location request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -273,7 +932,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.Login"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login"
                         }
                     }
                 ],
@@ -287,25 +946,206 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/message": {
+            "get": {
+                "description": "Retrieve all messages for a user by their user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get Messages by User ID",
+                "responses": {
+                    "200": {
+                        "description": "List of messages for the user",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/{messageId}": {
+            "get": {
+                "description": "Retrieve a single message by its message ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get Message by Message ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the message",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The message details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Message not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing message by message ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Update an Existing Message",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the message",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated message content",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated message",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a message by its message ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Delete Message by Message ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The ID of the message",
+                        "name": "messageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Message deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Message not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -331,7 +1171,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.Registration"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration"
                         }
                     }
                 ],
@@ -345,13 +1185,214 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/report": {
+            "get": {
+                "description": "Retrieves all stay reports for the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Get all stay reports",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/create/{stayId}": {
+            "post": {
+                "description": "Creates a new stay report for a specific stay",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Create a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Stay ID",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Report data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "{\"message\": \"Stay report created successfully\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/{reportId}": {
+            "put": {
+                "description": "Updates a specific stay report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Update a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated report data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated stays report object",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
+                        }
+                    },
+                    "400": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a specific stay report by report ID",
+                "tags": [
+                    "stays-reports"
+                ],
+                "summary": "Delete a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"message\": \"Stay report was deleted\"}",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -377,7 +1418,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/reservation.ReservationEntity"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity"
                         }
                     }
                 ],
@@ -391,13 +1432,73 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservation/update/{reservationId}": {
+            "put": {
+                "description": "Update an existing reservation by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Update Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the reservation to update",
+                        "name": "reservationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Details to update the reservation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated reservation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Reservation not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -431,20 +1532,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/reservation.Reservation"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -476,19 +1577,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/reservation.Reservation"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -524,66 +1625,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/reservation/{reservationId}": {
-            "put": {
-                "description": "Update reservation by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reservations"
-                ],
-                "summary": "Update Reservation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "reservation id",
-                        "name": "reservationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update reservation request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/reservation.ReservationUpdateEntity"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -608,20 +1656,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/stays.Stay"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -647,7 +1695,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stays.StayEntity"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity"
                         }
                     }
                 ],
@@ -661,13 +1709,254 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/images": {
+            "post": {
+                "description": "Create images",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Create images",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "images",
+                        "name": "images",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "stay_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/images/delete/{imageId}": {
+            "delete": {
+                "description": "Delete image by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Delete image by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay image id",
+                        "name": "imageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/images/main": {
+            "post": {
+                "description": "Create main image",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Create main image",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "images",
+                        "name": "images",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "stay_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/images/main/{stayId}": {
+            "get": {
+                "description": "Get main stays image by stay id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get main stays image by stay id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/images/{stayId}": {
+            "get": {
+                "description": "Get stays images by stay id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get all stays images by stay id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -701,20 +1990,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/stays.Stay"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -746,19 +2035,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/stays.Stay"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -782,7 +2071,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stays.StayEntity"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity"
                         }
                     }
                 ],
@@ -790,19 +2079,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/stays.Stay"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -838,13 +2127,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -852,7 +2141,7 @@ const docTemplate = `{
         },
         "/staysadvantage/create": {
             "post": {
-                "description": "Create staysadvantage",
+                "description": "Create staysAdvantage",
                 "consumes": [
                     "application/json"
                 ],
@@ -860,17 +2149,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysadvantage"
+                    "staysAdvantage"
                 ],
                 "summary": "Create StaysAdvantage",
                 "parameters": [
                     {
-                        "description": "staysadvantage request",
+                        "description": "staysAdvantage request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/staysadvantage.StayAdvantageCreateReq"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq"
                         }
                     }
                 ],
@@ -884,13 +2173,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -898,7 +2187,7 @@ const docTemplate = `{
         },
         "/staysadvantage/{id}": {
             "delete": {
-                "description": "Create staysadvantage",
+                "description": "Create staysAdvantage",
                 "consumes": [
                     "application/json"
                 ],
@@ -906,7 +2195,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysadvantage"
+                    "staysAdvantage"
                 ],
                 "summary": "Create StaysAdvantage",
                 "parameters": [
@@ -928,13 +2217,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -950,7 +2239,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysreviews"
+                    "staysReviews"
                 ],
                 "summary": "Get all Stays review",
                 "responses": {
@@ -959,20 +2248,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/staysreviews.StaysReview"
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -988,7 +2277,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysreviews"
+                    "staysReviews"
                 ],
                 "summary": "Create Stays_review",
                 "parameters": [
@@ -998,7 +2287,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/staysreviews.StaysReviewEntity"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity"
                         }
                     }
                 ],
@@ -1012,13 +2301,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -1026,7 +2315,7 @@ const docTemplate = `{
         },
         "/staysreviews/update/{id}": {
             "put": {
-                "description": "Update Stays_review by id",
+                "description": "Update a stays review by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1034,44 +2323,51 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysreviews"
+                    "staysReviews"
                 ],
-                "summary": "Update Stays_review",
+                "summary": "Update Stays Review",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "stays review id",
+                        "description": "ID of the stays review to update",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "update stays review request",
+                        "description": "Details to update the stays review",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/staysreviews.StaysReviewEntity"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Successfully updated stays review",
                         "schema": {
-                            "type": "string"
+                            "type": "object",
+                            "additionalProperties": true
                         }
                     },
                     "400": {
-                        "description": "Error",
+                        "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
-                    "default": {
-                        "description": "Error",
+                    "404": {
+                        "description": "Stays review not found",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -1087,7 +2383,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysreviews"
+                    "staysReviews"
                 ],
                 "summary": "Get Stays review",
                 "parameters": [
@@ -1103,19 +2399,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/staysreviews.StaysReview"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -1129,7 +2425,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "staysreviews"
+                    "staysReviews"
                 ],
                 "summary": "Delete Stays_review",
                 "parameters": [
@@ -1151,13 +2447,239 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/report/": {
+            "get": {
+                "description": "Retrieves all reports created by a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UsersReports"
+                ],
+                "summary": "Get All User Reports",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/report/create/{toBlameId}": {
+            "post": {
+                "description": "Creates a new report on a user by another user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UsersReports"
+                ],
+                "summary": "Create User Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the user being reported",
+                        "name": "toBlameId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Report content with title and description",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/report/{reportId}": {
+            "put": {
+                "description": "Updates an existing report for a specified user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UsersReports"
+                ],
+                "summary": "Update User Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the report to update",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Report content with title and description",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated user report object",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a specified report created by a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UsersReports"
+                ],
+                "summary": "Delete User Report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the report to delete",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -1190,19 +2712,139 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     },
                     "404": {
                         "description": "User  not found",
                         "schema": {
-                            "$ref": "#/definitions/responseApi.ResponseError"
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a user with the provided ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update a user by ID",
+                "operationId": "updateUserByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User update data",
+                        "name": "model.User",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a user with the provided ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete a user by ID",
+                "operationId": "deleteUserByID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User successfully deleted"
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }
                     }
                 }
@@ -1210,7 +2852,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "advantage.Advantage": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -1230,31 +2872,39 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.Login": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login": {
             "type": "object",
             "required": [
                 "email",
+                "isHashed",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
+                "isHashed": {
+                    "type": "boolean"
+                },
                 "password": {
                     "type": "string"
                 }
             }
         },
-        "auth.Registration": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration": {
             "type": "object",
             "required": [
                 "email",
+                "isHashed",
                 "name",
                 "password"
             ],
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "isHashed": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -1264,18 +2914,71 @@ const docTemplate = `{
                 }
             }
         },
-        "helper.NullTime": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract": {
             "type": "object",
             "properties": {
-                "time": {
+                "created_at": {
                     "type": "string"
                 },
-                "valid": {
-                    "type": "boolean"
+                "date_end": {
+                    "type": "string"
+                },
+                "date_start": {
+                    "type": "string"
+                },
+                "entrance": {
+                    "type": "string"
+                },
+                "floor": {
+                    "type": "string"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "square": {
+                    "type": "number"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
-        "location.Location": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location": {
             "type": "object",
             "properties": {
                 "city": {
@@ -1322,7 +3025,62 @@ const docTemplate = `{
                 }
             }
         },
-        "reservation.Reservation": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "federal_district": {
+                    "type": "string"
+                },
+                "fias_id": {
+                    "type": "string"
+                },
+                "kladr_id": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "string"
+                },
+                "lon": {
+                    "type": "string"
+                },
+                "okato": {
+                    "type": "string"
+                },
+                "oktmo": {
+                    "type": "string"
+                },
+                "population": {
+                    "type": "number"
+                },
+                "region_iso_code": {
+                    "type": "string"
+                },
+                "region_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -1348,7 +3106,7 @@ const docTemplate = `{
                 }
             }
         },
-        "reservation.ReservationEntity": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -1365,7 +3123,7 @@ const docTemplate = `{
                 }
             }
         },
-        "reservation.ReservationUpdateEntity": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -1379,15 +3137,21 @@ const docTemplate = `{
                 }
             }
         },
-        "responseApi.ResponseError": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory": {
             "type": "object",
             "properties": {
-                "error": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "stays.Stay": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -1407,15 +3171,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
-                },
-                "image_main": {
-                    "type": "string"
-                },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "is_smoking_prohibited": {
                     "type": "boolean"
@@ -1461,7 +3216,7 @@ const docTemplate = `{
                 }
             }
         },
-        "stays.StayEntity": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity": {
             "type": "object",
             "required": [
                 "guests",
@@ -1529,7 +3284,30 @@ const docTemplate = `{
                 }
             }
         },
-        "staysadvantage.StayAdvantageCreateReq": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_name": {
+                    "type": "string"
+                },
+                "is_main": {
+                    "type": "boolean"
+                },
+                "stay_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq": {
             "type": "object",
             "properties": {
                 "advantage_id": {
@@ -1540,7 +3318,27 @@ const docTemplate = `{
                 }
             }
         },
-        "staysreviews.StaysReview": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "reportID": {
+                    "type": "string"
+                },
+                "stayName": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -1569,7 +3367,7 @@ const docTemplate = `{
                 }
             }
         },
-        "staysreviews.StaysReviewEntity": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity": {
             "type": "object",
             "properties": {
                 "description": {
@@ -1589,7 +3387,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.User": {
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User": {
             "description": "User details",
             "type": "object",
             "properties": {
@@ -1600,7 +3398,7 @@ const docTemplate = `{
                     }
                 },
                 "birth_date": {
-                    "$ref": "#/definitions/helper.NullTime"
+                    "$ref": "#/definitions/sql.NullTime"
                 },
                 "city": {
                     "type": "string"
@@ -1631,6 +3429,46 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "owner_name": {
+                    "type": "string"
+                },
+                "report_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "sql.NullTime": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
                 }
             }
         }

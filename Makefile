@@ -1,11 +1,11 @@
 run: build
 	./bin/app
-build:
+build: swag
 	go build -o bin/app cmd/app/main.go
-swag:
+swag: wire
 	/home/bjiake/go/bin/swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	cd ./internal/di && google-wire
+	wire ./internal/di
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:

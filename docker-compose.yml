@@ -7,7 +7,7 @@ services:
   db:
     container_name: db
     restart: always
-    image: postgres
+    image: postgres:17
     env_file: ./.env
     expose:
       - "5432"
@@ -35,7 +35,7 @@ services:
     image: migrate/migrate
     volumes:
       - ./cmd/migrator/migrations:/migrations
-    command: ["-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up"]
+    command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
     depends_on:
       - db
       - server
@@ -45,4 +45,4 @@ services:
       dockerfile: Dockerfile_cities_migrate
     depends_on:
       - migrate
-    command: ["./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}"]
+    command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]

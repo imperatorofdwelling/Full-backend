@@ -1,5 +1,3 @@
 .idea
 bin
-Dockerfile*
-docker-compose*.yml
 .env

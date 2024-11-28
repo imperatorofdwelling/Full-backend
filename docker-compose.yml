@@ -26,8 +26,8 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file: ./.env
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     depends_on:
       db:
         condition: service_healthy
@@ -46,3 +46,16 @@ services:
     depends_on:
       - migrate
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - server

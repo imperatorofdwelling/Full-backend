@@ -75,20 +75,14 @@ func NewServerHTTP(
 		messageHandler.NewMessageHandler(r)
 		chatHandler.NewChatHandler(r)
 		imageHandler.NewImageHandler(r)
+
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL("http://localhost/api/v1/swagger/doc.json"),
+		))
 	})
 
-	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", "109.71.247.209", cfg.Server.Port)),
-	))
-
-	handler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080", "http://109.71.247.209:8080"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}).Handler(r)
-
-	handler = cors.AllowAll().Handler(r)
+	// TODO Change CORS in production
+	handler := cors.AllowAll().Handler(r)
 
 	return &ServerHTTP{router: handler}
 }

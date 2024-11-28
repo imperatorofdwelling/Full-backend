@@ -10,11 +10,12 @@ import (
 // @title IOD App API
 // @version 1.0
 // description API Server for IOD application
+// @termsOfService http://swagger.io/terms/
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:8080
+// @host localhost
 // @BasePath /api/v1
 
 // @externalDocs.description OpenAPI

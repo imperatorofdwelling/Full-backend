@@ -1,8 +1,8 @@
-run: build
+run:
 	./bin/app
-build: swag
+build:
 	go build -o bin/app cmd/app/main.go
-swag: wire
+swag:
 	swag init --md ./docs --parseInternal  --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	wire ./internal/di
@@ -12,8 +12,10 @@ migrate-up:
 	go run cmd/migrator/main.go up
 migrate-down:
 	go run cmd/migrator/main.go down
-docker:
-	docker compose -p iod up --build -d
+docker-local:
+	docker compose -f ./local.docker-compose.yml -p iod up --build -d
+docker-dev:
+	docker compose -f ./dev.docker-compose.yml -p iod up --build -d
 test:
 	go test ./internal/api/handler/...
 mock:

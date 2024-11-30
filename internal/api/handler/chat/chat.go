@@ -2,10 +2,13 @@ package chat
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/gorilla/websocket"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -24,7 +27,7 @@ func (h *Handler) NewChatHandler(r chi.Router) {
 		r.Get("/", h.GetChatsByUserID)
 		r.Get("/{chatId}", h.GetMessagesByChatID)
 		r.Post("/{ownerId}", h.SendMessage)
-		//r.HandleFunc("/ws/{chatId}", h.handleWebSocket)
+		r.HandleFunc("/ws/{userId}", h.HandleWebSocket)
 	})
 }
 
@@ -143,4 +146,49 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "Message sent!")
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
+
+func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	cm := connectionmanager.NewConnectionManager()
+
+	userID := chi.URLParam(r, "userId")
+	if userID == "" {
+		h.Log.Error("user ID not provided")
+		http.Error(w, "user ID is required", http.StatusBadRequest)
+		return
+	}
+
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Printf("Failed to upgrade connection: %v\n", err)
+		http.Error(w, "Could not open websocket connection", http.StatusInternalServerError)
+		return
+	}
+
+	cm.AddConnection(userID, conn)
+	fmt.Printf("User %s connected\n", userID)
+
+	for {
+		messageType, messages, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Printf("User %s disconnected: %v\n", userID, err)
+			cm.RemoveConnection(userID)
+			conn.Close()
+			break
+		}
+
+		fmt.Printf("Received message from %s: %s\n", userID, string(messages))
+
+		err = conn.WriteMessage(messageType, messages)
+		if err != nil {
+			fmt.Printf("Failed to send message to user %s: %v\n", userID, err)
+			cm.RemoveConnection(userID)
+			conn.Close()
+			break
+		}
+	}
 }

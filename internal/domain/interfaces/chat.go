@@ -32,5 +32,6 @@ type (
 		GetChatsByUserID(w http.ResponseWriter, r *http.Request)
 		GetMessagesByChatID(w http.ResponseWriter, r *http.Request)
 		SendMessage(w http.ResponseWriter, r *http.Request)
+		HandleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 )

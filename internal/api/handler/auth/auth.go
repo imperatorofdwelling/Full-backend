@@ -166,6 +166,11 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isWebSocketRequest(r) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		cookie, err := r.Cookie("jwt-token")
 		if err != nil {
 			responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(err))
@@ -204,4 +209,8 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
+}
+
+func isWebSocketRequest(r *http.Request) bool {
+	return r.Header.Get("Upgrade") == "websocket" && r.Header.Get("Connection") == "Upgrade"
 }

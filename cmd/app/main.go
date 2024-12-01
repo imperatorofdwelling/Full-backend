@@ -15,14 +15,14 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host 89.23.116.41
+// @host localhost
 // @BasePath /api/v1
 
 // @externalDocs.description OpenAPI
 // @externalDocs.url https://swagger.io/resources/open-api/
 func main() {
 	cfg := config.LoadConfig()
-	log := logger.New(logger.EnvLocal)
+	log := logger.New()
 
 	if server, err := di.InitializeAPI(cfg, log); err == nil {
 		server.Start(cfg, log)

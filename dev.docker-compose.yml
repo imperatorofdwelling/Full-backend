@@ -1,5 +1,3 @@
-version: "3.8"
-
 volumes:
   local_postgres_data:
 
@@ -8,7 +6,6 @@ services:
     container_name: db
     restart: always
     image: postgres:17
-    env_file: .env.dev
     expose:
       - "5432"
     volumes:
@@ -25,7 +22,6 @@ services:
     build:
       context: ..
       dockerfile: ./docker/dev/dev.Dockerfile
-    env_file: .env.dev
     expose:
       - "8080"
     depends_on:
@@ -35,7 +31,6 @@ services:
     image: migrate/migrate
     volumes:
       - ./cmd/migrator/migrations:/migrations
-    env_file: .env.dev
     command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
     depends_on:
       - db
@@ -46,7 +41,6 @@ services:
       dockerfile: ./docker/Dockerfile_cities_migrate
     depends_on:
       - migrate
-    env_file: .env.dev
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
   nginx:
     image: nginx:latest

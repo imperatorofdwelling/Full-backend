@@ -7,7 +7,7 @@ run-prod:
 build:
 	go build -o bin/app cmd/app/main.go
 swag:
-	swag init --md ./docs --parseInternal --parseDependency --parseDepth 2 -g cmd/app/main.go
+	swag init --exclude docker,nginx,assets,pkg --md ./docs --parseInternal --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
 	wire ./internal/di
 migration-create:
@@ -18,7 +18,7 @@ migrate-down:
 	go run cmd/migrator/main.go down
 docker-local: wire swag
 	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build -d
-docker-dev: wire swag
+docker-dev:
 	docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
 test:
 	go test ./internal/api/handler/...

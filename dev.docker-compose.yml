@@ -20,7 +20,7 @@ services:
     container_name: server
     restart: always
     build:
-      context: ..
+      context: .
       dockerfile: ./docker/dev/dev.Dockerfile
     expose:
       - "8080"
@@ -37,7 +37,7 @@ services:
       - server
   migrate-cities-json:
     build:
-      context: ..
+      context: .
       dockerfile: ./docker/Dockerfile_cities_migrate
     depends_on:
       - migrate
@@ -46,7 +46,7 @@ services:
     image: nginx:latest
     container_name: nginx
     build:
-      context: ..
+      context: .
       dockerfile: ./docker/Dockerfile_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf

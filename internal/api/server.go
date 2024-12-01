@@ -77,7 +77,7 @@ func NewServerHTTP(
 		imageHandler.NewImageHandler(r)
 
 		r.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL("http://localhost/api/v1/swagger/doc.json"),
+			httpSwagger.URL("http://81.200.153.83/api/v1/swagger/doc.json"),
 		))
 	})
 

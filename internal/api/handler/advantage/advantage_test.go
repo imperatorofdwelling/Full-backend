@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -22,7 +23,9 @@ import (
 )
 
 func TestAdvantageHandler_NewAdvantageHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.AdvantageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -36,7 +39,9 @@ func TestAdvantageHandler_NewAdvantageHandler(t *testing.T) {
 }
 
 func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.AdvantageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -215,9 +220,9 @@ func TestAdvantageHandler_CreateAdvantage(t *testing.T) {
 }
 
 func TestAdvantageHandler_RemoveAdvantage(t *testing.T) {
-
+	config.GlobalEnv = config.LocalEnv
 	t.Run("should successfully remove advantage", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -248,7 +253,7 @@ func TestAdvantageHandler_RemoveAdvantage(t *testing.T) {
 	})
 
 	t.Run("should be an error removing advantage", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -279,7 +284,7 @@ func TestAdvantageHandler_RemoveAdvantage(t *testing.T) {
 	})
 
 	t.Run("should be fail when parsing uuid", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -304,9 +309,9 @@ func TestAdvantageHandler_RemoveAdvantage(t *testing.T) {
 }
 
 func TestHandler_GetAllAdvantages(t *testing.T) {
-
+	config.GlobalEnv = config.LocalEnv
 	t.Run("should successfully get all advantages", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -357,7 +362,7 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 	})
 
 	t.Run("should fail while getting all advantages svc", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -383,6 +388,8 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 }
 
 func TestHandler_UpdateAdvantage(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
 	id, err := uuid.NewV4()
 	if err != nil {
 		t.Fatal(err)
@@ -459,7 +466,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 	}
 
 	t.Run("should be error updating advantage", func(t *testing.T) {
-		log := logger.New(logger.EnvLocal)
+		log := logger.New()
 		svc := mocks.AdvantageService{}
 		hdl := Handler{
 			Svc: &svc,
@@ -512,7 +519,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.title, func(t *testing.T) {
-			log := logger.New(logger.EnvLocal)
+			log := logger.New()
 			svc := mocks.AdvantageService{}
 			hdl := Handler{
 				Svc: &svc,

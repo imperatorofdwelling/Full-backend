@@ -6,6 +6,7 @@ services:
     container_name: db
     restart: always
     image: postgres:17
+    env_file: .env.local
     expose:
       - "5432"
     volumes:
@@ -19,6 +20,7 @@ services:
   server:
     container_name: server
     restart: always
+    env_file: .env.local
     build:
       context: .
       dockerfile: ./docker/local/local.Dockerfile
@@ -29,6 +31,7 @@ services:
         condition: service_healthy
   migrate:
     image: migrate/migrate
+    env_file: .env.local
     volumes:
       - ./cmd/migrator/migrations:/migrations
     command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
@@ -39,6 +42,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile_cities_migrate
+    env_file: .env.local
     depends_on:
       - migrate
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
@@ -46,7 +50,6 @@ services:
 #    image: migrate/migrate
 #    volumes:
 #      - ./cmd/migrator/migrations_mock:/migrations_mock
-#    env_file: .env.local
 #    command: [ "-source", "file://migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
 #    depends_on:
 #      - migrate-cities-json

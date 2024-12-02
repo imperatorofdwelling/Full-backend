@@ -10,5 +10,6 @@ COPY ../.. .
 RUN go build -o bin/app cmd/app/main.go
 
 ENTRYPOINT ["/app/bin/app"]
+CMD ["-env=dev"]
 
 EXPOSE 8080

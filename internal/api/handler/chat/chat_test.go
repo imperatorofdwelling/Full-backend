@@ -6,6 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestChatHandler_NewChatHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -32,7 +35,9 @@ func TestChatHandler_NewChatHandler(t *testing.T) {
 }
 
 func TestChatHandler_GetChatsByUserID_UserID_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -54,7 +59,9 @@ func TestChatHandler_GetChatsByUserID_UserID_Error(t *testing.T) {
 }
 
 func TestChatHandler_GetChatsByUserID_Svc_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -92,7 +99,9 @@ func TestChatHandler_GetChatsByUserID_Svc_Error(t *testing.T) {
 }
 
 func TestChatHandler_GetChatsByUserID_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -130,7 +139,9 @@ func TestChatHandler_GetChatsByUserID_Success(t *testing.T) {
 }
 
 func TestChatHandler_GetMessagesByChatID_ChatID_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -154,7 +165,9 @@ func TestChatHandler_GetMessagesByChatID_ChatID_Error(t *testing.T) {
 }
 
 func TestChatHandler_GetMessagesByChatID_Succcess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -178,7 +191,9 @@ func TestChatHandler_GetMessagesByChatID_Succcess(t *testing.T) {
 }
 
 func TestChatHandler_SendMessage_UserID_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -200,7 +215,9 @@ func TestChatHandler_SendMessage_UserID_Error(t *testing.T) {
 }
 
 func TestChatHandler_SendMessage_Decode_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -226,7 +243,9 @@ func TestChatHandler_SendMessage_Decode_Error(t *testing.T) {
 }
 
 func TestChatHandler_SendMessage_Svc_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -255,7 +274,9 @@ func TestChatHandler_SendMessage_Svc_Error(t *testing.T) {
 }
 
 func TestChatHandler_SendMessage_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ChatService{}
 	hdl := Handler{
 		Svc: &svc,

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/imperatorofdwelling/Full-backend/docs"
 	configDb "github.com/imperatorofdwelling/Full-backend/internal/config/db"
 	configSrv "github.com/imperatorofdwelling/Full-backend/internal/config/server"
 	"github.com/joho/godotenv"
@@ -65,4 +66,13 @@ func loadFlags() error {
 	}
 
 	return nil
+}
+
+func SetSwaggerDefaultInfo(cfg *Config) {
+	docs.SwaggerInfo.Title = "IOD App API"
+	docs.SwaggerInfo.Description = "API Server for IOD application."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = cfg.Server.Host
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 }

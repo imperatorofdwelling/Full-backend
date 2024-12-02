@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,9 @@ import (
 )
 
 func TestFavHandler_NewFavouriteHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -32,7 +35,9 @@ func TestFavHandler_NewFavouriteHandler(t *testing.T) {
 }
 
 func TestFavHandler_AddFavouriteUserID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -68,7 +73,9 @@ func TestFavHandler_AddFavouriteUserID(t *testing.T) {
 }
 
 func TestFavHandler_AddFavouriteSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -105,7 +112,9 @@ func TestFavHandler_AddFavouriteSuccess(t *testing.T) {
 }
 
 func TestFavHandler_AddFavouriteStayId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -143,7 +152,9 @@ func TestFavHandler_AddFavouriteStayId(t *testing.T) {
 }
 
 func TestFavHandler_GetAllFavouritesUserId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -177,7 +188,9 @@ func TestFavHandler_GetAllFavouritesUserId(t *testing.T) {
 }
 
 func TestFavHandler_GetAllFavourites(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -214,7 +227,9 @@ func TestFavHandler_GetAllFavourites(t *testing.T) {
 }
 
 func TestFavHandler_GetAllFavouritesSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -251,7 +266,9 @@ func TestFavHandler_GetAllFavouritesSuccess(t *testing.T) {
 }
 
 func TestFavHandler_RemoveFavouriteUserId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -287,7 +304,9 @@ func TestFavHandler_RemoveFavouriteUserId(t *testing.T) {
 }
 
 func TestFavHandler_RemoveFavouriteStayId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,
@@ -326,7 +345,9 @@ func TestFavHandler_RemoveFavouriteStayId(t *testing.T) {
 }
 
 func TestFavHandler_RemoveFavouriteSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.FavouriteService{}
 	hdl := FavHandler{
 		Log: log,

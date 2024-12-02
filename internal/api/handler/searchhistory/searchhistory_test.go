@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestSearchHistory_NewHistoryHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -32,7 +35,9 @@ func TestSearchHistory_NewHistoryHandler(t *testing.T) {
 }
 
 func TestSearchHistory_GetAllHistoryByUserId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -63,7 +68,9 @@ func TestSearchHistory_GetAllHistoryByUserId(t *testing.T) {
 }
 
 func TestSearchHistory_GetAllHistoryByUserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -101,7 +108,9 @@ func TestSearchHistory_GetAllHistoryByUserIdError(t *testing.T) {
 }
 
 func TestSearchHistory_GetAllHistoryByUserIdSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -139,7 +148,9 @@ func TestSearchHistory_GetAllHistoryByUserIdSuccess(t *testing.T) {
 }
 
 func TestSearchHistory_AddHistory(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -170,7 +181,9 @@ func TestSearchHistory_AddHistory(t *testing.T) {
 }
 
 func TestSearchHistory_AddHistoryBodyEmpty(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -204,7 +217,9 @@ func TestSearchHistory_AddHistoryBodyEmpty(t *testing.T) {
 }
 
 func TestSearchHistory_AddHistoryBodyNameNotFound(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -240,7 +255,9 @@ func TestSearchHistory_AddHistoryBodyNameNotFound(t *testing.T) {
 }
 
 func TestSearchHistory_AddHistoryBodyNameFoundButError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -277,7 +294,9 @@ func TestSearchHistory_AddHistoryBodyNameFoundButError(t *testing.T) {
 }
 
 func TestSearchHistory_AddHistoryBodyNameSuccessr(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.SearchHistoryService{}
 	hdl := Handler{
 		Svc: &svc,

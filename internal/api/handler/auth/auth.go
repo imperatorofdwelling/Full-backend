@@ -161,6 +161,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
+
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
 }
 
@@ -206,6 +207,7 @@ func (h *AuthHandler) JWTMiddleware(next http.Handler) http.Handler {
 
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), "user_id", userID)
+
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})

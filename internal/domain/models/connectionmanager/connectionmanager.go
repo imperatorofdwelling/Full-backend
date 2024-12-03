@@ -1,6 +1,7 @@
 package connectionmanager
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"sync"
 )
@@ -33,4 +34,10 @@ func (cm *ConnectionManager) GetConnection(userId string) (*websocket.Conn, bool
 	defer cm.mu.RUnlock()
 	conn, exists := cm.connections[userId]
 	return conn, exists
+}
+
+func (cm *ConnectionManager) AllConnections() {
+	for name := range cm.connections {
+		fmt.Println(name, " ", "true")
+	}
 }

@@ -1,10 +1,12 @@
 package chat
 
 import (
-	"context"
+	"fmt"
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
@@ -12,9 +14,18 @@ import (
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 	"log/slog"
 	"net/http"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin:     func(r *http.Request) bool { return true },
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	// Allows you to determine whether the server should compress messages.
+	EnableCompression: true,
+}
 
 type Handler struct {
 	Svc interfaces.ChatService
@@ -147,51 +158,90 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, "Message sent!")
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin:     func(r *http.Request) bool { return true },
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	// Allows you to determine whether the server should compress messages.
-	EnableCompression: true,
-}
-
 func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	tokenString := r.URL.Query().Get("token")
+	if tokenString == "" {
+		http.Error(w, "Missing token", http.StatusUnauthorized)
+		return
+	}
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte("your-secret-key"), nil
+	})
+	if err != nil || !token.Valid {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token")))
+		return
+	}
+
+	// Extract the user ID from the token
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
+		return
+	}
+
+	ownerID, ok := claims["user_id"].(string)
+	if !ok {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in token")))
+		return
+	}
+
+	userID := chi.URLParam(r, "userId")
+
+	if ownerID == "" || userID == "" {
+		h.Log.Error("ownerId or userId missing", slog.String("owner_id", ownerID), slog.String("user_id", userID))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("ownerId or userId missing")))
+		return
+	}
+
+	h.Log.Info("New WebSocket connection request", slog.String("owner_id", ownerID), slog.String("user_id", userID))
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		h.Log.Error("Failed to upgrade connection: ", err)
-		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		h.Log.Error("WebSocket upgrade failed", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("connection upgrade failed")))
 		return
 	}
 	defer conn.Close()
 
 	cm := connectionmanager.NewConnectionManager()
 
-	userID, ok := r.Context().Value("user_id").(string)
-	if !ok {
-		h.Log.Error("user ID not found in context")
-		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
-		return
-	}
+	cm.AddConnection(ownerID, conn)
 
-	cm.AddConnection(userID, conn)
-	h.Log.Info("User connected", userID)
+	h.Log.Info("Owner added to Connection Manager", slog.String("owner_id", ownerID))
+	h.Log.Info("smh", userID)
+
+	cm.AllConnections()
 
 	for {
-		messageType, messages, err := conn.ReadMessage()
+		messageType, messageData, err := conn.ReadMessage()
 		if err != nil {
-			h.Log.Error("User %s disconnected: %v\n", userID, err)
-			cm.RemoveConnection(userID)
-			conn.Close()
+			h.Log.Warn("Owner disconnected", slog.String("owner_id", ownerID), slogError.Err(err))
+			cm.RemoveConnection(ownerID)
 			break
 		}
 
-		h.Log.Info("Received message from %s: %s\n", userID, string(messages))
+		messageText := string(messageData)
+		h.Log.Info("Message received", slog.String("owner_id", ownerID), slog.String("message", messageText))
 
-		if err = conn.WriteMessage(messageType, messages); err != nil {
-			h.Log.Error("Failed to send message to user %s: %v\n", userID, err)
-			cm.RemoveConnection(userID)
-			conn.Close()
+		msg := message.Entity{
+			UserID: uuid.Must(uuid.Parse(userID)),
+			Text:   messageText,
+			Media:  nil,
+		}
+
+		h.Log.Info("Created message", slog.String("user_id", msg.UserID.String()), slog.String("message_text", msg.Text))
+
+		if err := conn.WriteMessage(messageType, messageData); err != nil {
+			h.Log.Error("Failed to send message", slog.String("owner_id", ownerID), slogError.Err(err))
+			cm.RemoveConnection(ownerID)
 			break
 		}
+
+		h.Log.Info("Message sent to user", slog.String("user_id", userID), slog.String("owner_id", ownerID))
 	}
+
 }

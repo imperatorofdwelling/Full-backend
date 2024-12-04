@@ -661,6 +661,46 @@ paths:
       summary: Send a message to a chat
       tags:
       - chats
+  /chat/ws/{chatId}:
+    get:
+      consumes:
+      - application/json
+      description: Handles WebSocket connections, retrieves chat history, and supports
+        real-time messaging.
+      parameters:
+      - description: JWT Token for authentication
+        in: query
+        name: token
+        required: true
+        type: string
+      - description: Chat ID to retrieve messages from
+        in: path
+        name: chatId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: WebSocket connection established
+          schema:
+            type: string
+        "400":
+          description: Bad Request - Missing or invalid token
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized - Invalid token or claims
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Establishes a WebSocket connection for chat
+      tags:
+      - WebSocket
+      - Chats
   /contract:
     get:
       consumes:

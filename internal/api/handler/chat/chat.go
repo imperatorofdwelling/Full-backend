@@ -159,6 +159,20 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, "Message sent!")
 }
 
+// HandleWebSocket godoc
+//
+//	@Summary		Establishes a WebSocket connection for chat
+//	@Description	Handles WebSocket connections, retrieves chat history, and supports real-time messaging.
+//	@Tags			WebSocket, Chats
+//	@Accept			json
+//	@Produce		json
+//	@Param			token	query		string	true	"JWT Token for authentication"
+//	@Param			chatId	path		string	true	"Chat ID to retrieve messages from"
+//	@Success		101	{string}	string	"WebSocket connection established"
+//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request - Missing or invalid token"
+//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - Invalid token or claims"
+//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Router			/chat/ws/{chatId} [get]
 func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	// Getting and checking token
 	tokenString := r.URL.Query().Get("token")
@@ -260,5 +274,4 @@ func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		// Broadcasting the message to all clients
 		h.Cm.BroadcastMessage(ownerID, messageData)
 	}
-
 }

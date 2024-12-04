@@ -16,11 +16,11 @@ const (
 )
 
 const (
-	FilePathAdvantages  string = "./assets/images/advantages"
-	FilePathStaysImages string = "./assets/images/stays_images"
+	FilePathAdvantages  string = "./static/images/advantages"
+	FilePathStaysImages string = "./static/images/stays_images"
 )
 
-const filePath = "./assets/images/advantages"
+const filePath = "./static/images/advantages"
 
 type Service struct{}
 
@@ -28,7 +28,7 @@ func (s *Service) UploadImage(img []byte, t ImageType, category string) (string,
 	const op = "service.FileService.CreateImage"
 
 	// Ensure the category directory exists
-	categoryPath := fmt.Sprintf("./assets/images/%s", category)
+	categoryPath := fmt.Sprintf("./static/images/%s", category)
 	err := os.MkdirAll(categoryPath, os.ModePerm)
 	if err != nil {
 		return "", fmt.Errorf("%s: failed to create directory %s: %w", op, categoryPath, err)

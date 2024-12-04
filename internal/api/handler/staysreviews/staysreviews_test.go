@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestStaysReviewsHandler_NewStaysReviewsHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -32,7 +35,9 @@ func TestStaysReviewsHandler_NewStaysReviewsHandler(t *testing.T) {
 }
 
 func TestStaysReviewsHandler_CreateStaysReviewHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -113,7 +118,9 @@ func TestStaysReviewsHandler_CreateStaysReviewHandler(t *testing.T) {
 }
 
 func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -215,7 +222,9 @@ func TestStaysReviewsHandler_UpdateStaysReviewHandler(t *testing.T) {
 }
 
 func TestStaysReviewsHandler_DeleteStayReviewHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -270,7 +279,9 @@ func TestStaysReviewsHandler_DeleteStayReviewHandler(t *testing.T) {
 }
 
 func TestStaysReviewsHandler_FindOneStayReviewHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -336,7 +347,9 @@ func TestStaysReviewsHandler_FindOneStayReviewHandler(t *testing.T) {
 }
 
 func TestStaysReviewsHandler_FindAllStayReviews(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReviewsService{}
 	hdl := Handler{
 		Svc: &svc,

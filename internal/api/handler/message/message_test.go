@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	uuid2 "github.com/google/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -20,7 +21,9 @@ import (
 )
 
 func TestMessageHandler_NewMessageHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -34,7 +37,9 @@ func TestMessageHandler_NewMessageHandler(t *testing.T) {
 }
 
 func TestMessageHandler_GetMessagesByMessageID_UserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -57,7 +62,9 @@ func TestMessageHandler_GetMessagesByMessageID_UserIdError(t *testing.T) {
 }
 
 func TestMessageHandler_GetMessagesByUserID_UserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -79,7 +86,9 @@ func TestMessageHandler_GetMessagesByUserID_UserIdError(t *testing.T) {
 }
 
 func TestMessageHandler_GetMessagesByUserID_SvcError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -118,7 +127,9 @@ func TestMessageHandler_GetMessagesByUserID_SvcError(t *testing.T) {
 }
 
 func TestMessageHandler_GetMessagesByUserID_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -157,7 +168,9 @@ func TestMessageHandler_GetMessagesByUserID_Success(t *testing.T) {
 }
 
 func TestMessageHandler_GetMessagesByMessageID_InternalServerError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -180,7 +193,9 @@ func TestMessageHandler_GetMessagesByMessageID_InternalServerError(t *testing.T)
 }
 
 func TestMessageHandler_GetMessagesByMessageID_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -206,7 +221,9 @@ func TestMessageHandler_GetMessagesByMessageID_Success(t *testing.T) {
 }
 
 func TestMessageHandler_UpdateMessageByID_DecodeError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -230,7 +247,9 @@ func TestMessageHandler_UpdateMessageByID_DecodeError(t *testing.T) {
 }
 
 func TestMessageHandler_UpdateMessageByID_SvcError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -255,7 +274,9 @@ func TestMessageHandler_UpdateMessageByID_SvcError(t *testing.T) {
 }
 
 func TestMessageHandler_UpdateMessageByID_SvcSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -280,7 +301,9 @@ func TestMessageHandler_UpdateMessageByID_SvcSuccess(t *testing.T) {
 }
 
 func TestMessageHandler_DeleteMessageByID_MessageIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -305,7 +328,9 @@ func TestMessageHandler_DeleteMessageByID_MessageIdError(t *testing.T) {
 }
 
 func TestMessageHandler_DeleteMessageByID_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.MessageService{}
 	hdl := Handler{
 		Svc: &svc,

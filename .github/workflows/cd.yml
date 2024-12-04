@@ -12,13 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          path: .
+          path: ./app
       - name: Generate Wire dependency
         run: make wire
         working-directory: .
       - name: Generate Swagger Documentation
         run: make swag
         working-directory: .
+      - name: Mocks
+        run: make mock
       - name: Test
         run: make test
   cd:
@@ -27,7 +29,7 @@ jobs:
     steps:
       - name: Docker up
         run: |
-          make docker
+          make docker-dev
           # Проверка статуса последней команды
           if [ $? -ne 0 ]; then
           echo "Docker command failed!"
@@ -37,4 +39,4 @@ jobs:
       - name: Verify deployment
         run: |
           # Replace this with a command to verify the service is running and updated
-          curl -f http://localhost:8080/api/v1/swagger/doc.json || exit 1
+          curl -f http://localhost/api/v1/swagger/doc.json || exit 1

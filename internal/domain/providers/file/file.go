@@ -2,25 +2,43 @@ package providers
 
 import (
 	"github.com/google/wire"
+	fileHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/file"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
+	fileSvc "github.com/imperatorofdwelling/Full-backend/internal/service/file"
+	"log/slog"
 	"sync"
 )
 
 var (
-	svc     *file.Service
+	hdl     *fileHdl.Handler
+	hdlOnce sync.Once
+
+	svc     *fileSvc.Service
 	svcOnce sync.Once
 )
 
 var FileProviderSet wire.ProviderSet = wire.NewSet(
+	ProvideFileHandler,
 	ProvideFileService,
 
-	wire.Bind(new(interfaces.FileService), new(*file.Service)),
+	wire.Bind(new(interfaces.FileHandler), new(*fileHdl.Handler)),
+	wire.Bind(new(interfaces.FileService), new(*fileSvc.Service)),
 )
 
-func ProvideFileService() *file.Service {
+func ProvideFileHandler(svc interfaces.FileService, log *slog.Logger) *fileHdl.Handler {
+	hdlOnce.Do(func() {
+		hdl = &fileHdl.Handler{
+			Svc: svc,
+			Log: log,
+		}
+	})
+
+	return hdl
+}
+
+func ProvideFileService() *fileSvc.Service {
 	svcOnce.Do(func() {
-		svc = &file.Service{}
+		svc = &fileSvc.Service{}
 	})
 
 	return svc

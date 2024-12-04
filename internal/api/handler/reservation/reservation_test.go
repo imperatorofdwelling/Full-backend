@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -19,7 +20,9 @@ import (
 )
 
 func TestReservationHandler_NewReservationHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -33,7 +36,9 @@ func TestReservationHandler_NewReservationHandler(t *testing.T) {
 }
 
 func TestReservationHandler_CreateReservation(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -98,7 +103,9 @@ func TestReservationHandler_CreateReservation(t *testing.T) {
 }
 
 func TestReservationHandler_UpdateReservation(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -163,7 +170,9 @@ func TestReservationHandler_UpdateReservation(t *testing.T) {
 }
 
 func TestReservationHandler_DeleteReservationByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -217,7 +226,9 @@ func TestReservationHandler_DeleteReservationByID(t *testing.T) {
 }
 
 func TestReservationHandler_GetReservationByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -281,7 +292,9 @@ func TestReservationHandler_GetReservationByID(t *testing.T) {
 }
 
 func TestReservationHandler_GetAllReservationsByUser(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -347,7 +360,9 @@ func TestReservationHandler_GetAllReservationsByUser(t *testing.T) {
 }
 
 func TestReservationHandler_UpdateReservation_2(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ReservationService{}
 	hdl := Handler{
 		Svc: &svc,

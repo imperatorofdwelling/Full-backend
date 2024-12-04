@@ -5,6 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -21,7 +22,9 @@ import (
 )
 
 func TestAuthHandler_NewAuthHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -36,7 +39,9 @@ func TestAuthHandler_NewAuthHandler(t *testing.T) {
 }
 
 func TestAuthHandler_Registration_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -80,7 +85,9 @@ func TestAuthHandler_Registration_Success(t *testing.T) {
 }
 
 func TestAuthHandler_Registration_Errors(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -126,7 +133,9 @@ func TestAuthHandler_Registration_Errors(t *testing.T) {
 }
 
 func TestAuthHandler_Registration_Errors_Already_Exists(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -157,7 +166,9 @@ func TestAuthHandler_Registration_Errors_Already_Exists(t *testing.T) {
 }
 
 func TestAuthHandler_Registration_Errors_Internal_Server_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -188,7 +199,9 @@ func TestAuthHandler_Registration_Errors_Internal_Server_Error(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -217,7 +230,9 @@ func TestAuthHandler_LoginUser_Success(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_LoggedIn(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -255,7 +270,9 @@ func TestAuthHandler_LoginUser_LoggedIn(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_NoBody(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -280,7 +297,9 @@ func TestAuthHandler_LoginUser_NoBody(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_ErrorHandling(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -306,7 +325,9 @@ func TestAuthHandler_LoginUser_ErrorHandling(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_ErrorHandling_Request_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
@@ -332,7 +353,9 @@ func TestAuthHandler_LoginUser_ErrorHandling_Request_Error(t *testing.T) {
 }
 
 func TestAuthHandler_LoginUser_ErrorHandling_Internal_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,

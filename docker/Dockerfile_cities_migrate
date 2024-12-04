@@ -1,0 +1,10 @@
+FROM golang:1.23.3-alpine
+
+WORKDIR /app
+
+COPY ../cmd/migrator/citiesmigrator.go .
+COPY ../cmd/migrator/cities.json .
+
+RUN go mod init cities-migrator
+RUN go mod tidy
+RUN go build -o citiesmigrator citiesmigrator.go

@@ -9,7 +9,7 @@ import (
 	chatHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/chat"
 	ctrctHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/contracts"
 	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
-	imgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/image"
+	fileHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/file"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	msgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/message"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
@@ -49,7 +49,7 @@ func NewServerHTTP(
 	usersReportHandler *usersReportHdl.Handler,
 	messageHandler *msgHdl.Handler,
 	chatHandler *chatHdl.Handler,
-	imageHandler *imgHdl.Handler,
+	fileHandler *fileHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -58,7 +58,7 @@ func NewServerHTTP(
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(10 * time.Second))
 
-	r.Route("/api/v1/", func(r chi.Router) {
+	r.Route("/api/v1", func(r chi.Router) {
 		authHandler.NewAuthHandler(r)
 		advantageHandler.NewAdvantageHandler(r)
 		staysAdvHandler.NewStaysAdvantageHandler(r)
@@ -74,21 +74,16 @@ func NewServerHTTP(
 		usersReportHandler.NewUsersReportsHandler(r)
 		messageHandler.NewMessageHandler(r)
 		chatHandler.NewChatHandler(r)
-		imageHandler.NewImageHandler(r)
+		fileHandler.NewFileHandler(r)
+
+		r.Get("/swagger/*", httpSwagger.Handler(
+			httpSwagger.URL(fmt.Sprintf("http://%s/api/v1/swagger/doc.json", cfg.Server.Host)),
+		))
+
 	})
 
-	r.Get("/api/v1/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", "109.71.247.209", cfg.Server.Port)),
-	))
-
-	handler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080", "http://109.71.247.209:8080"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
-		AllowCredentials: true,
-	}).Handler(r)
-
-	handler = cors.AllowAll().Handler(r)
+	// TODO Change CORS in production
+	handler := cors.AllowAll().Handler(r)
 
 	return &ServerHTTP{router: handler}
 }

@@ -2,25 +2,23 @@ package logger
 
 import (
 	"errors"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogpretty"
 	"log"
 	"log/slog"
 	"os"
 )
 
-const (
-	EnvLocal = "local"
-	EnvProd  = "prod"
-)
-
 var unknownEnv = errors.New("unknown environment (should be local or prod)")
 
-func New(env string) *slog.Logger {
+func New() *slog.Logger {
 	var logger *slog.Logger
-	switch env {
-	case EnvLocal:
+	switch config.GlobalEnv {
+	case config.LocalEnv:
 		logger = setupPrettySlog()
-	case EnvProd:
+	case config.DevEnv:
+		logger = setupPrettySlog()
+	case config.ProdEnv:
 		// TODO change writer(example: file)
 		logger = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),

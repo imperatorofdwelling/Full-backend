@@ -23,6 +23,17 @@ func (s *Service) GetChatsByUserID(ctx context.Context, userID string) ([]*chat.
 	return chats, nil
 }
 
+func (s *Service) GetChatByChatID(ctx context.Context, chatID string) (*chat.Chat, error) {
+	const op = "service.chat.GetChatByChatID"
+
+	chats, err := s.Repo.GetChatByChatID(ctx, chatID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return chats, nil
+}
+
 func (s *Service) GetOrCreateChatID(ctx context.Context, userID, otherUserID string) (*string, error) {
 	const op = "service.chat.GetOrCreateChatID"
 
@@ -49,6 +60,17 @@ func (s *Service) SendMessage(ctx context.Context, senderId string, receiverId s
 	const op = "service.chat.SendMessage"
 
 	err := s.Repo.SendMessage(ctx, senderId, receiverId, msg)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) SendMessageInChat(ctx context.Context, chatId, senderId string, msg message.Entity) error {
+	const op = "service.chat.SendMessageInChat"
+
+	err := s.Repo.SendMessageInChat(ctx, chatId, senderId, msg)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

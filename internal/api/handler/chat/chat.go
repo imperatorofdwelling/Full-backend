@@ -30,6 +30,7 @@ var upgrader = websocket.Upgrader{
 type Handler struct {
 	Svc interfaces.ChatService
 	Log *slog.Logger
+	Cm  *connectionmanager.ConnectionManager
 }
 
 func (h *Handler) NewChatHandler(r chi.Router) {
@@ -37,7 +38,7 @@ func (h *Handler) NewChatHandler(r chi.Router) {
 		r.Get("/", h.GetChatsByUserID)
 		r.Get("/{chatId}", h.GetMessagesByChatID)
 		r.Post("/{ownerId}", h.SendMessage)
-		r.Handle("/ws/{userId}", http.HandlerFunc(h.HandleWebSocket))
+		r.Handle("/ws/{chatId}", http.HandlerFunc(h.HandleWebSocket))
 	})
 }
 
@@ -159,6 +160,7 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
+	// Getting and checking token
 	tokenString := r.URL.Query().Get("token")
 	if tokenString == "" {
 		http.Error(w, "Missing token", http.StatusUnauthorized)
@@ -176,7 +178,6 @@ func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract the user ID from the token
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid token claims")))
@@ -189,16 +190,13 @@ func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := chi.URLParam(r, "userId")
-
-	if ownerID == "" || userID == "" {
-		h.Log.Error("ownerId or userId missing", slog.String("owner_id", ownerID), slog.String("user_id", userID))
+	if ownerID == "" {
+		h.Log.Error("ownerId or userId missing", slog.String("owner_id", ownerID))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("ownerId or userId missing")))
 		return
 	}
 
-	h.Log.Info("New WebSocket connection request", slog.String("owner_id", ownerID), slog.String("user_id", userID))
-
+	// Upgrading websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		h.Log.Error("WebSocket upgrade failed", slogError.Err(err))
@@ -207,41 +205,60 @@ func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	cm := connectionmanager.NewConnectionManager()
-
-	cm.AddConnection(ownerID, conn)
-
+	// Connection manager
+	h.Cm.AddConnection(ownerID, conn)
 	h.Log.Info("Owner added to Connection Manager", slog.String("owner_id", ownerID))
-	h.Log.Info("smh", userID)
+	h.Cm.AllConnections()
 
-	cm.AllConnections()
+	// Getting message history
+	chatId := chi.URLParam(r, "chatId")
+	h.Log.Info("id", "id", chatId)
+	messages, err := h.Svc.GetMessagesByChatID(context.Background(), chatId)
+	if err != nil {
+		h.Log.Error("Error while getting messages by chat id", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("failed to fetch messages")))
+		return
+	}
 
+	for _, msg := range messages {
+		msgData := []byte(msg.Text)
+		if err := conn.WriteMessage(websocket.TextMessage, msgData); err != nil {
+			h.Log.Error("Failed to send message history", slogError.Err(err))
+			h.Cm.RemoveConnection(ownerID)
+			return
+		}
+	}
+
+	// Infinite loop for websocket
 	for {
-		messageType, messageData, err := conn.ReadMessage()
+		_, messageData, err := conn.ReadMessage()
 		if err != nil {
 			h.Log.Warn("Owner disconnected", slog.String("owner_id", ownerID), slogError.Err(err))
-			cm.RemoveConnection(ownerID)
+			h.Cm.RemoveConnection(ownerID)
 			break
 		}
 
 		messageText := string(messageData)
 		h.Log.Info("Message received", slog.String("owner_id", ownerID), slog.String("message", messageText))
 
+		// Creating a message entity
 		msg := message.Entity{
-			UserID: uuid.Must(uuid.Parse(userID)),
+			UserID: uuid.Must(uuid.Parse(ownerID)),
 			Text:   messageText,
 			Media:  nil,
 		}
 
 		h.Log.Info("Created message", slog.String("user_id", msg.UserID.String()), slog.String("message_text", msg.Text))
 
-		if err := conn.WriteMessage(messageType, messageData); err != nil {
-			h.Log.Error("Failed to send message", slog.String("owner_id", ownerID), slogError.Err(err))
-			cm.RemoveConnection(ownerID)
-			break
+		// Saving the message to the database
+		err = h.Svc.SendMessageInChat(context.Background(), chatId, ownerID, msg)
+		if err != nil {
+			h.Log.Error("Failed to save message in chat", slog.String("chat_id", chatId), slogError.Err(err))
+			continue
 		}
 
-		h.Log.Info("Message sent to user", slog.String("user_id", userID), slog.String("owner_id", ownerID))
+		// Broadcasting the message to all clients
+		h.Cm.BroadcastMessage(ownerID, messageData)
 	}
 
 }

@@ -17,6 +17,36 @@ type ChatService struct {
 	mock.Mock
 }
 
+// GetChatByChatID provides a mock function with given fields: ctx, chatID
+func (_m *ChatService) GetChatByChatID(ctx context.Context, chatID string) (*chat.Chat, error) {
+	ret := _m.Called(ctx, chatID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetChatByChatID")
+	}
+
+	var r0 *chat.Chat
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*chat.Chat, error)); ok {
+		return rf(ctx, chatID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) *chat.Chat); ok {
+		r0 = rf(ctx, chatID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*chat.Chat)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, chatID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetChatsByUserID provides a mock function with given fields: ctx, userID
 func (_m *ChatService) GetChatsByUserID(ctx context.Context, userID string) ([]*chat.Chat, error) {
 	ret := _m.Called(ctx, userID)
@@ -118,6 +148,24 @@ func (_m *ChatService) SendMessage(ctx context.Context, senderId string, receive
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, message.Entity) error); ok {
 		r0 = rf(ctx, senderId, receiverId, msg)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendMessageInChat provides a mock function with given fields: ctx, chatId, senderId, msg
+func (_m *ChatService) SendMessageInChat(ctx context.Context, chatId string, senderId string, msg message.Entity) error {
+	ret := _m.Called(ctx, chatId, senderId, msg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendMessageInChat")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, message.Entity) error); ok {
+		r0 = rf(ctx, chatId, senderId, msg)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -41,3 +41,18 @@ func (cm *ConnectionManager) AllConnections() {
 		fmt.Println(name, " ", "true")
 	}
 }
+
+func (cm *ConnectionManager) BroadcastMessage(ownerId string, message []byte) {
+	cm.mu.RLock()
+	defer cm.mu.RUnlock()
+
+	for userId, conn := range cm.connections {
+		if userId == ownerId {
+			continue
+		}
+
+		if err := conn.WriteMessage(websocket.TextMessage, message); err != nil {
+			fmt.Printf("Failed to send message to user %s: %v\n", userId, err)
+		}
+	}
+}

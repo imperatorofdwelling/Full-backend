@@ -16,7 +16,6 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/image"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
@@ -83,7 +82,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	chatRepo := chat.ProvideChatRepo(sqlDB)
 	chatService := chat.ProvideChatService(chatRepo)
 	chatHandler := chat.ProvideChatHandler(chatService, log)
-	imageHandler := image.ProvideImageHandler(fileService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, imageHandler)
+	fileHandler := providers3.ProvideFileHandler(fileService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler)
 	return serverHTTP, nil
 }

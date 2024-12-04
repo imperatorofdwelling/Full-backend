@@ -1,3 +1,5 @@
+run-stage: wire swag build
+	./bin/app -env='stage'
 run-local:
 	./bin/app -env='local'
 run-dev:

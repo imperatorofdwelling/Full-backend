@@ -330,7 +330,7 @@ func TestHandler_GetAllAdvantages(t *testing.T) {
 			{
 				ID:        id,
 				Title:     "test",
-				Image:     "./assets/images/advantages/test.svg",
+				Image:     "./static/images/advantages/test.svg",
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -533,7 +533,7 @@ func TestHandler_UpdateAdvantage(t *testing.T) {
 			expected := advantage.Advantage{
 				ID:        uuid.FromStringOrNil(testCase.id),
 				Title:     testCase.payload.Title,
-				Image:     "./assets/images/advantages/test.svg",
+				Image:     "./static/images/advantages/test.svg",
 				CreatedAt: mockTime,
 				UpdatedAt: mockTime,
 			}

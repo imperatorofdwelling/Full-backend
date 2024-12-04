@@ -36,16 +36,26 @@ services:
       - ./cmd/migrator/migrations:/migrations
     command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
     depends_on:
-      - db
-      - server
+      server:
+        condition: service_started
   migrate-cities-json:
     build:
       context: .
       dockerfile: ./docker/Dockerfile_cities_migrate
     env_file: .env.dev
     depends_on:
-      - migrate
+      migrate:
+        condition: service_completed_successfully
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:${POSTGRES_PORT}", "--db-name", "${POSTGRES_DB}" ]
+  migrate-mock:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/migrations_mock:/migrations_mock
+    command: [ "-source", "file://migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    depends_on:
+      migrate-cities-json:
+        condition: service_completed_successfully
   nginx:
     image: nginx:latest
     container_name: nginx

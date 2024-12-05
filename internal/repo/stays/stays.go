@@ -77,7 +77,7 @@ func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
 	for rows.Next() {
 		var stay models.Stay
 
-		err = rows.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}

@@ -65,12 +65,12 @@ func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*stays.Stay, e
 func (s *Service) GetStays(ctx context.Context) ([]*stays.Stay, error) {
 	const op = "service.stays.GetStays"
 
-	stays, err := s.Repo.GetStays(ctx)
+	staysFromRepo, err := s.Repo.GetStays(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return stays, nil
+	return staysFromRepo, nil
 }
 
 func (s *Service) DeleteStayByID(ctx context.Context, id uuid.UUID) error {

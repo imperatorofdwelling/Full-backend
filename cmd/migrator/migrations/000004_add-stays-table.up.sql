@@ -6,8 +6,6 @@ CREATE TABLE IF NOT EXISTS stays
     user_id UUID NOT NULL,
     location_id UUID NOT NULL,
     name VARCHAR(255) DEFAULT '',
-    image_main VARCHAR(255) DEFAULT '',
-    images VARCHAR(255)[] DEFAULT ARRAY[]::VARCHAR[],
     type STAYS_TYPE NOT NULL DEFAULT 'apartment',
     number_of_bedrooms INTEGER DEFAULT 0,
     number_of_beds INTEGER DEFAULT 0,

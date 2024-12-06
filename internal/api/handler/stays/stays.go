@@ -353,10 +353,10 @@ func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 // CreateImages godoc
 //
 //	@Summary		Create images
-//	@Description	Create images
+//	@Description	Create images (IMPORTANT: not main image). Form data with two rows: stay_id, images in array
 //	@Tags			stays
 //	@Accept			multipart/form-data
-//	@Param			images	formData		[]file		true	"images"
+//	@Param			images	formData		[]file		true	"images list in form data"
 //	@Param			stay_id	formData		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		string	"ok"
@@ -405,7 +405,7 @@ func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
 // CreateMainImage godoc
 //
 //	@Summary		Create main image
-//	@Description	Create main image
+//	@Description	Create main image (IMPORTANT: should be one main image). If main image already exists in stay, it will be replaced with this new image. The old replaced image will no longer be the main and "is_main" value replaced to false. Request data should be in Form data with two values: images and stay_id. Note, that images row is one image (not array)
 //	@Tags			stays
 //	@Accept			multipart/form-data
 //	@Param			images	formData		file		true	"images"

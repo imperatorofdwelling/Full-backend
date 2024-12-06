@@ -10,10 +10,14 @@ type ResponseError struct {
 	Error string `json:"error"`
 }
 
+type ResponseSuccess struct {
+	Data interface{} `json:"data"`
+}
+
 func WriteJson(w http.ResponseWriter, r *http.Request, status int, data interface{}) {
 	render.Status(r, status)
-	render.JSON(w, r, map[string]interface{}{
-		"data": data,
+	render.JSON(w, r, ResponseSuccess{
+		Data: data,
 	})
 }
 

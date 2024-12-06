@@ -1801,6 +1801,38 @@ paths:
       summary: Get main stays image by stay id
       tags:
       - stays
+  /stays/location/{locationId}:
+    get:
+      consumes:
+      - application/json
+      description: get stays by location id. Handler additionally checks is location
+        exist.
+      parameters:
+      - description: stay id
+        in: path
+        name: locationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Get Stays by location id
+      tags:
+      - stays
   /stays/user/{userId}:
     get:
       consumes:

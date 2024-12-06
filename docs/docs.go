@@ -1727,7 +1727,7 @@ const docTemplate = `{
         },
         "/stays/images": {
             "post": {
-                "description": "Create images",
+                "description": "Create images (IMPORTANT: not main image). Form data with two rows: stay_id, images in array",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1745,7 +1745,7 @@ const docTemplate = `{
                             "type": "file"
                         },
                         "collectionFormat": "csv",
-                        "description": "images",
+                        "description": "images list in form data",
                         "name": "images",
                         "in": "formData",
                         "required": true
@@ -1826,7 +1826,7 @@ const docTemplate = `{
         },
         "/stays/images/main": {
             "post": {
-                "description": "Create main image",
+                "description": "Create main image (IMPORTANT: should be one main image). If main image already exists in stay, it will be replaced with this new image. The old replaced image will no longer be the main and \"is_main\" value replaced to false. Request data should be in Form data with two values: images and stay_id. Note, that images row is one image (not array)",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -1948,6 +1948,53 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/location/{locationId}": {
+            "get": {
+                "description": "get stays by location id. Handler additionally checks is location exist.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get Stays by location id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "locationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
                             }
                         }
                     },

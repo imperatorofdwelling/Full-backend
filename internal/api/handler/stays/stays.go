@@ -28,7 +28,7 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
 			r.Post("/create", h.CreateStay)
-			r.Get("/{stayId}", h.GetStayByID)
+
 			r.Delete("/{stayId}", h.DeleteStayByID)
 			r.Put("/{stayId}", h.UpdateStayByID)
 			r.Post("/images", h.CreateImages)
@@ -38,9 +38,11 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 
 		r.Group(func(r chi.Router) {
 			r.Get("/", h.GetStays)
+			r.Get("/{stayId}", h.GetStayByID)
 			r.Get("/user/{userId}", h.GetStaysByUserID)
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
+			r.Get("/location/{locationId}", h.GetStaysByLocationID)
 		})
 	})
 }
@@ -353,10 +355,10 @@ func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 // CreateImages godoc
 //
 //	@Summary		Create images
-//	@Description	Create images
+//	@Description	Create images (IMPORTANT: not main image). Form data with two rows: stay_id, images in array
 //	@Tags			stays
 //	@Accept			multipart/form-data
-//	@Param			images	formData		[]file		true	"images"
+//	@Param			images	formData		[]file		true	"images list in form data"
 //	@Param			stay_id	formData		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		string	"ok"
@@ -405,7 +407,7 @@ func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
 // CreateMainImage godoc
 //
 //	@Summary		Create main image
-//	@Description	Create main image
+//	@Description	Create main image (IMPORTANT: should be one main image). If main image already exists in stay, it will be replaced with this new image. The old replaced image will no longer be the main and "is_main" value replaced to false. Request data should be in Form data with two values: images and stay_id. Note, that images row is one image (not array)
 //	@Tags			stays
 //	@Accept			multipart/form-data
 //	@Param			images	formData		file		true	"images"
@@ -490,4 +492,42 @@ func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
 
 	responseApi.WriteJson(w, r, http.StatusNoContent, "successfully deleted")
 
+}
+
+// GetStaysByLocationID godoc
+//
+//	@Summary		Get Stays by location id
+//	@Description	get stays by location id. Handler additionally checks is location exist.
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			locationId	path		string		true	"stay id"
+//	@Success		200	{object}		[]model.Stay		"ok"
+//	@Failure		400		{object}	responseApi.ResponseError			"Error"
+//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Router			/stays/location/{locationId} [get]
+func (h *Handler) GetStaysByLocationID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetStaysByLocationID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	locationID := chi.URLParam(r, "locationId")
+	locationIDUuid, err := uuid.FromString(locationID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	stays, err := h.Svc.GetStaysByLocationID(r.Context(), locationIDUuid)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, stays)
 }

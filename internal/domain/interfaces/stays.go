@@ -22,6 +22,7 @@ type StaysRepo interface {
 	GetStayImageByID(context.Context, uuid.UUID) (stays.StayImage, error)
 	CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error
 	DeleteStayImage(context.Context, uuid.UUID) error
+	GetStaysByLocationID(context.Context, uuid.UUID) (*[]stays.Stay, error)
 }
 
 //go:generate mockery --name StaysService
@@ -37,6 +38,7 @@ type StaysService interface {
 	CreateImages(context.Context, []*multipart.FileHeader, uuid.UUID) error
 	CreateMainImage(context.Context, *multipart.FileHeader, uuid.UUID) error
 	DeleteStayImage(context.Context, uuid.UUID) error
+	GetStaysByLocationID(context.Context, uuid.UUID) (*[]stays.Stay, error)
 }
 
 type StaysHandler interface {
@@ -51,4 +53,5 @@ type StaysHandler interface {
 	CreateImages(http.ResponseWriter, *http.Request)
 	CreateMainImage(http.ResponseWriter, *http.Request)
 	DeleteStayImage(http.ResponseWriter, *http.Request)
+	GetStaysByLocationID(http.ResponseWriter, *http.Request)
 }

@@ -239,6 +239,8 @@ func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.St
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
+
+		stayImages = append(stayImages, stayImage)
 	}
 
 	return stayImages, nil

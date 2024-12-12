@@ -1,5 +1,6 @@
 volumes:
   local_postgres_data:
+  local_static_data:
 
 services:
   db:
@@ -26,6 +27,8 @@ services:
       dockerfile: ./docker/local/local.Dockerfile
     expose:
       - "8080"
+    volumes:
+      - local_static_data:/static
     depends_on:
       db:
         condition: service_healthy

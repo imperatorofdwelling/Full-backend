@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type ImageType string
@@ -15,35 +16,29 @@ const (
 	SvgImageType ImageType = ".svg"
 )
 
-const (
-	FilePathAdvantages  string = "./static/images/advantages"
-	FilePathStaysImages string = "./static/images/stays_images"
-)
+type PathType string
 
-const filePath = "./static/images/advantages"
+const (
+	FilePathAdvantages  PathType = "/images/advantages"
+	FilePathStaysImages PathType = "/images/stays_images"
+)
 
 type Service struct{}
 
-func (s *Service) UploadImage(img []byte, t ImageType, category string) (string, error) {
+func (s *Service) UploadImage(img []byte, t ImageType, filePath PathType) (string, error) {
 	const op = "service.FileService.CreateImage"
 
-	// Ensure the category directory exists
-	categoryPath := fmt.Sprintf("./static/images/%s", category)
-	err := os.MkdirAll(categoryPath, os.ModePerm)
-	if err != nil {
-		return "", fmt.Errorf("%s: failed to create directory %s: %w", op, categoryPath, err)
-	}
-
-	// Generate a random file name
 	fileName, err := s.GenRandomFileName()
 	if err != nil {
 		return "", err
 	}
 
-	// Create the full file path
-	fileWithPath := fmt.Sprintf("%s/%s%s", categoryPath, fileName, t)
+	fileWithPath := fmt.Sprintf("./static%s/%s%s", filePath, fileName, t)
 
-	// Create and write to the file
+	if err := os.MkdirAll(filepath.Dir(fileWithPath), os.ModePerm); err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
 	file, err := os.Create(fileWithPath)
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", op, err)
@@ -54,7 +49,7 @@ func (s *Service) UploadImage(img []byte, t ImageType, category string) (string,
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
-	return fileWithPath, nil
+	return fmt.Sprintf("%s/%s%s", filePath, fileName, t), nil
 }
 
 func (s *Service) RemoveFile(fileName string) error {

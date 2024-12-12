@@ -300,3 +300,22 @@ func (s *Service) DeleteStayImage(ctx context.Context, imageID uuid.UUID) error 
 	}
 	return nil
 }
+
+func (s *Service) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "service.stays.GetStaysByLocationID"
+
+	l, err := s.LocSvc.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if l.ID == uuid.Nil {
+		return nil, fmt.Errorf("%s: %w", op, service.ErrLocationNotFound)
+	}
+
+	foundStays, err := s.Repo.GetStaysByLocationID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundStays, nil
+}

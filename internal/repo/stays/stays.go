@@ -239,6 +239,8 @@ func (r *Repo) GetImagesByStayID(ctx context.Context, id uuid.UUID) ([]models.St
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
+
+		stayImages = append(stayImages, stayImage)
 	}
 
 	return stayImages, nil
@@ -326,4 +328,56 @@ func (r *Repo) DeleteStayImage(ctx context.Context, imageId uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]models.Stay, error) {
+	const op = "repo.stays.GetStaysByLocationID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays WHERE location_id=$1")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.QueryContext(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	var stays []models.Stay
+
+	for rows.Next() {
+		var stay models.Stay
+
+		err = rows.Scan(
+			&stay.ID,
+			&stay.LocationID,
+			&stay.UserID,
+			&stay.Name,
+			&stay.Type,
+			&stay.NumberOfBedrooms,
+			&stay.NumberOfBeds,
+			&stay.NumberOfBathrooms,
+			&stay.Guests,
+			&stay.Rating,
+			&stay.IsSmokingProhibited,
+			&stay.Square,
+			&stay.Street,
+			&stay.House,
+			&stay.Entrance,
+			&stay.Floor,
+			&stay.Room,
+			&stay.Price,
+			&stay.CreatedAt,
+			&stay.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		stays = append(stays, stay)
+	}
+
+	return &stays, nil
 }

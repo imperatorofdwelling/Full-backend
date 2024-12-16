@@ -26,3 +26,7 @@ test:
 	go test ./internal/api/handler/...
 mock:
 	go generate ./internal/domain/interfaces
+
+### KAFKA ###
+docker-kafka-local:
+	docker compose --env-file ./.env.local -f ./docker/local/local-kafka.docker-compose.yml -p iod-kafka up --build -d

@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -22,11 +23,17 @@ type Handler struct {
 
 func (h *Handler) NewLocationHandler(r chi.Router) {
 	r.Route("/locations", func(r chi.Router) {
-		r.Get("/match/{locationName}", h.FindByNameMatch)
-		r.Get("/", h.GetAll)
-		r.Get("/{id}", h.GetOneByID)
-		r.Delete("/{id}", h.DeleteByID)
-		r.Put("/{id}", h.UpdateByID)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Get("/{id}", h.GetOneByID)
+			r.Delete("/{id}", h.DeleteByID)
+			r.Put("/{id}", h.UpdateByID)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Get("/match/{locationName}", h.FindByNameMatch)
+			r.Get("/", h.GetAll)
+		})
 	})
 }
 

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/google/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -20,7 +21,9 @@ import (
 )
 
 func TestLocationHandler_FindByNameMatch(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.LocationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -101,7 +104,9 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 }
 
 func TestLocationHandler_GetAll(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.LocationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -161,7 +166,9 @@ func TestLocationHandler_GetAll(t *testing.T) {
 }
 
 func TestLocationHandler_GetOneByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.LocationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -239,7 +246,9 @@ func TestLocationHandler_GetOneByID(t *testing.T) {
 }
 
 func TestLocationHandler_DeleteByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.LocationService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -302,7 +311,9 @@ func TestLocationHandler_DeleteByID(t *testing.T) {
 }
 
 func TestLocationHandler_UpdateByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.LocationService{}
 	hdl := Handler{
 		Svc: &svc,

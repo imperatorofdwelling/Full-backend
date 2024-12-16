@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,9 @@ import (
 )
 
 func TestStaysReportsHandler_NewStaysReportsHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -38,7 +41,9 @@ func TestStaysReportsHandler_NewStaysReportsHandler(t *testing.T) {
 }
 
 func TestStaysReportsHandler_UserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -127,7 +132,9 @@ func TestStaysReportsHandler_UserIdError(t *testing.T) {
 }
 
 func TestStaysReportsHandler_ParamsError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -739,7 +746,9 @@ func TestStaysReportsHandler_Create_ParamsError_Patch_Success(t *testing.T) {
 }
 
 func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,

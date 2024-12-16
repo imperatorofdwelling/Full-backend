@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -21,8 +22,11 @@ type Handler struct {
 
 func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 	r.Route("/staysadvantage", func(r chi.Router) {
-		r.Post("/create", h.CreateStaysAdvantage)
-		r.Delete("/{id}", h.DeleteStaysAdvantageByID)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Post("/create", h.CreateStaysAdvantage)
+			r.Delete("/{id}", h.DeleteStaysAdvantageByID)
+		})
 	})
 }
 

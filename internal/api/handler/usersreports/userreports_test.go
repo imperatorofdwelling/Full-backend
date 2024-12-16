@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
@@ -20,7 +21,9 @@ import (
 )
 
 func TestUsersReportsHandler_NewUsersReportsHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UsersReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -35,7 +38,9 @@ func TestUsersReportsHandler_NewUsersReportsHandler(t *testing.T) {
 }
 
 func TestUsersReportsHandler_UserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UsersReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -128,7 +133,9 @@ func TestUsersReportsHandler_UserIdError(t *testing.T) {
 }
 
 func TestUsersReportsHandler_ParamsError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UsersReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -528,7 +535,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 }
 
 func TestUsersReportsHandler_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UsersReportsService{}
 	hdl := Handler{
 		Svc: &svc,

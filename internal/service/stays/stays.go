@@ -65,12 +65,12 @@ func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*stays.Stay, e
 func (s *Service) GetStays(ctx context.Context) ([]*stays.Stay, error) {
 	const op = "service.stays.GetStays"
 
-	stays, err := s.Repo.GetStays(ctx)
+	staysFromRepo, err := s.Repo.GetStays(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return stays, nil
+	return staysFromRepo, nil
 }
 
 func (s *Service) DeleteStayByID(ctx context.Context, id uuid.UUID) error {
@@ -299,4 +299,23 @@ func (s *Service) DeleteStayImage(ctx context.Context, imageID uuid.UUID) error 
 		return err
 	}
 	return nil
+}
+
+func (s *Service) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "service.stays.GetStaysByLocationID"
+
+	l, err := s.LocSvc.GetByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if l.ID == uuid.Nil {
+		return nil, fmt.Errorf("%s: %w", op, service.ErrLocationNotFound)
+	}
+
+	foundStays, err := s.Repo.GetStaysByLocationID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return foundStays, nil
 }

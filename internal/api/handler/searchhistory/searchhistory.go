@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/searchhistory"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 
@@ -22,8 +23,11 @@ type Handler struct {
 
 func (h *Handler) NewHistorySearchHandler(r chi.Router) {
 	r.Route("/history", func(r chi.Router) {
-		r.Get("/", h.GetAllHistoryByUserId)
-		r.Post("/", h.AddHistory)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Get("/", h.GetAllHistoryByUserId)
+			r.Post("/", h.AddHistory)
+		})
 	})
 }
 

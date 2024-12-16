@@ -7,8 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,7 +26,9 @@ import (
 )
 
 func TestStaysHandler_NewStaysHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -40,7 +44,9 @@ func TestStaysHandler_NewStaysHandler(t *testing.T) {
 }
 
 func TestStaysHandler_CreateStay(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -120,7 +126,9 @@ func TestStaysHandler_CreateStay(t *testing.T) {
 }
 
 func TestStaysHandler_GetStayByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -199,7 +207,9 @@ func TestStaysHandler_GetStayByID(t *testing.T) {
 	})
 }
 func TestStaysHandler_GetStays(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -277,7 +287,9 @@ func TestStaysHandler_GetStays(t *testing.T) {
 }
 
 func TestStaysHandler_DeleteStayByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -332,7 +344,9 @@ func TestStaysHandler_DeleteStayByID(t *testing.T) {
 }
 
 func TestStaysHandler_UpdateStayByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -444,7 +458,9 @@ func TestStaysHandler_UpdateStayByID(t *testing.T) {
 }
 
 func TestStaysHandler_GetStaysByUserID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -525,7 +541,9 @@ func TestStaysHandler_GetStaysByUserID(t *testing.T) {
 }
 
 func TestStaysHandler_GetStayImagesByStayID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -601,7 +619,9 @@ func TestStaysHandler_GetStayImagesByStayID(t *testing.T) {
 }
 
 func TestStaysHandler_GetMainImageByStayID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -675,7 +695,9 @@ func TestStaysHandler_GetMainImageByStayID(t *testing.T) {
 }
 
 func TestStaysHandler_CreateImages(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -816,7 +838,9 @@ func TestStaysHandler_CreateImages(t *testing.T) {
 }
 
 func TestStaysHandler_DeleteStayImage(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -870,7 +894,9 @@ func TestStaysHandler_DeleteStayImage(t *testing.T) {
 }
 
 func TestStaysHandler_CreateMainImage(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -1003,6 +1029,98 @@ func TestStaysHandler_CreateMainImage(t *testing.T) {
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestStaysHandler_GetStaysByLocationID(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.StaysService{}
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	mockUUID, _ := uuid.NewV4()
+
+	mockStay := []stays.Stay{
+		{
+			ID:                  mockUUID,
+			UserID:              mockUUID,
+			LocationID:          mockUUID,
+			Name:                "Luxurious Apartment in City Center",
+			Type:                stays.Apartment,
+			NumberOfBedrooms:    2,
+			NumberOfBeds:        3,
+			NumberOfBathrooms:   2,
+			Guests:              6,
+			Rating:              4.8,
+			IsSmokingProhibited: true,
+			Square:              85.5,
+			Street:              "Main Street",
+			House:               "22A",
+			Entrance:            "North Entrance",
+			Floor:               "3rd Floor",
+			Room:                "Apartment 23",
+			Price:               120.0,
+			CreatedAt:           time.Now(),
+			UpdatedAt:           time.Now(),
+		},
+	}
+
+	t.Run("should be no errors", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("GetStaysByLocationID", mock.Anything, mock.Anything).Return(&mockStay, nil).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+mockUUID.String(), nil)
+
+		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+invalidUUID, nil)
+
+		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error getting stays by locationID", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		errMessage := "error message"
+
+		svc.On("GetStaysByLocationID", mock.Anything, mock.Anything).Return(nil, errors.New(errMessage)).Once()
+
+		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+mockUUID.String(), nil)
+
+		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+
+		var actual responseApi.ResponseError
+
+		err := json.Unmarshal(r.Body.Bytes(), &actual)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Contains(t, actual.Error, errMessage)
 	})
 }
 

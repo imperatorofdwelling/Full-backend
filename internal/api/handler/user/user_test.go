@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -23,7 +24,9 @@ import (
 )
 
 func TestUserHandler_NewUserHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,
@@ -38,7 +41,9 @@ func TestUserHandler_NewUserHandler(t *testing.T) {
 }
 
 func TestUserHandler_NewPublicUserHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,
@@ -48,12 +53,14 @@ func TestUserHandler_NewPublicUserHandler(t *testing.T) {
 	router := chi.NewRouter()
 
 	t.Run("should be no error", func(t *testing.T) {
-		hdl.NewPublicUserHandler(router)
+		hdl.NewUserHandler(router)
 	})
 }
 
 func TestUserHandler_GetUserByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,
@@ -128,7 +135,9 @@ func TestUserHandler_GetUserByID(t *testing.T) {
 }
 
 func TestUserHandler_GetUserByIDBadRequest(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := new(mocks.UserService)
 	hdl := UserHandler{
 		Log: log,
@@ -155,7 +164,9 @@ func TestUserHandler_GetUserByIDBadRequest(t *testing.T) {
 }
 
 func TestUserHandler_UpdateUserByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,
@@ -327,7 +338,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 }
 
 func TestUserHandler_UpdateUserByIdUnauthorized(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := new(mocks.UserService)
 	hdl := UserHandler{
 		Log: log,
@@ -363,7 +376,9 @@ func TestUserHandler_UpdateUserByIdUnauthorized(t *testing.T) {
 }
 
 func TestUserHandler_UpdateUserByIdUUID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := new(mocks.UserService)
 	hdl := UserHandler{
 		Log: log,
@@ -416,7 +431,9 @@ func TestUserHandler_UpdateUserByIdUUID(t *testing.T) {
 }
 
 func TestUserHandler_UpdateUserByIdInvalidJSON(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := new(mocks.UserService)
 	hdl := UserHandler{
 		Log: log,
@@ -463,7 +480,9 @@ func TestUserHandler_UpdateUserByIdInvalidJSON(t *testing.T) {
 }
 
 func TestUserHandler_DeleteUserByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,
@@ -552,7 +571,9 @@ func TestUserHandler_DeleteUserByID(t *testing.T) {
 }
 
 func TestUserHandler_DeleteUserByIdUnauthorized(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := new(mocks.UserService)
 	hdl := UserHandler{
 		Log: log,
@@ -580,7 +601,9 @@ func TestUserHandler_DeleteUserByIdUnauthorized(t *testing.T) {
 }
 
 func TestJWTMiddlewareUnexpectedSigningMethod(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.UserService{}
 	hdl := UserHandler{
 		Log: log,

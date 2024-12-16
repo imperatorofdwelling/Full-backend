@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestContracts_NewContractsHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -32,7 +35,9 @@ func TestContracts_NewContractsHandler(t *testing.T) {
 }
 
 func TestContracts_ContractGetAllContactsUserId(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -63,7 +68,9 @@ func TestContracts_ContractGetAllContactsUserId(t *testing.T) {
 }
 
 func TestContracts_ContractGetAllContractsError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -100,7 +107,9 @@ func TestContracts_ContractGetAllContractsError(t *testing.T) {
 }
 
 func TestContracts_ContractGetAllContractsSuccess(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -137,7 +146,9 @@ func TestContracts_ContractGetAllContractsSuccess(t *testing.T) {
 }
 
 func TestContracts_ContractAddContractUserIdError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -183,7 +194,9 @@ func TestContracts_ContractAddContractUserIdError(t *testing.T) {
 }
 
 func TestContracts_ContractAddContractMapError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -234,7 +247,9 @@ func TestContracts_ContractAddContractMapError(t *testing.T) {
 }
 
 func TestContracts_ContractAddContractMissingFields(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -287,7 +302,9 @@ func TestContracts_ContractAddContractMissingFields(t *testing.T) {
 }
 
 func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -372,7 +389,9 @@ func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
 }
 
 func TestContracts_AddContract_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -431,7 +450,9 @@ func TestContracts_AddContract_Error(t *testing.T) {
 }
 
 func TestContracts_AddContract_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.ContractService{}
 	hdl := Handler{
 		Svc: &svc,

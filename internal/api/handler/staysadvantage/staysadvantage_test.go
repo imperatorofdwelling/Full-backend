@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -18,7 +19,9 @@ import (
 )
 
 func TestStaysAdvantagesHandler_NewStaysAdvantageHandler(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysAdvantageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -32,7 +35,9 @@ func TestStaysAdvantagesHandler_NewStaysAdvantageHandler(t *testing.T) {
 }
 
 func TestStaysAdvantagesHandler_CreateStaysAdvantage(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysAdvantageService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -96,7 +101,9 @@ func TestStaysAdvantagesHandler_CreateStaysAdvantage(t *testing.T) {
 }
 
 func TestStaysAdvantagesHandler_DeleteStaysAdvantageByID(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysAdvantageService{}
 	hdl := Handler{
 		Svc: &svc,

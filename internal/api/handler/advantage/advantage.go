@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
@@ -28,10 +29,13 @@ type Handler struct {
 
 func (h *Handler) NewAdvantageHandler(r chi.Router) {
 	r.Route("/advantages", func(r chi.Router) {
-		r.Post("/create", h.CreateAdvantage)
-		r.Delete("/{advantageId}", h.RemoveAdvantage)
-		r.Get("/all", h.GetAllAdvantages)
-		r.Patch("/{advantageId}", h.UpdateAdvantage)
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Get("/all", h.GetAllAdvantages)
+			r.Patch("/{advantageId}", h.UpdateAdvantage)
+			r.Post("/create", h.CreateAdvantage)
+			r.Delete("/{advantageId}", h.RemoveAdvantage)
+		})
 	})
 }
 

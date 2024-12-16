@@ -18,6 +18,8 @@ migrate-up:
 	go run cmd/migrator/main.go up
 migrate-down:
 	go run cmd/migrator/main.go down
+docker-stage:
+	docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage up --build -d
 docker-local: wire swag
 	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build -d
 docker-dev:

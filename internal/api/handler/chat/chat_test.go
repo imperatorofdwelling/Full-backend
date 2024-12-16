@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
@@ -307,7 +308,9 @@ func TestChatHandler_SendMessage_Success(t *testing.T) {
 }
 
 func TestHandleWebSocket_(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	mockService := mocks.ChatService{}
 	cm := connectionmanager.NewConnectionManager()
 	hdl := Handler{
@@ -333,7 +336,9 @@ func TestHandleWebSocket_(t *testing.T) {
 }
 
 func TestHandleWebSocket_ValidToken(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	mockService := mocks.ChatService{}
 	cm := connectionmanager.NewConnectionManager()
 	hdl := Handler{
@@ -385,7 +390,9 @@ func TestHandleWebSocket_ValidToken(t *testing.T) {
 }
 
 func TestHandleWebSocket_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	mockService := mocks.ChatService{}
 	cm := connectionmanager.NewConnectionManager()
 	hdl := Handler{
@@ -457,7 +464,9 @@ func TestHandleWebSocket_Success(t *testing.T) {
 }
 
 func TestHandleWebSocket_MessageHandling_RealManager(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	mockService := &mocks.ChatService{}
 	realManager := connectionmanager.NewConnectionManager()
 	hdl := Handler{

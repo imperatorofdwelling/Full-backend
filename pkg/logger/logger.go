@@ -14,6 +14,8 @@ var unknownEnv = errors.New("unknown environment (should be local or prod)")
 func New() *slog.Logger {
 	var logger *slog.Logger
 	switch config.GlobalEnv {
+	case config.StageEnv:
+		logger = setupPrettySlog()
 	case config.LocalEnv:
 		logger = setupPrettySlog()
 	case config.DevEnv:

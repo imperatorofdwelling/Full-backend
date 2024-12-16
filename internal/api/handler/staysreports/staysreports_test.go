@@ -192,7 +192,9 @@ func TestStaysReportsHandler_ParamsError(t *testing.T) {
 }
 
 func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -528,7 +530,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 }
 
 func TestStaysReportsHandler_Create_ParamsError_Patch(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -594,7 +598,9 @@ func TestStaysReportsHandler_Create_ParamsError_Patch(t *testing.T) {
 }
 
 func TestStaysReportsHandler_GetStaysById_ErrNoRows(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -635,7 +641,9 @@ func TestStaysReportsHandler_GetStaysById_ErrNoRows(t *testing.T) {
 }
 
 func TestStaysReportsHandler_GetStaysById_Error(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,
@@ -677,7 +685,9 @@ func TestStaysReportsHandler_GetStaysById_Error(t *testing.T) {
 }
 
 func TestStaysReportsHandler_Create_ParamsError_Patch_Success(t *testing.T) {
-	log := logger.New(logger.EnvLocal)
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
 	svc := mocks.StaysReportsService{}
 	hdl := Handler{
 		Svc: &svc,

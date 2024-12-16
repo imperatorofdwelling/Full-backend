@@ -14,6 +14,7 @@ import (
 type Environment string
 
 const (
+	StageEnv Environment = "stage"
 	LocalEnv Environment = "local"
 	DevEnv   Environment = "dev"
 	ProdEnv  Environment = "prod"
@@ -59,7 +60,7 @@ func loadFlags() error {
 	flag.Parse()
 
 	switch Environment(*envFlag) {
-	case LocalEnv, DevEnv, ProdEnv:
+	case StageEnv, LocalEnv, DevEnv, ProdEnv:
 		GlobalEnv = Environment(*envFlag)
 	default:
 		return errors.New("invalid environment type")

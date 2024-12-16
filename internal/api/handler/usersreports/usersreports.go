@@ -7,6 +7,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"

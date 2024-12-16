@@ -11,9 +11,11 @@ import (
 type (
 	ChatRepository interface {
 		GetChatsByUserID(ctx context.Context, userID string) ([]*chat.Chat, error)
+		GetChatByChatID(ctx context.Context, chatID string) (*chat.Chat, error)
 		GetOrCreateChatID(ctx context.Context, userID, otherUserID string) (*string, error)
 		GetMessagesByChatID(ctx context.Context, chatID string) ([]*message.Entity, error)
 		SendMessage(ctx context.Context, senderId, receiverId string, msg message.Entity) error
+		SendMessageInChat(ctx context.Context, chatId, senderId string, msg message.Entity) error
 	}
 )
 
@@ -21,9 +23,11 @@ type (
 type (
 	ChatService interface {
 		GetChatsByUserID(ctx context.Context, userID string) ([]*chat.Chat, error)
+		GetChatByChatID(ctx context.Context, chatID string) (*chat.Chat, error)
 		GetOrCreateChatID(ctx context.Context, userID, otherUserID string) (*string, error)
 		GetMessagesByChatID(ctx context.Context, chatID string) ([]*message.Entity, error)
 		SendMessage(ctx context.Context, senderId, receiverId string, msg message.Entity) error
+		SendMessageInChat(ctx context.Context, chatId, senderId string, msg message.Entity) error
 	}
 )
 
@@ -32,5 +36,6 @@ type (
 		GetChatsByUserID(w http.ResponseWriter, r *http.Request)
 		GetMessagesByChatID(w http.ResponseWriter, r *http.Request)
 		SendMessage(w http.ResponseWriter, r *http.Request)
+		HandleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 )

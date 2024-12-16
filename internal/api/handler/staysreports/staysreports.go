@@ -1,18 +1,22 @@
 package staysreports
 
 import (
-	"encoding/json"
+	"database/sql"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 )
 
 type Handler struct {
@@ -34,19 +38,23 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 	})
 }
 
-// CreateStaysReports handles the creation of a stay report
-// @Summary Create a stay report
-// @Description Creates a new stay report for a specific stay
-// @Tags stays-reports
-// @Accept json
-// @Produce json
-// @Param stayId path string true "Stay ID"
-// @Param body body map[string]string true "Report data"
-// @Success 201 {object} map[string]string "{"message": "Stay report created successfully"}"
-// @Failure 400 {object} responseApi.ResponseError "{"error": "message"}"
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
-// @Router /report/create/{stayId} [post]
+// CreateStaysReports creates a new stay report.
+//
+// @Summary      Create a new stay report
+// @Description  Creates a report for a specific stay, including an optional image and required details like title and description.
+// @Tags         StaysReports
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        stayId       path      string                true   "ID of the stay being reported"
+// @Param        title        formData  string                true   "Title of the report"
+// @Param        description  formData  string                true   "Description of the report"
+// @Param        image        formData  file                  false  "Optional image file (JPEG or PNG)"
+// @Success      201          {object}  map[string]string     "Confirmation message"
+// @Failure      400          {object}  map[string]string     "Error message for invalid input or unsupported image type"
+// @Failure      401          {object}  map[string]string     "Error message for unauthorized access"
+// @Failure      500          {object}  map[string]string     "Error message for internal server error"
+// @Security     ApiKeyAuth
+// @Router       /report/create/{stayId} [post]
 func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.CreateStaysReports"
 
@@ -64,22 +72,54 @@ func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 	}
 	stayID := chi.URLParam(r, "stayId")
 
-	var reqBody map[string]string
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		h.Log.Error("failed to decode request body", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.Wrap(err, "failed to decode request body")))
+	// Restrict request body size
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
+
+	// Parse multipart form
+	err := r.ParseMultipartForm(file.MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
-	title, okTitle := reqBody["title"]
-	description, okDescription := reqBody["description"]
-	if !okTitle || !okDescription {
-		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
+	// Extracting image file
+	image, hdl, err := r.FormFile("image")
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+	defer image.Close()
+
+	// Validate content type
+	contentType := hdl.Header.Get("Content-Type")
+	if !(strings.Contains(contentType, "image/jpeg") || strings.Contains(contentType, "image/png")) {
+		h.Log.Error("unsupported content type", slogError.Err(handler.ErrInvalidImageType))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageType))
+		return
+	}
+
+	// Read image into buffer
+	buf := make([]byte, hdl.Size)
+	n, err := image.Read(buf)
+	if err != nil {
+		h.Log.Error("failed to read image", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	// Parse JSON part of the body
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+
+	if title == "" || description == "" {
+		h.Log.Error("title and description are required", slogError.Err(errors.New("missing fields")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
 
-	err := h.Svc.CreateStaysReports(context.Background(), userID, stayID, title, description)
+	err = h.Svc.CreateStaysReports(context.Background(), userID, stayID, title, description, buf[:n])
 	if err != nil {
 		h.Log.Error("failed to create stays report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -124,21 +164,19 @@ func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, reports)
 }
 
-// UpdateStaysReports handles updating a stay report
-// @Summary Update a stay report
-// @Description Updates a specific stay report
+// GetStaysReportById retrieves a stay report by user ID.
+// @Summary Retrieve stay report by user ID
+// @Description Fetches a specific stay report associated with the logged-in user.
 // @Tags stays-reports
-// @Accept json
 // @Produce json
-// @Param reportId path string true "Report ID"
-// @Param body body map[string]string true "Updated report data"
-// @Success 200 {object} staysreports.StaysReportEntity "Updated stays report object"
-// @Failure 400 {object} responseApi.ResponseError "{"error": "message"}"
+// @Security ApiKeyAuth
+// @Success 200 {object} staysreports.StayReport "Retrieved stay report object"
 // @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
-// @Router /report/{reportId} [put]
-func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
-	const op = "handler.StaysReports.UpdateStaysReports"
+// @Failure 404 {object} responseApi.ResponseError "{"error": "report not found"}"
+// @Failure 500 {object} responseApi.ResponseError "{"error": "could not fetch report"}"
+// @Router /stays-reports [get]
+func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.StaysReports.GetStaysReportById"
 
 	h.Log = h.Log.With(
 		slog.String("op", op),
@@ -151,24 +189,98 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
-	reportID := chi.URLParam(r, "reportId")
 
-	var reqBody map[string]string
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		h.Log.Error("failed to decode request body", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.Wrap(err, "failed to decode request body")))
+	stayReportId := chi.URLParam(r, "stayId")
+
+	h.Log = h.Log.With(slog.String("user_id", userID))
+
+	report, err := h.Svc.GetStaysReportById(r.Context(), userID, stayReportId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			h.Log.Warn("report not found", slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(errors.New("report not found")))
+		} else {
+			h.Log.Error("failed to fetch report", slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not fetch report")))
+		}
 		return
 	}
 
-	title, okTitle := reqBody["title"]
-	description, okDescription := reqBody["description"]
-	if !okTitle || !okDescription {
-		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
+	responseApi.WriteJson(w, r, http.StatusOK, report)
+}
+
+// UpdateStaysReports handles partially updating a stay report
+// @Summary Partially update a stay report
+// @Description Updates specific fields of a stay report, such as title, description, or image
+// @Tags stays-reports
+// @Accept multipart/form-data
+// @Produce json
+// @Param reportId path string true "Report ID"
+// @Param title formData string false "Updated title"
+// @Param description formData string false "Updated description"
+// @Param image formData file false "Image file (JPEG or PNG)"
+// @Success 200 {object} staysreports.StaysReportEntity "Updated stays report object"
+// @Failure 400 {object} responseApi.ResponseError "Bad Request"
+// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
+// @Failure 500 {object} responseApi.ResponseError "Internal Server Error"
+// @Router /report/{reportId} [patch]
+func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.StaysReports.UpdateStaysReports"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())))
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
+
+	if err := r.ParseMultipartForm(file.MaxImageMemorySize); err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	var imageData []byte
+	image, hdl, err := r.FormFile("image")
+	if err == nil {
+		defer image.Close()
+
+		imgContentType := hdl.Header.Get("Content-Type")
+		if !(strings.Contains(imgContentType, "image/jpeg") || strings.Contains(imgContentType, "image/png")) {
+			h.Log.Error("unsupported content type", slogError.Err(handler.ErrInvalidImageType))
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageType))
+			return
+		}
+
+		imageData, err = io.ReadAll(image)
+		if err != nil {
+			h.Log.Error("failed to read image", slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+			return
+		}
+	} else if !errors.Is(err, http.ErrMissingFile) {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	reportID := chi.URLParam(r, "reportId")
+
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+	if title == "" || description == "" {
+		h.Log.Error("body params errors", slogError.Err(errors.New("title and description are required")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
 
-	report, err := h.Svc.UpdateStaysReports(context.Background(), userID, reportID, title, description)
+	report, err := h.Svc.UpdateStaysReports(context.Background(), userID, reportID, title, description, imageData)
 	if err != nil {
 		h.Log.Error("failed to update stays report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))

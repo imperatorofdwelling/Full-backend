@@ -5,6 +5,7 @@ import (
 	"github.com/google/wire"
 	chatHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/chat"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	chatRepo "github.com/imperatorofdwelling/Full-backend/internal/repo/chat"
 	chatSvc "github.com/imperatorofdwelling/Full-backend/internal/service/chat"
 	"log/slog"
@@ -26,17 +27,19 @@ var ChatProviderSet wire.ProviderSet = wire.NewSet(
 	ProvideChatHandler,
 	ProvideChatService,
 	ProvideChatRepo,
+	connectionmanager.NewConnectionManager,
 
 	wire.Bind(new(interfaces.ChatHandler), new(*chatHdl.Handler)),
 	wire.Bind(new(interfaces.ChatService), new(*chatSvc.Service)),
 	wire.Bind(new(interfaces.ChatRepository), new(*chatRepo.Repo)),
 )
 
-func ProvideChatHandler(svc interfaces.ChatService, log *slog.Logger) *chatHdl.Handler {
+func ProvideChatHandler(svc interfaces.ChatService, log *slog.Logger, cm *connectionmanager.ConnectionManager) *chatHdl.Handler {
 	hdlOnce.Do(func() {
 		hdl = &chatHdl.Handler{
 			Svc: svc,
 			Log: log,
+			Cm:  cm,
 		}
 	})
 

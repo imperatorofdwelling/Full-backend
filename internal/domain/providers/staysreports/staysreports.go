@@ -42,10 +42,11 @@ func ProvideStaysReportHandler(svc interfaces.StaysReportsService, log *slog.Log
 	return hdl
 }
 
-func ProvideStaysReportService(repo interfaces.StaysReportsRepo) *staysReportSvc.Service {
+func ProvideStaysReportService(repo interfaces.StaysReportsRepo, fileSvc interfaces.FileService) *staysReportSvc.Service {
 	svcOnce.Do(func() {
 		svc = &staysReportSvc.Service{
-			Repo: repo,
+			Repo:    repo,
+			FileSvc: fileSvc,
 		}
 	})
 	return svc

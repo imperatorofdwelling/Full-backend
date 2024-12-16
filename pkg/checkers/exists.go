@@ -1,8 +1,13 @@
 package checkers
 
 import (
+	"bytes"
 	"database/sql"
+	"errors"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	"golang.org/x/net/context"
+	"image/jpeg"
+	"image/png"
 )
 
 func CheckStayExists(ctx context.Context, db *sql.DB, stayID string) (bool, error) {
@@ -45,4 +50,18 @@ func CheckChatExists(ctx context.Context, db *sql.DB, chatID string) (bool, erro
 	var exists bool
 	err := db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM chat WHERE chat_id = $1)", chatID).Scan(&exists)
 	return exists, err
+}
+
+func DetectImageType(imageData []byte) (file.ImageType, error) {
+	_, err := png.Decode(bytes.NewReader(imageData))
+	if err == nil {
+		return file.PngImageType, nil
+	}
+
+	_, err = jpeg.Decode(bytes.NewReader(imageData))
+	if err == nil {
+		return file.JpgImageType, nil
+	}
+
+	return file.UnknownImageType, errors.New("unknown image type")
 }

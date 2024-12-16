@@ -10,6 +10,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
@@ -71,17 +72,18 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	contractsService := contracts.ProvideContractService(contractsRepo)
 	contractsHandler := contracts.ProvideContractHandler(contractsService, log)
 	staysreportsRepo := staysreports.ProvideStaysReportRepo(sqlDB)
-	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo)
+	staysreportsService := staysreports.ProvideStaysReportService(staysreportsRepo, fileService)
 	staysreportsHandler := staysreports.ProvideStaysReportHandler(staysreportsService, log)
 	usersreportsRepo := usersreports.ProvideUsersReportRepo(sqlDB)
-	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo)
+	usersreportsService := usersreports.ProvideUsersReportService(usersreportsRepo, fileService)
 	usersreportsHandler := usersreports.ProvideUsersReportHandler(usersreportsService, log)
 	messageRepo := message.ProvideMessageRepo(sqlDB)
 	messageService := message.ProvideMessageService(messageRepo)
 	messageHandler := message.ProvideMessageHandler(messageService, log)
 	chatRepo := chat.ProvideChatRepo(sqlDB)
 	chatService := chat.ProvideChatService(chatRepo)
-	chatHandler := chat.ProvideChatHandler(chatService, log)
+	connectionManager := connectionmanager.NewConnectionManager()
+	chatHandler := chat.ProvideChatHandler(chatService, log, connectionManager)
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler)
 	return serverHTTP, nil

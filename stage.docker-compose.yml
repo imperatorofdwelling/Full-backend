@@ -1,0 +1,41 @@
+services:
+  db:
+    container_name: iod-db-stage
+    restart: always
+    image: postgres:17
+    env_file: .env.stage
+    ports:
+      - ${POSTGRES_PORT}:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  migrate:
+    image: migrate/migrate
+    env_file: .env.stage
+    volumes:
+      - ./cmd/migrator/migrations:/migrations
+    command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable", "up" ]
+    depends_on:
+      db:
+        condition: service_healthy
+  migrate-cities-json:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile_cities_migrate
+    env_file: .env.stage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:5432", "--db-name", "${POSTGRES_DB}" ]
+  migrate-mock:
+    image: migrate/migrate
+    env_file: .env.stage
+    volumes:
+      - ./cmd/migrator/migrations_mock:/migrations_mock
+    command: [ "-source", "file://migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    depends_on:
+      migrate-cities-json:
+        condition: service_completed_successfully

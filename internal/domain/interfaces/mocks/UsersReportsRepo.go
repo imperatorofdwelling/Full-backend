@@ -15,17 +15,17 @@ type UsersReportsRepo struct {
 	mock.Mock
 }
 
-// CreateUsersReports provides a mock function with given fields: ctx, userId, toBlameId, title, description
-func (_m *UsersReportsRepo) CreateUsersReports(ctx context.Context, userId string, toBlameId string, title string, description string) error {
-	ret := _m.Called(ctx, userId, toBlameId, title, description)
+// CreateUsersReports provides a mock function with given fields: ctx, userId, toBlameId, title, description, imagePath
+func (_m *UsersReportsRepo) CreateUsersReports(ctx context.Context, userId string, toBlameId string, title string, description string, imagePath string) error {
+	ret := _m.Called(ctx, userId, toBlameId, title, description, imagePath)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUsersReports")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) error); ok {
-		r0 = rf(ctx, userId, toBlameId, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) error); ok {
+		r0 = rf(ctx, userId, toBlameId, title, description, imagePath)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -81,9 +81,39 @@ func (_m *UsersReportsRepo) GetAllUsersReports(ctx context.Context, userId strin
 	return r0, r1
 }
 
-// UpdateUsersReports provides a mock function with given fields: ctx, userId, toBlameId, title, description
-func (_m *UsersReportsRepo) UpdateUsersReports(ctx context.Context, userId string, toBlameId string, title string, description string) (*usersreports.UsersReportEntity, error) {
-	ret := _m.Called(ctx, userId, toBlameId, title, description)
+// GetUsersReportById provides a mock function with given fields: ctx, userId, id
+func (_m *UsersReportsRepo) GetUsersReportById(ctx context.Context, userId string, id string) (*usersreports.UsersReport, error) {
+	ret := _m.Called(ctx, userId, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUsersReportById")
+	}
+
+	var r0 *usersreports.UsersReport
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (*usersreports.UsersReport, error)); ok {
+		return rf(ctx, userId, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *usersreports.UsersReport); ok {
+		r0 = rf(ctx, userId, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*usersreports.UsersReport)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, userId, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateUsersReports provides a mock function with given fields: ctx, userId, reportId, title, description, updatedImagePath
+func (_m *UsersReportsRepo) UpdateUsersReports(ctx context.Context, userId string, reportId string, title string, description string, updatedImagePath string) (*usersreports.UsersReportEntity, error) {
+	ret := _m.Called(ctx, userId, reportId, title, description, updatedImagePath)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateUsersReports")
@@ -91,19 +121,19 @@ func (_m *UsersReportsRepo) UpdateUsersReports(ctx context.Context, userId strin
 
 	var r0 *usersreports.UsersReportEntity
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) (*usersreports.UsersReportEntity, error)); ok {
-		return rf(ctx, userId, toBlameId, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) (*usersreports.UsersReportEntity, error)); ok {
+		return rf(ctx, userId, reportId, title, description, updatedImagePath)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) *usersreports.UsersReportEntity); ok {
-		r0 = rf(ctx, userId, toBlameId, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) *usersreports.UsersReportEntity); ok {
+		r0 = rf(ctx, userId, reportId, title, description, updatedImagePath)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*usersreports.UsersReportEntity)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
-		r1 = rf(ctx, userId, toBlameId, title, description)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string, string) error); ok {
+		r1 = rf(ctx, userId, reportId, title, description, updatedImagePath)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
 
@@ -13,25 +14,37 @@ type Repo struct {
 	Db *sql.DB
 }
 
-func (r *Repo) CreateStaysReports(ctx context.Context, userId, stayId, title, description string) error {
+func (r *Repo) CreateStaysReports(ctx context.Context, userId, stayId, title, description, imagePath string) error {
 	const op = "repo.StaysReports.CreateStaysReports"
 
 	id, _ := uuid.NewV4()
-	// Checking stay for existence
-	exists, err := checkers.CheckStayExists(ctx, r.Db, stayId)
+
+	// Check if the user exists
+	userExists, err := checkers.CheckUserExists(ctx, r.Db, userId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	if !exists {
+	if !userExists {
+		return fmt.Errorf("%s: user does not exist: %s", op, userId)
+	}
+
+	// Check if the stay exists
+	stayExists, err := checkers.CheckStayExists(ctx, r.Db, stayId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if !stayExists {
 		return fmt.Errorf("%s: stay does not exist: %s", op, stayId)
 	}
 
-	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO stays_reports (id, user_id, stay_id, title, description, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+	// Prepare and execute the INSERT query
+	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO stays_reports (id, user_id, stay_id, title, description, report_attach, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, id, userId, stayId, title, description)
+	_, err = stmt.ExecContext(ctx, id, userId, stayId, title, description, imagePath)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -71,7 +84,40 @@ func (r *Repo) GetAllStaysReports(ctx context.Context, userId string) ([]staysre
 	return reports, nil
 }
 
-func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, description string) (*staysreports.StaysReportEntity, error) {
+func (r *Repo) GetStaysReportById(ctx context.Context, userId, id string) (*staysreports.StayReport, error) {
+	const op = "repo.StaysReports.GetStaysReportById"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, user_id, stay_id, title, description, report_attach, created_at, updated_at FROM stays_reports WHERE user_id = $1 AND id = $2")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(ctx, userId, id)
+
+	var report staysreports.StayReport
+
+	err = row.Scan(
+		&report.ID,
+		&report.UserID,
+		&report.StayID,
+		&report.Title,
+		&report.Description,
+		&report.ReportAttach,
+		&report.CreatedAt,
+		&report.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: no report found for user_id %s: %w", op, id, err)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &report, nil
+}
+
+func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, description, updatedImagePath string) (*staysreports.StaysReportEntity, error) {
 	const op = "repo.StaysReports.UpdateStaysReports"
 
 	// Checking stay for existence
@@ -84,14 +130,14 @@ func (r *Repo) UpdateStaysReports(ctx context.Context, userId, reportId, title, 
 	}
 
 	// Preparing update statement
-	updateStmt, err := r.Db.PrepareContext(ctx, "UPDATE stays_reports SET title = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE user_id = $3 AND id = $4")
+	updateStmt, err := r.Db.PrepareContext(ctx, "UPDATE stays_reports SET title = $1, description = $2, report_attach = $3, updated_at = CURRENT_TIMESTAMP WHERE user_id = $4 AND id = $5")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	defer updateStmt.Close()
 
 	// Executing update statement
-	_, err = updateStmt.ExecContext(ctx, title, description, userId, reportId)
+	_, err = updateStmt.ExecContext(ctx, title, description, updatedImagePath, userId, reportId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

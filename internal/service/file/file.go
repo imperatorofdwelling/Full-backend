@@ -11,16 +11,21 @@ import (
 type ImageType string
 
 const (
-	JpgImageType ImageType = ".jpg"
-	PngImageType ImageType = ".png"
-	SvgImageType ImageType = ".svg"
+	JpgImageType     ImageType = ".jpg"
+	PngImageType     ImageType = ".png"
+	SvgImageType     ImageType = ".svg"
+	UnknownImageType ImageType = "unknown"
+
+	MaxImageMemorySize = 2 * (1024 * 1024)
 )
 
 type PathType string
 
 const (
-	FilePathAdvantages  PathType = "/images/advantages"
-	FilePathStaysImages PathType = "/images/stays_images"
+	FilePathAdvantages         PathType = "/images/advantages"
+	FilePathStaysImages        PathType = "/images/stays_images"
+	FilePathUsersReportsImages PathType = "/images/users_reports_images"
+	FilePathStaysReportsImages PathType = "/images/stays_reports_images"
 )
 
 type Service struct{}

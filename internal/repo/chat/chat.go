@@ -47,6 +47,28 @@ func (r *Repo) GetChatsByUserID(ctx context.Context, userID string) ([]*chat.Cha
 	return chats, rows.Err()
 }
 
+func (r *Repo) GetChatByChatID(ctx context.Context, chatID string) (*chat.Chat, error) {
+	const op = "repo.chat.GetChatByChatID"
+
+	query := `
+        SELECT chat_id, stay_owner_id, stay_user_id, operator_id, created_at, updated_at
+        FROM chat WHERE chat_id = $1
+    `
+
+	row := r.Db.QueryRowContext(ctx, query, chatID)
+
+	var chat chat.Chat
+	err := row.Scan(&chat.ChatID, &chat.StayOwnerID, &chat.StayUserID, &chat.OperatorID, &chat.CreatedAt, &chat.UpdatedAt)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &chat, nil
+}
+
 func (r *Repo) GetOrCreateChatID(ctx context.Context, stayOwnerID, stayUserID string) (*string, error) {
 	const op = "repo.chat.GetOrCreateChatID"
 
@@ -155,6 +177,27 @@ func (r *Repo) SendMessage(ctx context.Context, senderId, receiverId string, msg
 	var createdAt, updatedAt time.Time
 
 	err = insertStmt.QueryRowContext(ctx, messageID, chatId, receiverId, msg.Text, msg.Media).Scan(&createdAt, &updatedAt)
+	if err != nil {
+		return fmt.Errorf("%s: failed to insert message: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) SendMessageInChat(ctx context.Context, chatId, senderId string, msg message.Entity) error {
+	const op = "repo.chat.SendMessageInChat"
+
+	messageID, err := uuid.NewV4()
+	if err != nil {
+		return fmt.Errorf("%s: failed to generate UUID: %w", op, err)
+	}
+
+	query := `
+		INSERT INTO message (id, chat_id, user_id, text, media)
+		VALUES ($1, $2, $3, $4, $5)
+	`
+
+	_, err = r.Db.ExecContext(ctx, query, messageID, chatId, senderId, msg.Text, msg.Media)
 	if err != nil {
 		return fmt.Errorf("%s: failed to insert message: %w", op, err)
 	}

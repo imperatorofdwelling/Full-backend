@@ -163,5 +163,6 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
+
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
 }

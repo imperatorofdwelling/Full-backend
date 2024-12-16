@@ -1,17 +1,19 @@
 package usersreports
 
 import (
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
+	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 )
 
 type Handler struct {
@@ -31,19 +33,22 @@ func (h *Handler) NewUsersReportsHandler(r chi.Router) {
 	})
 }
 
-// CreateUsersReports creates a report for a user
-// @Summary Create User Report
-// @Description Creates a new report on a user by another user
-// @Tags UsersReports
-// @Accept json
-// @Produce json
-// @Param toBlameId path string true "ID of the user being reported"
-// @Param body body map[string]string true "Report content with title and description"
-// @Success 201 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 401 {object} map[string]string
-// @Failure 500 {object} map[string]string
-// @Router /user/report/create/{toBlameId} [post]
+// CreateUsersReports creates a new user report.
+//
+// @Summary      Create a new user report
+// @Description  Creates a user report with an optional image and necessary details such as title and description.
+// @Tags         User Reports
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        toBlameId  path      string                true   "ID of the user being reported"
+// @Param        title      formData  string                true   "Title of the report"
+// @Param        description formData string                true   "Description of the report"
+// @Param        image      formData  file                  false  "Optional image file (JPEG or PNG)"
+// @Success      201        {object}  map[string]string     "Message confirming successful creation"
+// @Failure      400        {object}  map[string]string     "Invalid input, missing fields, or unsupported image type"
+// @Failure      401        {object}  map[string]string     "Unauthorized, user not logged in"
+// @Failure      500        {object}  map[string]string     "Internal server error"
+// @Router       /user/report/{toBlameId} [post]
 func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.CreateUsersReports"
 
@@ -60,22 +65,52 @@ func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 	}
 	toBlameID := chi.URLParam(r, "toBlameId")
 
-	var reqBody map[string]string
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		h.Log.Error("failed to decode request body", slogError.Err(errors.Wrap(err, "decoding error")))
+	// Restrict request body size
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
+
+	// Parse multipart form
+	err := r.ParseMultipartForm(file.MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
-	title, okTitle := reqBody["title"]
-	description, okDescription := reqBody["description"]
-	if !okTitle || !okDescription {
-		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
+	// Extracting image file
+	image, hdl, err := r.FormFile("image")
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+	defer image.Close()
+
+	// Validate content type
+	contentType := hdl.Header.Get("Content-Type")
+	if !(strings.Contains(contentType, "image/jpeg") || strings.Contains(contentType, "image/png")) {
+		h.Log.Error("unsupported content type", slogError.Err(handler.ErrInvalidImageType))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageType))
+		return
+	}
+
+	// Read image into buffer
+	buf := make([]byte, hdl.Size)
+	n, err := image.Read(buf)
+	if err != nil {
+		h.Log.Error("failed to read image", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+	if title == "" || description == "" {
+		h.Log.Error("title and description are required", slogError.Err(errors.New("missing fields")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
 
-	if err := h.Svc.CreateUsersReports(r.Context(), userID, toBlameID, title, description); err != nil {
+	if err = h.Svc.CreateUsersReports(r.Context(), userID, toBlameID, title, description, buf[:n]); err != nil {
 		h.Log.Error("service failed to create user report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
@@ -118,19 +153,61 @@ func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, reports)
 }
 
+// GetUsersReportById handles fetching a user's report by its ID.
+//
+// @Summary      Get a user's report by ID
+// @Description  Retrieve detailed information about a specific user's report by its unique ID.
+// @Tags         UsersReports
+// @Accept       json
+// @Produce      json
+// @Param        reportId   path      string  true  "Report ID"
+// @Success      200        {object} map[string]interface{} "Successful response containing user report data"
+// @Failure      401        {object} map[string]string "Unauthorized: User not logged in"
+// @Failure      500        {object} map[string]string "Internal Server Error"
+// @Security     ApiKeyAuth
+// @Router       /users/report/{reportId} [get]
+func (h *Handler) GetUsersReportById(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.UsersReports.GetUsersReportById"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		return
+	}
+
+	reportId := chi.URLParam(r, "reportId")
+
+	reports, err := h.Svc.GetUsersReportById(r.Context(), userID, reportId)
+	if err != nil {
+		h.Log.Error("service failed to fetch user report", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "failed to fetch user reports")))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, reports)
+}
+
 // UpdateUsersReports updates a user report
 // @Summary Update User Report
-// @Description Updates an existing report for a specified user
+// @Description Updates specific fields (title, description, or image) of an existing user report
 // @Tags UsersReports
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
 // @Param reportId path string true "ID of the report to update"
-// @Param body body map[string]string true "Report content with title and description"
+// @Param title formData string false "New title for the report"
+// @Param description formData string false "New description for the report"
+// @Param image formData file false "Optional new image file (JPEG or PNG)"
 // @Success 200 {object} usersreports.UsersReportEntity "Updated user report object"
 // @Failure 400 {object} responseApi.ResponseError "Invalid request"
 // @Failure 401 {object} responseApi.ResponseError "Unauthorized"
 // @Failure 500 {object} responseApi.ResponseError "Internal server error"
-// @Router /user/report/{reportId} [put]
+// @Router /user/report/{reportId} [patch]
 func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.UpdateUsersReports"
 
@@ -145,24 +222,49 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return
 	}
-	toBlameID := chi.URLParam(r, "reportId")
+	reportId := chi.URLParam(r, "reportId")
 
-	var reqBody map[string]string
-	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
-		h.Log.Error("failed to decode request body", slogError.Err(errors.Wrap(err, "decoding error")))
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
+
+	if err := r.ParseMultipartForm(file.MaxImageMemorySize); err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
 
-	title, okTitle := reqBody["title"]
-	description, okDescription := reqBody["description"]
-	if !okTitle || !okDescription {
-		h.Log.Error("body params errors", slogError.Err(errors.New("body errors")))
+	var imageData []byte
+	image, hdl, err := r.FormFile("image")
+	if err == nil {
+		defer image.Close()
+
+		imgContentType := hdl.Header.Get("Content-Type")
+		if !(strings.Contains(imgContentType, "image/jpeg") || strings.Contains(imgContentType, "image/png")) {
+			h.Log.Error("unsupported content type", slogError.Err(handler.ErrInvalidImageType))
+			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageType))
+			return
+		}
+
+		imageData, err = io.ReadAll(image)
+		if err != nil {
+			h.Log.Error("failed to read image", slogError.Err(err))
+			responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+			return
+		}
+	} else if !errors.Is(err, http.ErrMissingFile) {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	title := r.FormValue("title")
+	description := r.FormValue("description")
+	if title == "" || description == "" {
+		h.Log.Error("body params errors", slogError.Err(errors.New("title and description are required")))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("title and description are required")))
 		return
 	}
 
-	report, err := h.Svc.UpdateUsersReports(r.Context(), userID, toBlameID, title, description)
+	report, err := h.Svc.UpdateUsersReports(r.Context(), userID, reportId, title, description, imageData)
 	if err != nil {
 		h.Log.Error("service failed to update user report", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))

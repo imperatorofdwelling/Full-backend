@@ -1,16 +1,18 @@
 package chat
 
 import (
-	"context"
 	"errors"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/gofrs/uuid"
-	"github.com/imperatorofdwelling/Full-backend/internal/config"
+	"github.com/gorilla/websocket"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -302,4 +304,249 @@ func TestChatHandler_SendMessage_Success(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
+}
+
+func TestHandleWebSocket_(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	mockService := mocks.ChatService{}
+	cm := connectionmanager.NewConnectionManager()
+	hdl := Handler{
+		Svc: &mockService,
+		Cm:  cm,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	router.Get("/chat/ws/{chatId}", hdl.HandleWebSocket)
+
+	t.Run("should successfully handle websocket connection", func(t *testing.T) {
+		validToken := "your-valid-token"
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/123?token="+validToken, nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+}
+
+func TestHandleWebSocket_ValidToken(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	mockService := mocks.ChatService{}
+	cm := connectionmanager.NewConnectionManager()
+	hdl := Handler{
+		Svc: &mockService,
+		Cm:  cm,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	token := generateValidToken(t)
+
+	invalidTokenWithoutUserID := generateTokenWithoutUserID()
+
+	router.Get("/chat/ws/{chatId}", hdl.HandleWebSocket)
+
+	t.Run("should successfully upgrade http to websocket", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/123?token="+token, nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+	})
+
+	t.Run("should return error with empty token", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/123?token=", nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+	t.Run("should return error without empty token", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/123?token="+invalidTokenWithoutUserID, nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+
+}
+
+func TestHandleWebSocket_Success(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	mockService := mocks.ChatService{}
+	cm := connectionmanager.NewConnectionManager()
+	hdl := Handler{
+		Svc: &mockService,
+		Cm:  cm,
+		Log: log,
+	}
+	router := chi.NewRouter()
+
+	token := generateValidToken(t)
+
+	router.Get("/chat/ws/{chatId}", hdl.HandleWebSocket)
+
+	t.Run("should successfully handle websocket connection", func(t *testing.T) {
+
+		chatId := "asdasdasdasd"
+		messages := []*message.Entity{
+			{Text: "Hello World"},
+			{Text: "How are you?"},
+		}
+
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/"+chatId+"?token="+token, nil)
+		req.Header.Set("Connection", "Upgrade")
+		req.Header.Set("Upgrade", "websocket")
+
+		rr := httptest.NewRecorder()
+
+		server := httptest.NewServer(router)
+		defer server.Close()
+
+		url := "ws://" + server.Listener.Addr().String() + "/chat/ws/" + chatId + "?token=" + token
+		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			t.Fatalf("Failed to upgrade connection: %v", err)
+		}
+		defer conn.Close()
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+
+		mockService.On("GetMessagesByChatID", context.Background(), chatId).Return(messages, nil).Once()
+
+	})
+
+	t.Run("should successfully handle websocket connection", func(t *testing.T) {
+
+		chatId := "asdasdasdasd"
+
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/"+chatId+"?token="+token, nil)
+		req.Header.Set("Connection", "Upgrade")
+		req.Header.Set("Upgrade", "websocket")
+
+		rr := httptest.NewRecorder()
+
+		server := httptest.NewServer(router)
+		defer server.Close()
+
+		url := "ws://" + server.Listener.Addr().String() + "/chat/ws/" + chatId + "?token=" + token
+		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			t.Fatalf("Failed to upgrade connection: %v", err)
+		}
+		defer conn.Close()
+
+		assert.Equal(t, http.StatusOK, rr.Code)
+
+		mockService.On("GetMessagesByChatID", context.Background(), chatId).Return(nil, errors.New("messages error")).Once()
+
+	})
+}
+
+func TestHandleWebSocket_MessageHandling_RealManager(t *testing.T) {
+	log := logger.New(logger.EnvLocal)
+	mockService := &mocks.ChatService{}
+	realManager := connectionmanager.NewConnectionManager()
+	hdl := Handler{
+		Svc: mockService,
+		Cm:  realManager,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/chat/ws/{chatId}", hdl.HandleWebSocket)
+
+	mockService.On("SendMessageInChat", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	mockService.On("SendMessageInChat", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(errors.New("Error")).Once()
+
+	t.Run("should successfully process a message", func(t *testing.T) {
+		chatId := "chat-id"
+		token := generateValidToken(t)
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/"+chatId+"?token="+token, nil)
+		req.Header.Set("Connection", "Upgrade")
+		req.Header.Set("Upgrade", "websocket")
+
+		server := httptest.NewServer(router)
+		defer server.Close()
+
+		url := "ws://" + server.Listener.Addr().String() + "/chat/ws/" + chatId + "?token=" + token
+		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			t.Fatalf("Failed to upgrade connection: %v", err)
+		}
+		defer conn.Close()
+
+		mockService.On("GetMessagesByChatID", mock.Anything, mock.Anything).
+			Return([]*message.Entity{}, nil).
+			Once()
+
+		message := "Test message"
+		err = conn.WriteMessage(websocket.TextMessage, []byte(message))
+
+	})
+
+	t.Run("should throw error processing a message", func(t *testing.T) {
+		chatId := "chat-id"
+		token := generateValidToken(t)
+		req := httptest.NewRequest(http.MethodGet, "/chat/ws/"+chatId+"?token="+token, nil)
+		req.Header.Set("Connection", "Upgrade")
+		req.Header.Set("Upgrade", "websocket")
+
+		server := httptest.NewServer(router)
+		defer server.Close()
+
+		url := "ws://" + server.Listener.Addr().String() + "/chat/ws/" + chatId + "?token=" + token
+		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+		if err != nil {
+			t.Fatalf("Failed to upgrade connection: %v", err)
+		}
+		defer conn.Close()
+
+		mockService.On("GetMessagesByChatID", mock.Anything, mock.Anything).
+			Return([]*message.Entity{}, nil).
+			Once()
+
+		message := "Test message"
+		err = conn.WriteMessage(websocket.TextMessage, []byte(message))
+
+	})
+}
+
+func generateValidToken(t *testing.T) string {
+	claims := jwt.MapClaims{
+		"user_id": "61f0c404-5cb3-11e7-907b-a6006ad3dba0",
+		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secretKey := []byte("your-secret-key")
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		t.Fatalf("failed to generate token: %v", err)
+	}
+
+	return tokenString
+}
+
+func generateTokenWithoutUserID() string {
+	claims := jwt.MapClaims{
+		"some_other_claim": "value",
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, _ := token.SignedString([]byte("your-secret-key"))
+	return signedToken
 }

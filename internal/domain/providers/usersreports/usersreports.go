@@ -42,10 +42,11 @@ func ProvideUsersReportHandler(svc interfaces.UsersReportsService, log *slog.Log
 	return hdl
 }
 
-func ProvideUsersReportService(repo interfaces.UsersReportsRepo) *usersReportSvc.Service {
+func ProvideUsersReportService(repo interfaces.UsersReportsRepo, fileSvc interfaces.FileService) *usersReportSvc.Service {
 	svcOnce.Do(func() {
 		svc = &usersReportSvc.Service{
-			Repo: repo,
+			Repo:    repo,
+			FileSvc: fileSvc,
 		}
 	})
 	return svc

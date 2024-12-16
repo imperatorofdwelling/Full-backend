@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
 
@@ -13,7 +14,7 @@ type Repo struct {
 	Db *sql.DB
 }
 
-func (r *Repo) CreateUsersReports(ctx context.Context, userId, toBlameId, title, description string) error {
+func (r *Repo) CreateUsersReports(ctx context.Context, userId, toBlameId, title, description, imagePath string) error {
 	const op = "repo.UsersReports.CreateUsersReports"
 
 	// Generate a new UUID
@@ -28,13 +29,13 @@ func (r *Repo) CreateUsersReports(ctx context.Context, userId, toBlameId, title,
 		return fmt.Errorf("%s: user does not exist: %s", op, toBlameId)
 	}
 
-	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO users_reports (id, user_id, owner_id, title, description, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
+	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO users_reports (id, user_id, owner_id, title, description, report_attach, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, id, userId, toBlameId, title, description)
+	_, err = stmt.ExecContext(ctx, id, userId, toBlameId, title, description, imagePath)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -76,7 +77,40 @@ func (r *Repo) GetAllUsersReports(ctx context.Context, userId string) ([]usersre
 	return reports, nil
 }
 
-func (r *Repo) UpdateUsersReports(ctx context.Context, userId, reportId, title, description string) (*usersreports.UsersReportEntity, error) {
+func (r *Repo) GetUsersReportById(ctx context.Context, userId, id string) (*usersreports.UsersReport, error) {
+	const op = "repo.UsersReports.GetUsersReportById"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, user_id, owner_id, title, description, report_attach, created_at, updated_at FROM users_reports WHERE user_id = $1 AND id = $2")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(ctx, userId, id)
+
+	var report usersreports.UsersReport
+
+	err = row.Scan(
+		&report.ID,
+		&report.UserID,
+		&report.OwnerID,
+		&report.Title,
+		&report.Description,
+		&report.ReportAttach,
+		&report.CreatedAt,
+		&report.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("%s: no report found for user_id %s: %w", op, id, err)
+		}
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &report, nil
+}
+
+func (r *Repo) UpdateUsersReports(ctx context.Context, userId, reportId, title, description, updatedImagePath string) (*usersreports.UsersReportEntity, error) {
 	const op = "repo.UsersReports.UpdateUsersReports"
 	fmt.Printf("userId: %s, reportId: %s\n", userId, reportId)
 
@@ -90,13 +124,13 @@ func (r *Repo) UpdateUsersReports(ctx context.Context, userId, reportId, title, 
 	}
 
 	// Preparing query
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users_reports SET title = $1, description = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 AND user_id = $4")
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users_reports SET title = $1, description = $2, report_attach = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4 AND user_id = $5")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	result, err := stmt.ExecContext(ctx, title, description, reportId, userId)
+	result, err := stmt.ExecContext(ctx, title, description, updatedImagePath, reportId, userId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

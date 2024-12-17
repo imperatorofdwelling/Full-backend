@@ -14,6 +14,7 @@ import (
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/confirmEmail"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
@@ -85,6 +86,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	connectionManager := connectionmanager.NewConnectionManager()
 	chatHandler := chat.ProvideChatHandler(chatService, log, connectionManager)
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler)
+	confirmEmailRepo := confirmEmail.ProvideConfirmEmailRepo(sqlDB)
+	confirmEmailService := confirmEmail.ProvideConfirmEmailService(confirmEmailRepo)
+	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)
 	return serverHTTP, nil
 }

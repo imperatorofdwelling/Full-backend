@@ -11,6 +11,7 @@ import (
 	advProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	authProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	chatProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
+	confirmEmailProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/confirmEmail"
 	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
@@ -46,6 +47,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		usrsReportsProvider.UsersReportsProvideSet,
 		msgProvider.MessageProviderSet,
 		chatProvider.ChatProviderSet,
+		confirmEmailProvider.ProvideSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

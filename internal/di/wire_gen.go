@@ -87,7 +87,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	connectionManager := connectionmanager.NewConnectionManager()
 	chatHandler := chat.ProvideChatHandler(chatService, log, connectionManager)
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
-	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo)
+	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)
 	return serverHTTP, nil

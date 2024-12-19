@@ -30,9 +30,12 @@ type AuthHandler struct {
 
 func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 	r.Group(func(r chi.Router) {
-		r.Use(mw.WithAuth)
 		r.Post("/registration", h.Registration)
 		r.Post("/login", h.LoginUser)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(mw.WithAuth)
 		r.Post("/otp/{otp}", h.ConfirmOTP)
 	})
 }
@@ -184,7 +187,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
 //	@Router			/otp/{otp} [get]
 func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
-	const op = "handler.confirmEmail.ConfirmOTP"
+	const op = "handler.auth.ConfirmOTP"
 
 	h.Log = h.Log.With(
 		slog.String("op", op),

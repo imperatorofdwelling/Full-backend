@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//go:generate mockery --name ConfirmEmailRepository
 type (
 	ConfirmEmailRepository interface {
 		CreateOTP(ctx context.Context, userId string) error
@@ -15,6 +16,7 @@ type (
 	}
 )
 
+//go:generate mockery --name ConfirmEmailService
 type (
 	ConfirmEmailService interface {
 		CreateOTP(ctx context.Context, userID string) error

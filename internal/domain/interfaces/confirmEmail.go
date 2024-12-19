@@ -8,7 +8,7 @@ import (
 //go:generate mockery --name ConfirmEmailRepository
 type (
 	ConfirmEmailRepository interface {
-		CreateOTP(ctx context.Context, userId string) error
+		CreateOTP(ctx context.Context, userId string) (string, error)
 		GetOTP(ctx context.Context, userId string) (string, error)
 		CheckOTPExists(ctx context.Context, userID string) (bool, error)
 		CheckOTPNotExpired(ctx context.Context, userID string) (bool, error)

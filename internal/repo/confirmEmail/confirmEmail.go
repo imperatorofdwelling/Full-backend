@@ -13,7 +13,7 @@ type Repo struct {
 	DB *sql.DB
 }
 
-func (r *Repo) CreateOTP(ctx context.Context, userID string) error {
+func (r *Repo) CreateOTP(ctx context.Context, userID string) (string, error) {
 	const op = "repo.confirmEmail.CreateOTP"
 
 	userOTP := otp.GenerateOTP()
@@ -21,16 +21,16 @@ func (r *Repo) CreateOTP(ctx context.Context, userID string) error {
 
 	stmt, err := r.DB.PrepareContext(ctx, "INSERT INTO email_verifications(user_id, confirmation_code, expires_at) VALUES($1, $2, $3)")
 	if err != nil {
-		return fmt.Errorf("%s: failed to prepare query for inserting OTP: %w", op, err)
+		return "", fmt.Errorf("%s: failed to prepare query for inserting OTP: %w", op, err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, userID, userOTP, expireAt)
 	if err != nil {
-		return fmt.Errorf("%s: failed to execute query for inserting OTP: %w", op, err)
+		return "", fmt.Errorf("%s: failed to execute query for inserting OTP: %w", op, err)
 	}
 
-	return nil
+	return userOTP, nil
 }
 
 func (r *Repo) GetOTP(ctx context.Context, userID string) (string, error) {
@@ -100,8 +100,6 @@ func (r *Repo) UpdateOTP(ctx context.Context, userID string) error {
 
 	newOTP := otp.GenerateOTP()
 	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
-
-	fmt.Println("Я тут")
 
 	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_verifications SET expires_at = $1, confirmation_code = $2 WHERE user_id = $3")
 	if err != nil {

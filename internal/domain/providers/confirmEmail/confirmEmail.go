@@ -43,10 +43,11 @@ func ProvideConfirmEmailHandler(svc interfaces.ConfirmEmailService, log *slog.Lo
 	return hdl
 }
 
-func ProvideConfirmEmailService(repo interfaces.ConfirmEmailRepository) *emailConfService.Service {
+func ProvideConfirmEmailService(confirmEmailRepo interfaces.ConfirmEmailRepository, userRepo interfaces.UserRepository) *emailConfService.Service {
 	svcOnce.Do(func() {
 		svc = &emailConfService.Service{
-			Repo: repo,
+			ConfirmEmailRepo: confirmEmailRepo,
+			UserRepo:         userRepo,
 		}
 	})
 

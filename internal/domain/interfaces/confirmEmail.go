@@ -8,6 +8,7 @@ import (
 type (
 	ConfirmEmailRepository interface {
 		CreateOTP(ctx context.Context, userId string) error
+		GetOTP(ctx context.Context, userId string) (string, error)
 		CheckOTPExists(ctx context.Context, userID string) (bool, error)
 		CheckOTPNotExpired(ctx context.Context, userID string) (bool, error)
 		UpdateOTP(ctx context.Context, userID string) error

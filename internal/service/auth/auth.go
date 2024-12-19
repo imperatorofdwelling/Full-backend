@@ -12,8 +12,9 @@ import (
 )
 
 type Service struct {
-	AuthRepo interfaces.AuthRepository
-	UserRepo interfaces.UserRepository
+	AuthRepo         interfaces.AuthRepository
+	UserRepo         interfaces.UserRepository
+	ConfirmEmailRepo interfaces.ConfirmEmailRepository
 }
 
 func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.UUID, error) {
@@ -65,6 +66,35 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error
 	}
 
 	return id, err
+}
+
+func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.confirmEmail.CheckOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	return nil
 }
 
 func (s *Service) validate(user model.Registration) bool {

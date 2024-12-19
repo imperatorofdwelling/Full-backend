@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -23,6 +24,7 @@ type Handler struct {
 func (h *Handler) NewMessageHandler(r chi.Router) {
 	r.Route("/message", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
 			r.Get("/", h.GetMessagesByUserID)
 			r.Get("/{messageId}", h.GetMessageByMessageID)
 			r.Put("/{messageId}", h.UpdateMessageByID)

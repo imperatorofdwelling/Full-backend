@@ -43,11 +43,12 @@ func ProvideAuthHandler(svc interfaces.AuthService, log *slog.Logger) *authHdl.A
 	return hdl
 }
 
-func ProvideAuthService(authRepo interfaces.AuthRepository, userRepo interfaces.UserRepository) *authSvc.Service {
+func ProvideAuthService(authRepo interfaces.AuthRepository, userRepo interfaces.UserRepository, confirmEmailRepo interfaces.ConfirmEmailRepository) *authSvc.Service {
 	svcOnce.Do(func() {
 		svc = &authSvc.Service{
-			AuthRepo: authRepo,
-			UserRepo: userRepo,
+			AuthRepo:         authRepo,
+			UserRepo:         userRepo,
+			ConfirmEmailRepo: confirmEmailRepo,
 		}
 	})
 

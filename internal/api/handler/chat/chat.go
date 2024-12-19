@@ -11,6 +11,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -35,6 +36,7 @@ type Handler struct {
 
 func (h *Handler) NewChatHandler(r chi.Router) {
 	r.Route("/chat", func(r chi.Router) {
+		r.Use(mw.WithAuth)
 		r.Get("/", h.GetChatsByUserID)
 		r.Get("/{chatId}", h.GetMessagesByChatID)
 		r.Post("/{ownerId}", h.SendMessage)

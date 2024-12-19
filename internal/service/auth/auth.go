@@ -18,7 +18,7 @@ type Service struct {
 }
 
 func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.UUID, error) {
-	const op = "service.user.Registration"
+	const op = "service.auth.Registration"
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
@@ -50,7 +50,7 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 }
 
 func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
-	const op = "service.user.Login"
+	const op = "service.auth.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
 		return uuid.Nil, err
@@ -69,7 +69,15 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error
 }
 
 func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
-	const op = "service.confirmEmail.CheckOTP"
+	const op = "service.auth.CheckOTP"
+
+	isVerified, err := s.AuthRepo.CheckIfUserValidated(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if isVerified {
+		return fmt.Errorf("user is already verified")
+	}
 
 	exist, err := s.ConfirmEmailRepo.CheckOTPExists(ctx, userID)
 	if err != nil {
@@ -92,6 +100,11 @@ func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
 
 	if otpFromDB != otp {
 		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.EmailVerification(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
 	}
 
 	return nil

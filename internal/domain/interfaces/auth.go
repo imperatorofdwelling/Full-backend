@@ -12,6 +12,8 @@ type (
 	AuthRepository interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
+		EmailVerification(ctx context.Context, userId string) error
+		CheckIfUserValidated(ctx context.Context, userId string) (bool, error)
 	}
 )
 

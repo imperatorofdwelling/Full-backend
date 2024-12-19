@@ -13,7 +13,27 @@ type Service struct {
 func (s *Service) CreateOTP(ctx context.Context, userID string) error {
 	const op = "service.confirmEmail.CreateOTP"
 
-	err := s.Repo.CreateOTP(ctx, userID)
+	exist, err := s.Repo.CheckOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.Repo.CheckOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if !expired {
+			return fmt.Errorf("OTP already exists and is not expired")
+		}
+
+		err = s.Repo.UpdateOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to update expired OTP: %w", op, err)
+		}
+		return nil
+	}
+
+	err = s.Repo.CreateOTP(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}

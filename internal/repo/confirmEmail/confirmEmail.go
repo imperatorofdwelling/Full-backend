@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/imperatorofdwelling/Full-backend/pkg/otp"
 	"github.com/pkg/errors"
 	"time"
 )
@@ -15,26 +16,39 @@ type Repo struct {
 func (r *Repo) CreateOTP(ctx context.Context, userID string) error {
 	const op = "repo.confirmEmail.CreateOTP"
 
-	exist, err := r.CheckOTPExists(ctx, userID)
-	if err != nil {
-		return fmt.Errorf("%s : %w", op, err)
-	}
-	if exist {
-		notExpired, err := r.CheckOTPNotExpired(ctx, userID)
-		if err != nil {
-			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
-		}
-		if notExpired {
-			return fmt.Errorf("%s : OTP already exists and is not expired", op)
-		}
+	userOTP := otp.GenerateOTP()
+	expireAt := time.Now().UTC().Add(5 * time.Minute)
 
-		err = r.UpdateOTP(ctx, userID)
-		if err != nil {
-			return fmt.Errorf("%s : failed to update expired OTP: %w", op, err)
-		}
+	stmt, err := r.DB.PrepareContext(ctx, "INSERT INTO email_verifications(user_id, confirmation_code, expires_at) VALUES($1, $2, $3)")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query for inserting OTP: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userID, userOTP, expireAt)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute query for inserting OTP: %w", op, err)
 	}
 
 	return nil
+}
+
+func (r *Repo) GetOTP(ctx context.Context, userID string) (string, error) {
+	const op = "repo.confirmEmail.GetOTP"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT confirmation_code FROM email_verifications WHERE user_id = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to prepare query for getting OTP: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var code string
+	err = stmt.QueryRowContext(ctx, userID).Scan(&code)
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to execute query for getting OTP: %w", op, err)
+	}
+
+	return code, nil
 }
 
 func (r *Repo) CheckOTPExists(ctx context.Context, userID string) (bool, error) {
@@ -61,7 +75,7 @@ func (r *Repo) CheckOTPExists(ctx context.Context, userID string) (bool, error) 
 func (r *Repo) CheckOTPNotExpired(ctx context.Context, userID string) (bool, error) {
 	const op = "repo.confirmEmail.CheckOTPNotExpired"
 
-	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM email_verifications where id = $1")
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM email_verifications where user_id = $1")
 	if err != nil {
 		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
 	}
@@ -73,25 +87,29 @@ func (r *Repo) CheckOTPNotExpired(ctx context.Context, userID string) (bool, err
 		return false, fmt.Errorf("%s: failed to query expires_at: %w", op, err)
 	}
 
-	if time.Now().After(expiresAt) {
-		return false, nil
-	}
+	// For checking purposes
+	// fmt.Println(time.Now().UTC())
+	// fmt.Println(expiresAt.UTC())
+	// fmt.Println(time.Now().UTC().After(expiresAt.UTC()))
 
-	return true, nil
+	return time.Now().UTC().After(expiresAt.UTC()), nil
 }
 
 func (r *Repo) UpdateOTP(ctx context.Context, userID string) error {
 	const op = "repo.confirmEmail.UpdateOTP"
 
-	newExpiresAt := time.Now().Add(5 * time.Minute)
+	newOTP := otp.GenerateOTP()
+	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
 
-	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_verifications SET expires_at = $1 WHERE user_id = $2")
+	fmt.Println("Я тут")
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_verifications SET expires_at = $1, confirmation_code = $2 WHERE user_id = $3")
 	if err != nil {
 		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, newExpiresAt, userID)
+	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, userID)
 	if err != nil {
 		return fmt.Errorf("%s: failed to execute update: %w", op, err)
 	}

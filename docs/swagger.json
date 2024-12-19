@@ -1202,6 +1202,91 @@
                 }
             }
         },
+        "/otp": {
+            "get": {
+                "description": "Generate a one-time password (OTP) for email confirmation by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "email-confirmation"
+                ],
+                "summary": "Create One-Time Password (OTP)",
+                "responses": {
+                    "200": {
+                        "description": "success in creating otp!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not generate OTP",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/otp/{otp}": {
+            "get": {
+                "description": "Verify the one-time password (OTP) provided by the user for email confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm One-Time Password (OTP)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "One-Time Password (OTP)",
+                        "name": "otp",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP confirmed successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid OTP",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/registration": {
             "post": {
                 "description": "Creates a new user account",

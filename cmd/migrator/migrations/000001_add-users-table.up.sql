@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users
     "name" varchar(255) NOT NULL,
     "password" varchar(255) NOT NULL,
     "email" varchar(255) NOT NULL,
-    is_email_verified BOOLEAN DEFAULT FALSE,
+    "is_email_verified" BOOLEAN DEFAULT FALSE,
     "phone" varchar(255) DEFAULT '',
     "avatar" varchar(255) DEFAULT NULL,
     "birth_date" timestamp DEFAULT NULL,

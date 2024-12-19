@@ -1233,6 +1233,64 @@ paths:
       summary: Update an Existing Message
       tags:
       - messages
+  /otp:
+    get:
+      consumes:
+      - application/json
+      description: Generate a one-time password (OTP) for email confirmation by user
+        ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success in creating otp!
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error - could not generate OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create One-Time Password (OTP)
+      tags:
+      - email-confirmation
+  /otp/{otp}:
+    get:
+      consumes:
+      - application/json
+      description: Verify the one-time password (OTP) provided by the user for email
+        confirmation
+      parameters:
+      - description: One-Time Password (OTP)
+        in: path
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP confirmed successfully!
+          schema:
+            type: string
+        "400":
+          description: Bad Request - invalid OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error - could not verify OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Confirm One-Time Password (OTP)
+      tags:
+      - auth
   /registration:
     post:
       consumes:

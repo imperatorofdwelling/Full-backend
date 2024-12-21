@@ -2,27 +2,12 @@ package sendMail
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"net/smtp"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
 func SimpleEmailSend(userMail, userOTP string) error {
-	projectRoot, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get working directory: %w", err)
-	}
-
-	// Формируем абсолютный путь к .env.mail
-	envFilePath := filepath.Join(projectRoot, ".env.mail")
-
-	err = godotenv.Load(envFilePath)
-	if err != nil {
-		return fmt.Errorf("Error loading .env file: %w", err)
-	}
-
 	smtpUser := os.Getenv("SMTP_USER")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
 
@@ -51,7 +36,7 @@ func SimpleEmailSend(userMail, userOTP string) error {
 		"\r\n" +
 		body)
 
-	err = smtp.SendMail(
+	err := smtp.SendMail(
 		fmt.Sprintf("%s:%s", smtpHost, smtpPort),
 		auth,
 		smtpUser,

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+//go:generate mockery --name FileService
 type FileService interface {
 	UploadImage(img []byte, imgType file.ImageType, filePath file.PathType) (string, error)
 	RemoveFile(fileName string) error

@@ -49,23 +49,23 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 	return userFound.ID, nil
 }
 
-func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, int, error) {
 	const op = "service.auth.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, -1, err
 	}
 
 	if !userExists {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
-	id, err := s.AuthRepo.Login(ctx, user)
+	id, roleID, err := s.AuthRepo.Login(ctx, user)
 	if err != nil {
-		return id, err
+		return id, -1, err
 	}
 
-	return id, err
+	return id, roleID, err
 }
 
 func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {

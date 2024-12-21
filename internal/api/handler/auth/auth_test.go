@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -378,4 +379,115 @@ func TestAuthHandler_LoginUser_ErrorHandling_Internal_Error(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
+}
+
+func TestAuthHandler_ConfirmOTP_UserID_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.ConfirmOTP)
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmOTP_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.ConfirmOTP)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+
+		req = req.WithContext(ctx)
+
+		svc.On("CheckOTP", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmOTP_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.ConfirmOTP)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+
+		req = req.WithContext(ctx)
+
+		svc.On("CheckOTP", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("unexpected error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
 }

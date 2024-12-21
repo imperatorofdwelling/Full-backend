@@ -17,6 +17,52 @@ type AuthRepository struct {
 	mock.Mock
 }
 
+// CheckIfUserValidated provides a mock function with given fields: ctx, userId
+func (_m *AuthRepository) CheckIfUserValidated(ctx context.Context, userId string) (bool, error) {
+	ret := _m.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckIfUserValidated")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, userId)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, userId)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userId)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// EmailVerification provides a mock function with given fields: ctx, userId
+func (_m *AuthRepository) EmailVerification(ctx context.Context, userId string) error {
+	ret := _m.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EmailVerification")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Login provides a mock function with given fields: ctx, user
 func (_m *AuthRepository) Login(ctx context.Context, user auth.Login) (uuid.UUID, error) {
 	ret := _m.Called(ctx, user)

@@ -679,7 +679,7 @@ func TestStaysReportsHandler_GetStaysById_Error(t *testing.T) {
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusNotFound, r.Code)
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 
 }

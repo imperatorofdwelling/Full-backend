@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users
     "gender" varchar(255) DEFAULT '',
     "country" varchar(255) DEFAULT '',
     "city" varchar(255) DEFAULT '',
+    "role_id" INTEGER UNIQUE REFERENCES role(id) ON DELETE CASCADE,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );

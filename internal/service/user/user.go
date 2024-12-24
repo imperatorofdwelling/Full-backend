@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	"github.com/imperatorofdwelling/Full-backend/pkg/sendMail"
 )
 
 type Service struct {
-	Repo interfaces.UserRepository
+	UserRepo         interfaces.UserRepository
+	ConfirmEmailRepo interfaces.ConfirmEmailRepository
 }
 
 func (s *Service) GetUserByID(ctx context.Context, idStr string) (model.User, error) {
@@ -21,7 +24,7 @@ func (s *Service) GetUserByID(ctx context.Context, idStr string) (model.User, er
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	result, err := s.Repo.FindUserByID(ctx, id)
+	result, err := s.UserRepo.FindUserByID(ctx, id)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -36,7 +39,7 @@ func (s *Service) DeleteUserByID(ctx context.Context, idStr string) error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = s.Repo.DeleteUserByID(ctx, id)
+	err = s.UserRepo.DeleteUserByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -51,7 +54,7 @@ func (s *Service) UpdateUserByID(ctx context.Context, idStr string, user model.U
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	oldUser, err := s.Repo.FindUserByID(ctx, id)
+	oldUser, err := s.UserRepo.FindUserByID(ctx, id)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
@@ -61,16 +64,78 @@ func (s *Service) UpdateUserByID(ctx context.Context, idStr string, user model.U
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = s.Repo.UpdateUserByID(ctx, id, user)
+	err = s.UserRepo.UpdateUserByID(ctx, id, user)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, err)
 	}
-	updatedUser, err := s.Repo.FindUserByID(ctx, id)
+	updatedUser, err := s.UserRepo.FindUserByID(ctx, id)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	return updatedUser, nil
+}
+
+func (s *Service) UpdateUserPasswordByEmail(ctx context.Context, newPass newPassword.NewPassword) error {
+	const op = "service.user.UpdateUserPasswordByEmail"
+
+	if err := s.CheckUserPassword(ctx, newPass); err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	userID, err := s.UserRepo.GetUserIDByEmail(ctx, newPass.Email)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.UserRepo.UpdateUserPasswordByID(ctx, uuid.FromStringOrNil(userID), newPass.Password)
+	if err != nil {
+		return fmt.Errorf("%s: failed to update password: %w", op, err)
+	}
+
+	err = s.ConfirmEmailRepo.UpdatePasswordOTPFalse(ctx, newPass.Email)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.NewPassword) error {
+	const op = "service.user.CheckUserPassword"
+
+	isVerified, err := s.ConfirmEmailRepo.CheckPasswordOTPVerified(ctx, newPass.Email)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if !isVerified {
+		return fmt.Errorf("%s: attempt to change password without verifying email", op)
+	}
+
+	tooLong, err := s.ConfirmEmailRepo.CheckPasswordOTPVerifiedForTooLong(ctx, newPass.Email)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if tooLong {
+		err = s.ConfirmEmailRepo.ResetPasswordOTP(ctx, newPass.Email)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		newOTP, err := s.ConfirmEmailRepo.GetPasswordOTP(ctx, newPass.Email)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = sendMail.SimpleEmailSend(newPass.Email, newOTP, "Password Reset")
+		if err != nil {
+			return fmt.Errorf("%s : failed to send email to user: %w", op, err)
+		}
+
+		return fmt.Errorf("%s: previous code expired, we sent you a new one, please approve it again", op)
+	}
+
+	return nil
 }
 
 func (s *Service) stringToUUID(id string) (uuid.UUID, error) {
@@ -91,7 +156,7 @@ func (s *Service) compareUsers(ctx context.Context, oldUser model.User, newUser 
 	if newUser.Email == "" {
 		newUser.Email = oldUser.Email
 	} else {
-		if existEmail, _ := s.Repo.CheckUserExists(ctx, newUser.Email); existEmail {
+		if existEmail, _ := s.UserRepo.CheckUserExists(ctx, newUser.Email); existEmail {
 			return model.User{}, service.ErrEmailAlreadyExists
 		}
 	}

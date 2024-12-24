@@ -16,8 +16,12 @@ type (
 		CheckEmailOTPNotExpired(ctx context.Context, userID string) (bool, error)
 		CheckPasswordOTPExists(ctx context.Context, email string) (bool, error)
 		CheckPasswordOTPNotExpired(ctx context.Context, email string) (bool, error)
+		CheckPasswordOTPVerified(ctx context.Context, email string) (bool, error)
+		CheckPasswordOTPVerifiedForTooLong(ctx context.Context, email string) (bool, error)
 		UpdateEmailOTP(ctx context.Context, userID string) error
 		UpdatePasswordOTP(ctx context.Context, email string) error
+		UpdatePasswordOTPFalse(ctx context.Context, email string) error
+		ResetPasswordOTP(ctx context.Context, email string) error
 	}
 )
 
@@ -26,6 +30,7 @@ type (
 	ConfirmEmailService interface {
 		CreateOTPEmail(ctx context.Context, userID string) error
 		CreateOTPPassword(ctx context.Context, email string) error
+		SendOTPEmail(ctx context.Context, userID, userOTP, title string) error
 	}
 )
 

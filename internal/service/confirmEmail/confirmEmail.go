@@ -39,7 +39,7 @@ func (s *Service) CreateOTPEmail(ctx context.Context, userID string) error {
 			return fmt.Errorf("%s : failed to get OTP: %w", op, err)
 		}
 
-		err = s.sendOTPEmail(ctx, userID, userOTP, "Registration")
+		err = s.SendOTPEmail(ctx, userID, userOTP, "Registration")
 		if err != nil {
 			return fmt.Errorf("%s : failed to send OTP: %w", op, err)
 		}
@@ -52,7 +52,7 @@ func (s *Service) CreateOTPEmail(ctx context.Context, userID string) error {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 
-	err = s.sendOTPEmail(ctx, userID, userOTP, "Registration")
+	err = s.SendOTPEmail(ctx, userID, userOTP, "Registration")
 	if err != nil {
 		return fmt.Errorf("%s : failed to send OTP: %w", op, err)
 	}
@@ -99,7 +99,7 @@ func (s *Service) CreateOTPPassword(ctx context.Context, email string) error {
 			return fmt.Errorf("%s : failed to get OTP: %w", op, err)
 		}
 
-		err = s.sendOTPEmail(ctx, userID, userOTP, "Password Reset")
+		err = s.SendOTPEmail(ctx, userID, userOTP, "Password Reset")
 		if err != nil {
 			return fmt.Errorf("%s : failed to send OTP: %w", op, err)
 		}
@@ -112,7 +112,7 @@ func (s *Service) CreateOTPPassword(ctx context.Context, email string) error {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 
-	err = s.sendOTPEmail(ctx, userID, userOTP, "Password Reset")
+	err = s.SendOTPEmail(ctx, userID, userOTP, "Password Reset")
 	if err != nil {
 		return fmt.Errorf("%s : failed to send OTP: %w", op, err)
 	}
@@ -120,7 +120,7 @@ func (s *Service) CreateOTPPassword(ctx context.Context, email string) error {
 	return nil
 }
 
-func (s *Service) sendOTPEmail(ctx context.Context, userID, userOTP, title string) error {
+func (s *Service) SendOTPEmail(ctx context.Context, userID, userOTP, title string) error {
 	const op = "service.confirmEmail.sendOTPEmail"
 
 	userMail, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))

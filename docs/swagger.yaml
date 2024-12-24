@@ -150,6 +150,26 @@ definitions:
       user_id:
         type: string
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_newPassword.NewPassword:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_passwordOTP.PasswordOTP:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation:
     properties:
       arrived:
@@ -697,6 +717,37 @@ paths:
       tags:
       - WebSocket
       - Chats
+  /confirm/password/otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the one-time password (OTP) provided by the user for password
+        changing
+      parameters:
+      - description: Request body with email and otp
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_passwordOTP.PasswordOTP'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP confirmed successfully!
+          schema:
+            type: string
+        "400":
+          description: Bad Request - invalid OTP or missing fields
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error - could not verify OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Confirm One-Time Password (OTP)
+      tags:
+      - auth
   /contract:
     get:
       consumes:
@@ -806,6 +857,64 @@ paths:
       summary: Update an Existing Contract
       tags:
       - contracts
+  /email/otp:
+    get:
+      consumes:
+      - application/json
+      description: Generate a one-time password (OTP) for email confirmation by user
+        ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success in creating otp for email verification!
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error - could not generate OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Create One-Time Password (OTP)
+      tags:
+      - email-confirmation
+  /email/otp/{otp}:
+    get:
+      consumes:
+      - application/json
+      description: Verify the one-time password (OTP) provided by the user for email
+        confirmation
+      parameters:
+      - description: One-Time Password (OTP)
+        in: path
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP confirmed successfully!
+          schema:
+            type: string
+        "400":
+          description: Bad Request - invalid OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal Server Error - could not verify OTP
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Confirm One-Time Password (OTP)
+      tags:
+      - auth
   /favourites:
     get:
       consumes:
@@ -1233,64 +1342,6 @@ paths:
       summary: Update an Existing Message
       tags:
       - messages
-  /otp:
-    get:
-      consumes:
-      - application/json
-      description: Generate a one-time password (OTP) for email confirmation by user
-        ID
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success in creating otp for email verification!
-          schema:
-            type: string
-        "401":
-          description: Unauthorized - user not logged in
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        "500":
-          description: Internal Server Error - could not generate OTP
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Create One-Time Password (OTP)
-      tags:
-      - email-confirmation
-  /otp/{otp}:
-    get:
-      consumes:
-      - application/json
-      description: Verify the one-time password (OTP) provided by the user for email
-        confirmation
-      parameters:
-      - description: One-Time Password (OTP)
-        in: path
-        name: otp
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OTP confirmed successfully!
-          schema:
-            type: string
-        "400":
-          description: Bad Request - invalid OTP
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        "401":
-          description: Unauthorized - user not logged in
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        "500":
-          description: Internal Server Error - could not verify OTP
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Confirm One-Time Password (OTP)
-      tags:
-      - auth
   /password/otp/{email}:
     get:
       consumes:
@@ -2371,6 +2422,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update a user by ID
+      tags:
+      - users
+  /user/password:
+    put:
+      consumes:
+      - application/json
+      description: Updates the user's password after verifying the OTP and checking
+        its expiration
+      operationId: updateUserPasswordByEmail
+      parameters:
+      - description: User's new password and OTP
+        in: body
+        name: userNewPassword
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_newPassword.NewPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password changed successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request or OTP verification failed
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      summary: Update user password by email
       tags:
       - users
   /user/report/:

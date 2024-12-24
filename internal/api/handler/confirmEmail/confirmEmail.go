@@ -38,7 +38,7 @@ func (h *Handler) NewConfirmEmailHandler(r chi.Router) {
 //	@Success		200	{string}	string	"success in creating otp for email verification!"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - user not logged in"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not generate OTP"
-//	@Router			/otp [get]
+//	@Router			/email/otp [get]
 func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.confirmEmail.CreateOTP"
 

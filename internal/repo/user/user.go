@@ -138,6 +138,23 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	return nil
 }
 
+func (r *Repository) UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, newPassword string) error {
+	const op = "repo.user.UpdateUserPasswordByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newPassword, id.String())
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	const op = "repo.user.DeleteUserByID"
 

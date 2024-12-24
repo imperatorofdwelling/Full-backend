@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
@@ -11,6 +12,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/passwordOTP"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -35,8 +37,12 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 	})
 
 	r.Group(func(r chi.Router) {
+		r.Post("/confirm/password/otp", h.ConfirmPasswordOTP)
+	})
+
+	r.Group(func(r chi.Router) {
 		r.Use(mw.WithAuth)
-		r.Post("/otp/{otp}", h.ConfirmOTP)
+		r.Post("/email/otp/{otp}", h.ConfirmEmailOTP)
 	})
 }
 
@@ -173,7 +179,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
 }
 
-// ConfirmOTP godoc
+// ConfirmEmailOTP godoc
 //
 //	@Summary		Confirm One-Time Password (OTP)
 //	@Description	Verify the one-time password (OTP) provided by the user for email confirmation
@@ -185,9 +191,9 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request - invalid OTP"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - user not logged in"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
-//	@Router			/otp/{otp} [get]
-func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
-	const op = "handler.auth.ConfirmOTP"
+//	@Router			/email/otp/{otp} [get]
+func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmEmailOTP"
 
 	h.Log = h.Log.With(
 		slog.String("op", op),
@@ -203,7 +209,7 @@ func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 
 	otp := chi.URLParam(r, "otp")
 
-	err := h.Svc.CheckOTP(context.Background(), userID, otp)
+	err := h.Svc.CheckEmailOTP(context.Background(), userID, otp)
 	if err != nil {
 		h.Log.Error("failed to check otp", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))
@@ -211,4 +217,47 @@ func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "otp confirmed!")
+}
+
+// ConfirmPasswordOTP godoc
+//
+//		@Summary		Confirm One-Time Password (OTP)
+//		@Description	Verify the one-time password (OTP) provided by the user for password changing
+//		@Tags			auth
+//		@Accept			json
+//		@Produce		json
+//	 @Param   		request  body     modelPass.PasswordOTP  true  "Request body with email and otp"
+//		@Success		200		{string}	string	"OTP confirmed successfully!"
+//		@Failure		400		{object}	responseApi.ResponseError	"Bad Request - invalid OTP or missing fields"
+//		@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
+//		@Router			/confirm/password/otp [post]
+func (h *AuthHandler) ConfirmPasswordOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmPasswordOTP"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var req modelPass.PasswordOTP
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid request body")))
+		return
+	}
+
+	if req.Email == "" || req.OTP == "" {
+		h.Log.Error("missing email or otp in request")
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("email and otp are required")))
+		return
+	}
+
+	err := h.Svc.CheckPasswordOTP(context.Background(), req.Email, req.OTP)
+	if err != nil {
+		h.Log.Error("failed to check otp", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "password otp confirmed!")
 }

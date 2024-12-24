@@ -172,6 +172,44 @@ func (r *Repo) CheckPasswordOTPNotExpired(ctx context.Context, email string) (bo
 	return time.Now().UTC().After(expiresAt.UTC()), nil
 }
 
+func (r *Repo) CheckPasswordOTPVerified(ctx context.Context, email string) (bool, error) {
+	const op = "repo.confirmEmail.CheckPasswordOTPVerified"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT is_verified FROM password_verifications where email = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var verified bool
+	err = stmt.QueryRowContext(ctx, email).Scan(&verified)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query verified: %w", op, err)
+	}
+
+	return verified, nil
+}
+
+func (r *Repo) CheckPasswordOTPVerifiedForTooLong(ctx context.Context, email string) (bool, error) {
+	const op = "repo.confirmEmail.CheckPasswordOTPVerified"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM password_verifications where email = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var expiresAt time.Time
+	err = stmt.QueryRowContext(ctx, email).Scan(&expiresAt)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query expires_at: %w", op, err)
+	}
+
+	tenMinutesAgo := time.Now().UTC().Add(-10 * time.Minute)
+
+	return expiresAt.Before(tenMinutesAgo), nil
+}
+
 func (r *Repo) UpdateEmailOTP(ctx context.Context, userID string) error {
 	const op = "repo.confirmEmail.UpdateEmailOTP"
 
@@ -199,6 +237,43 @@ func (r *Repo) UpdatePasswordOTP(ctx context.Context, email string) error {
 	newExpiresAt := time.Now().UTC().Add(2 * time.Minute)
 
 	stmt, err := r.DB.PrepareContext(ctx, "UPDATE password_verifications SET expires_at = $1, confirmation_code = $2 WHERE email = $3")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) UpdatePasswordOTPFalse(ctx context.Context, email string) error {
+	const op = "repo.confirmEmail.UpdatePasswordOTP"
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE password_verifications SET is_verified = false WHERE email = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) ResetPasswordOTP(ctx context.Context, email string) error {
+	const op = "repo.confirmEmail.UpdatePasswordOTP"
+
+	newOTP := otp.GenerateOTP()
+	newExpiresAt := time.Now().UTC().Add(2 * time.Minute)
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE password_verifications SET expires_at = $1, confirmation_code = $2, is_verified = false WHERE email = $3")
 	if err != nil {
 		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
 	}

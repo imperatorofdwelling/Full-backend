@@ -16,7 +16,7 @@ type Repository struct {
 }
 
 func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, error) {
-	const op = "repo.user.CheckUserIfExists"
+	const op = "repo.user.CheckUserExists"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)")
 	if err != nil {
@@ -33,6 +33,24 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 	}
 
 	return exists, nil
+}
+
+func (r *Repository) GetUserIDByEmail(ctx context.Context, email string) (string, error) {
+	const op = "repo.user.GetUserIDByEmail"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while prepating query %w", op, err)
+	}
+	defer stmt.Close()
+
+	var id string
+	err = stmt.QueryRowContext(ctx, email).Scan(&id)
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while executing query %w", op, err)
+	}
+
+	return id, nil
 }
 
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {

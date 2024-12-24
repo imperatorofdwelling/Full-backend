@@ -1228,7 +1228,7 @@ const docTemplate = `{
                 "summary": "Create One-Time Password (OTP)",
                 "responses": {
                     "200": {
-                        "description": "success in creating otp!",
+                        "description": "success in creating otp for email verification!",
                         "schema": {
                             "type": "string"
                         }
@@ -1291,6 +1291,44 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/password/otp/{email}": {
+            "get": {
+                "description": "Generate a one-time password (OTP) for resetting the password using the provided email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "password-reset"
+                ],
+                "summary": "Create One-Time Password (OTP) for Password Reset",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email of the user",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success in creating otp for password reset!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not generate OTP",
                         "schema": {
                             "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
                         }

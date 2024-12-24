@@ -25,6 +25,7 @@ type (
 		CheckOTP(ctx context.Context, userID, otp string) error
 	}
 )
+
 type (
 	AuthHandler interface {
 		Registration(w http.ResponseWriter, r *http.Request)

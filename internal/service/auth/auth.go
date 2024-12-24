@@ -79,12 +79,12 @@ func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
 		return fmt.Errorf("user is already verified")
 	}
 
-	exist, err := s.ConfirmEmailRepo.CheckOTPExists(ctx, userID)
+	exist, err := s.ConfirmEmailRepo.CheckEmailOTPExists(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 	if exist {
-		expired, err := s.ConfirmEmailRepo.CheckOTPNotExpired(ctx, userID)
+		expired, err := s.ConfirmEmailRepo.CheckEmailOTPNotExpired(ctx, userID)
 		if err != nil {
 			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
 		}
@@ -93,7 +93,7 @@ func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
 		}
 	}
 
-	otpFromDB, err := s.ConfirmEmailRepo.GetOTP(ctx, userID)
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailOTP(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

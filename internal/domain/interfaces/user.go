@@ -11,6 +11,7 @@ import (
 type (
 	UserRepository interface {
 		CheckUserExists(ctx context.Context, email string) (bool, error)
+		GetUserIDByEmail(ctx context.Context, email string) (string, error)
 		FindUserByID(ctx context.Context, id uuid.UUID) (user.User, error)
 		UpdateUserByID(ctx context.Context, id uuid.UUID, user user.User) error
 		DeleteUserByID(ctx context.Context, id uuid.UUID) error

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "name" varchar(255) NOT NULL,
     "password" varchar(255) NOT NULL,
-    "email" varchar(255) NOT NULL,
+    "email" varchar(255) NOT NULL UNIQUE,
     "is_email_verified" BOOLEAN DEFAULT FALSE,
     "phone" varchar(255) DEFAULT '',
     "avatar" varchar(255) DEFAULT NULL,

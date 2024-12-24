@@ -53,6 +53,24 @@ func (r *Repository) GetUserIDByEmail(ctx context.Context, email string) (string
 	return id, nil
 }
 
+func (r *Repository) GetUserPasswordByEmail(ctx context.Context, email string) (string, error) {
+	const op = "repo.user.GetUserPasswordByEmail"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT password FROM users WHERE email = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while prepating query %w", op, err)
+	}
+	defer stmt.Close()
+
+	var password string
+	err = stmt.QueryRowContext(ctx, email).Scan(&password)
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while executing query %w", op, err)
+	}
+
+	return password, nil
+}
+
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	const op = "repo.user.FindUserByID"
 

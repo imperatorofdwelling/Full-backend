@@ -13,6 +13,7 @@ type (
 	UserRepository interface {
 		CheckUserExists(ctx context.Context, email string) (bool, error)
 		GetUserIDByEmail(ctx context.Context, email string) (string, error)
+		GetUserPasswordByEmail(ctx context.Context, email string) (string, error)
 		FindUserByID(ctx context.Context, id uuid.UUID) (user.User, error)
 		UpdateUserByID(ctx context.Context, id uuid.UUID, user user.User) error
 		UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, newPassword string) error

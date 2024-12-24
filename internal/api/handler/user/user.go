@@ -236,6 +236,8 @@ func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.R
 		if errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
 		}
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "password changed")

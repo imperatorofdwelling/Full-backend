@@ -153,7 +153,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(service.ErrValid))
 			return
 		}
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(err))
 		return
 	}
 

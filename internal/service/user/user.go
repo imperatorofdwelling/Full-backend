@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
@@ -87,6 +89,20 @@ func (s *Service) UpdateUserPasswordByEmail(ctx context.Context, newPass newPass
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+
+	oldPass, err := s.UserRepo.GetUserPasswordByEmail(ctx, newPass.Email)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	fmt.Println(CompareSHA256Passwords(oldPass, newPass.Password))
+
+	if CompareSHA256Passwords(oldPass, newPass.Password) {
+		return fmt.Errorf("%s: old password is the same as new password", op)
+	}
+
+	hashedPassword := sha256.Sum256([]byte(newPass.Password))
+	newPass.Password = hex.EncodeToString(hashedPassword[:])
 
 	err = s.UserRepo.UpdateUserPasswordByID(ctx, uuid.FromStringOrNil(userID), newPass.Password)
 	if err != nil {
@@ -188,4 +204,9 @@ func (s *Service) compareUsers(ctx context.Context, oldUser model.User, newUser 
 		newUser.UpdatedAt = oldUser.UpdatedAt
 	}
 	return newUser, nil
+}
+
+func CompareSHA256Passwords(hashedPassword, plainPassword string) bool {
+	hash := sha256.Sum256([]byte(plainPassword))
+	return hashedPassword == hex.EncodeToString(hash[:])
 }

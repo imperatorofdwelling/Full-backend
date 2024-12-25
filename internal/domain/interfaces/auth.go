@@ -13,7 +13,8 @@ type (
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 		EmailVerification(ctx context.Context, userId string) error
-		CheckIfUserValidated(ctx context.Context, userId string) (bool, error)
+		PasswordVerification(ctx context.Context, email string) error
+		CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error)
 	}
 )
 
@@ -22,12 +23,15 @@ type (
 	AuthService interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
-		CheckOTP(ctx context.Context, userID, otp string) error
+		CheckEmailOTP(ctx context.Context, userID, otp string) error
+		CheckPasswordOTP(ctx context.Context, email, otp string) error
 	}
 )
+
 type (
 	AuthHandler interface {
 		Registration(w http.ResponseWriter, r *http.Request)
 		LoginUser(w http.ResponseWriter, r *http.Request)
+		ConfirmEmailOTP(w http.ResponseWriter, r *http.Request)
 	}
 )

@@ -47,7 +47,7 @@ func TestHandler_ConfirmEmail_CreateOTP_UserID_Error(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.CreateOTP)
+	router.Get("/otp", hdl.CreateOTPEmail)
 
 	t.Run("should be user id error", func(t *testing.T) {
 		r := httptest.NewRecorder()
@@ -60,7 +60,7 @@ func TestHandler_ConfirmEmail_CreateOTP_UserID_Error(t *testing.T) {
 	})
 }
 
-func TestHandler_ConfirmEmail_CreateOTP_SVC_Success(t *testing.T) {
+func TestHandler_ConfirmEmail_CreateOTPEmail_SVC_Success(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -72,7 +72,7 @@ func TestHandler_ConfirmEmail_CreateOTP_SVC_Success(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.CreateOTP)
+	router.Get("/otp", hdl.CreateOTPEmail)
 
 	testUserID, _ := uuid.NewV4()
 	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -94,7 +94,7 @@ func TestHandler_ConfirmEmail_CreateOTP_SVC_Success(t *testing.T) {
 		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
 		req = req.WithContext(ctx)
 
-		svc.On("CreateOTP", mock.Anything, mock.Anything).Return(nil)
+		svc.On("CreateOTPEmail", mock.Anything, mock.Anything).Return(nil)
 
 		router.ServeHTTP(r, req)
 
@@ -102,7 +102,74 @@ func TestHandler_ConfirmEmail_CreateOTP_SVC_Success(t *testing.T) {
 	})
 }
 
-func TestHandler_ConfirmEmail_CreateOTP_SVC_Error(t *testing.T) {
+func TestHandler_CreateOTPPassword_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	svc := mocks.ConfirmEmailService{}
+
+	log := logger.New()
+
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp/{email}", hdl.CreateOTPPassword)
+
+	testEmail := "test@example.com"
+
+	t.Run("should create OTP successfully", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp/"+testEmail, nil)
+
+		svc.On("CreateOTPPassword", mock.Anything, testEmail).Return(nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+		assert.Contains(t, r.Body.String(), "otp for password reset created!")
+
+		svc.AssertCalled(t, "CreateOTPPassword", mock.Anything, testEmail)
+	})
+
+}
+
+func TestHandler_CreateOTPPassword_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	svc := mocks.ConfirmEmailService{}
+
+	log := logger.New()
+
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp/{email}", hdl.CreateOTPPassword)
+
+	testEmail := "test@example.com"
+
+	t.Run("should handle service error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp/"+testEmail, nil)
+
+		svc.On("CreateOTPPassword", mock.Anything, testEmail).Return(errors.New("service error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+
+		svc.AssertCalled(t, "CreateOTPPassword", mock.Anything, testEmail)
+	})
+
+}
+
+func TestHandler_ConfirmEmail_CreateOTPEmail_SVC_Error(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -114,7 +181,7 @@ func TestHandler_ConfirmEmail_CreateOTP_SVC_Error(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.CreateOTP)
+	router.Get("/otp", hdl.CreateOTPEmail)
 
 	testUserID, _ := uuid.NewV4()
 	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -136,7 +203,7 @@ func TestHandler_ConfirmEmail_CreateOTP_SVC_Error(t *testing.T) {
 		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
 		req = req.WithContext(ctx)
 
-		svc.On("CreateOTP", mock.Anything, mock.Anything).Return(errors.New("error creating otp"))
+		svc.On("CreateOTPEmail", mock.Anything, mock.Anything).Return(errors.New("error creating otp"))
 
 		router.ServeHTTP(r, req)
 

@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
@@ -334,6 +335,219 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 		svc.AssertExpectations(t)
+	})
+}
+
+func TestUserHandler_UpdateUserPasswordByEmail_Payload_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	invalidJSON := `{"Email": "something@example.com", "Password": 123}`
+
+	emptyPayload := newPassword.NewPassword{
+		Email: "",
+	}
+
+	emptyPayloadBytes, err := json.Marshal(emptyPayload)
+	if err != nil {
+		t.Fatalf("Failed to marshal empty payload: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Put("/password", hdl.UpdateUserPasswordByEmail)
+
+	t.Run("should return bad request for invalid JSON payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader([]byte(invalidJSON)))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return bad request for nil payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return bad request for empty values in payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader(emptyPayloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserPasswordByEmail_CheckUserPassword_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	payloadFull := newPassword.NewPassword{
+		Email:    "something@example.com",
+		Password: "something",
+	}
+
+	payloadBytesFull, err := json.Marshal(payloadFull)
+
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Put("/password", hdl.UpdateUserPasswordByEmail)
+
+	t.Run("should return error while checking CheckUserPassword svc", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader(payloadBytesFull))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("CheckUserPassword", mock.Anything, mock.Anything).Return(errors.New("CheckUserPassword_SVC_Error")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserPasswordByEmail_UpdateUserPasswordByEmail_SVC_Error_Internal(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	payloadFull := newPassword.NewPassword{
+		Email:    "something@example.com",
+		Password: "something",
+	}
+
+	payloadBytesFull, err := json.Marshal(payloadFull)
+
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Put("/password", hdl.UpdateUserPasswordByEmail)
+
+	t.Run("should return internal server error on svc UpdateUserPasswordByEmail", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader(payloadBytesFull))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("CheckUserPassword", mock.Anything, mock.Anything).Return(nil).Once()
+		svc.On("UpdateUserPasswordByEmail", mock.Anything, mock.Anything).Return(errors.New("update user password error")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserPasswordByEmail_UpdateUserPasswordByEmail_SVC_Error_ErrNotFound(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	payloadFull := newPassword.NewPassword{
+		Email:    "something@example.com",
+		Password: "something",
+	}
+
+	payloadBytesFull, err := json.Marshal(payloadFull)
+
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Put("/password", hdl.UpdateUserPasswordByEmail)
+
+	t.Run("should return internal server error on svc UpdateUserPasswordByEmail", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader(payloadBytesFull))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("CheckUserPassword", mock.Anything, mock.Anything).Return(nil).Once()
+		svc.On("UpdateUserPasswordByEmail", mock.Anything, mock.Anything).Return(service.ErrNotFound).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusNotFound, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserPasswordByEmail_UpdateUserPasswordByEmail_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	payloadFull := newPassword.NewPassword{
+		Email:    "something@example.com",
+		Password: "something",
+	}
+
+	payloadBytesFull, err := json.Marshal(payloadFull)
+
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	router := chi.NewRouter()
+	router.Put("/password", hdl.UpdateUserPasswordByEmail)
+
+	t.Run("should return status ok", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPut, "/password", bytes.NewReader(payloadBytesFull))
+		req.Header.Set("Content-Type", "application/json")
+
+		svc.On("CheckUserPassword", mock.Anything, mock.Anything).Return(nil).Once()
+		svc.On("UpdateUserPasswordByEmail", mock.Anything, mock.Anything).Return(nil).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
 	})
 }
 

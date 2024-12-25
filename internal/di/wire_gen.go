@@ -43,7 +43,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	repo := confirmEmail.ProvideConfirmEmailRepo(sqlDB)
 	service := auth.ProvideAuthService(repository, userRepository, repo)
 	authHandler := auth.ProvideAuthHandler(service, log)
-	userService := user.ProvideUserService(userRepository)
+	userService := user.ProvideUserService(userRepository, repo)
 	userHandler := user.ProvideUserHandler(userService, log)
 	locationRepo := providers.ProvideLocationRepository(sqlDB)
 	locationService := providers.ProvideLocationService(locationRepo)

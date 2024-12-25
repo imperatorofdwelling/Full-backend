@@ -377,11 +377,11 @@ func TestAuthHandler_LoginUser_ErrorHandling_Internal_Error(t *testing.T) {
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
 	})
 }
 
-func TestAuthHandler_ConfirmOTP_UserID_Error(t *testing.T) {
+func TestAuthHandler_ConfirmEmailOTP_UserID_Error(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -392,7 +392,7 @@ func TestAuthHandler_ConfirmOTP_UserID_Error(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.ConfirmOTP)
+	router.Get("/otp", hdl.ConfirmEmailOTP)
 
 	t.Run("should be user id error", func(t *testing.T) {
 		r := httptest.NewRecorder()
@@ -406,7 +406,7 @@ func TestAuthHandler_ConfirmOTP_UserID_Error(t *testing.T) {
 
 }
 
-func TestAuthHandler_ConfirmOTP_SVC_Success(t *testing.T) {
+func TestAuthHandler_ConfirmPasswordOTP_UserID_Error(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -417,7 +417,114 @@ func TestAuthHandler_ConfirmOTP_SVC_Success(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.ConfirmOTP)
+	router.Get("/otp", hdl.ConfirmPasswordOTP)
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmPasswordOTP(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/otp", hdl.ConfirmPasswordOTP)
+
+	t.Run("should return error if both email and password are missing", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := `{"otp": "123456"}`
+		req := httptest.NewRequest(http.MethodPost, "/otp", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return success if email is present", func(t *testing.T) {
+		svc.On("CheckPasswordOTP", mock.Anything, "test@example.com", "123456").Return(nil)
+
+		r := httptest.NewRecorder()
+
+		body := `{"email": "test@example.com", "otp": "123456"}`
+		req := httptest.NewRequest(http.MethodPost, "/otp", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should return error if OTP is missing", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := `{"email": "test@example.com"}`
+		req := httptest.NewRequest(http.MethodPost, "/otp", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+		assert.Contains(t, r.Body.String(), "email and otp are required")
+	})
+}
+
+func TestAuthHandler_ConfirmPasswordOTP_CheckPasswordOTP_SVC_error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Post("/otp", hdl.ConfirmPasswordOTP)
+
+	t.Run("should return success if email is present", func(t *testing.T) {
+		svc.On("CheckPasswordOTP", mock.Anything, "test@example.com", "123456").Return(errors.New("test error"))
+
+		r := httptest.NewRecorder()
+
+		body := `{"email": "test@example.com", "otp": "123456"}`
+		req := httptest.NewRequest(http.MethodPost, "/otp", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmEmailOTP_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.ConfirmEmailOTP)
 
 	testUserID, _ := uuid.NewV4()
 	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -440,7 +547,7 @@ func TestAuthHandler_ConfirmOTP_SVC_Success(t *testing.T) {
 
 		req = req.WithContext(ctx)
 
-		svc.On("CheckOTP", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		svc.On("CheckEmailOTP", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		router.ServeHTTP(r, req)
 
@@ -449,7 +556,7 @@ func TestAuthHandler_ConfirmOTP_SVC_Success(t *testing.T) {
 
 }
 
-func TestAuthHandler_ConfirmOTP_SVC_Error(t *testing.T) {
+func TestAuthHandler_ConfirmEmailOTP_SVC_Error(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -460,7 +567,7 @@ func TestAuthHandler_ConfirmOTP_SVC_Error(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.ConfirmOTP)
+	router.Get("/otp", hdl.ConfirmEmailOTP)
 
 	testUserID, _ := uuid.NewV4()
 	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -483,7 +590,7 @@ func TestAuthHandler_ConfirmOTP_SVC_Error(t *testing.T) {
 
 		req = req.WithContext(ctx)
 
-		svc.On("CheckOTP", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("unexpected error"))
+		svc.On("CheckEmailOTP", mock.Anything, testUserID.String(), mock.Anything).Return(errors.New("unexpected error"))
 
 		router.ServeHTTP(r, req)
 

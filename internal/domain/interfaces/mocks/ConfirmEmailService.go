@@ -13,17 +13,53 @@ type ConfirmEmailService struct {
 	mock.Mock
 }
 
-// CreateOTP provides a mock function with given fields: ctx, userID
-func (_m *ConfirmEmailService) CreateOTP(ctx context.Context, userID string) error {
+// CreateOTPEmail provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailService) CreateOTPEmail(ctx context.Context, userID string) error {
 	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CreateOTP")
+		panic("no return value specified for CreateOTPEmail")
 	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CreateOTPPassword provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailService) CreateOTPPassword(ctx context.Context, email string) error {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOTPPassword")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SendOTPEmail provides a mock function with given fields: ctx, userID, userOTP, title
+func (_m *ConfirmEmailService) SendOTPEmail(ctx context.Context, userID string, userOTP string, title string) error {
+	ret := _m.Called(ctx, userID, userOTP, title)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendOTPEmail")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(ctx, userID, userOTP, title)
 	} else {
 		r0 = ret.Error(0)
 	}

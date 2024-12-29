@@ -35,12 +35,12 @@ func (h *Handler) NewMessageHandler(r chi.Router) {
 
 // GetMessagesByUserID godoc
 //
-//	@Summary		Get Messages by User ID
+//	@Summary		Get Messages
 //	@Description	Retrieve all messages for a user by their user ID
 //	@Tags			messages
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	map[string]interface{}	"List of messages for the user"
+//	@Success		200	{array}	    message.Entity	"List of messages for the user"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/message [get]
@@ -77,7 +77,7 @@ func (h *Handler) GetMessagesByUserID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			messageId	path		string	true	"The ID of the message"
-//	@Success		200	{object}	map[string]interface{}	"The message details"
+//	@Success		200	{object}	message.Message	"The message details"
 //	@Failure		404	{object}	responseApi.ResponseError	"Message not found"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/message/{messageId} [get]
@@ -157,7 +157,7 @@ func (h *Handler) UpdateMessageByID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			messageId	path		string	true	"The ID of the message"
-//	@Success		204	{object}	map[string]interface{}	"Message deleted successfully"
+//	@Success		204	{object}	string 	"Message deleted successfully"
 //	@Failure		404	{object}	responseApi.ResponseError	"Message not found"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/message/{messageId} [delete]

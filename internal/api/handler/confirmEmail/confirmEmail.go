@@ -32,7 +32,7 @@ func (h *Handler) NewConfirmEmailHandler(r chi.Router) {
 //
 //	@Summary		Create One-Time Password (OTP)
 //	@Description	Generate a one-time password (OTP) for email confirmation by user ID
-//	@Tags			email-confirmation
+//	@Tags			emailConfirmation
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{string}	string	"success in creating otp for email verification!"
@@ -68,7 +68,7 @@ func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Create One-Time Password (OTP) for Password Reset
 //	@Description	Generate a one-time password (OTP) for resetting the password using the provided email
-//	@Tags			password-reset
+//	@Tags			emailConfirmation
 //	@Accept			json
 //	@Produce		json
 //	@Param			email	path		string	true	"Email of the user"

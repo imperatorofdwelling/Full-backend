@@ -41,6 +41,21 @@ definitions:
     - name
     - password
     type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_chat.Chat:
+    properties:
+      chat_id:
+        type: string
+      created_at:
+        type: string
+      operator_id:
+        type: string
+      stay_owner_id:
+        type: string
+      stay_user_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract:
     properties:
       created_at:
@@ -70,17 +85,13 @@ definitions:
       user_id:
         type: string
     type: object
-  github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity:
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse:
     properties:
-      created_at:
+      dateEnd:
+        example: "2023-01-10T00:00:00Z"
         type: string
-      description:
-        type: string
-      stay_id:
-        type: string
-      updated_at:
-        type: string
-      user_id:
+      dateStart:
+        example: "2023-01-01T00:00:00Z"
         type: string
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location:
@@ -141,6 +152,23 @@ definitions:
     type: object
   github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity:
     properties:
+      media:
+        type: string
+      text:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Message:
+    properties:
+      chat_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
       media:
         type: string
       text:
@@ -295,6 +323,60 @@ definitions:
       user_id:
         type: string
     required:
+    - guests
+    - house
+    - location_id
+    - name
+    - number_of_bathrooms
+    - number_of_bedrooms
+    - number_of_beds
+    - price
+    - square
+    - street
+    - type
+    - user_id
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntityFav:
+    properties:
+      city:
+        type: string
+      entrance:
+        type: string
+      floor:
+        type: string
+      guests:
+        type: integer
+      house:
+        type: string
+      id:
+        type: string
+      is_smoking_prohibited:
+        default: false
+        type: boolean
+      location_id:
+        type: string
+      name:
+        type: string
+      number_of_bathrooms:
+        type: integer
+      number_of_bedrooms:
+        type: integer
+      number_of_beds:
+        type: integer
+      price:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      street:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    required:
+    - city
     - guests
     - house
     - location_id
@@ -594,8 +676,9 @@ paths:
         "200":
           description: List of chats for the user
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_chat.Chat'
+            type: array
         "401":
           description: Unauthorized
           schema:
@@ -604,7 +687,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Get Chats by User ID
+      summary: Get Chats
       tags:
       - chats
   /chat/{chatId}:
@@ -624,8 +707,7 @@ paths:
         "200":
           description: List of messages for the chat
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity'
         "404":
           description: Chat not found
           schema:
@@ -658,10 +740,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: Message sent successfully
+          description: Message sent!
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "400":
           description: Bad Request
           schema:
@@ -674,7 +755,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Send a message to a chat
+      summary: Create a message
       tags:
       - chats
   /chat/ws/{chatId}:
@@ -715,8 +796,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Establishes a WebSocket connection for chat
       tags:
-      - WebSocket
-      - Chats
+      - webSocket
   /confirm/password/otp:
     post:
       consumes:
@@ -789,9 +869,7 @@ paths:
         name: request
         required: true
         schema:
-          additionalProperties:
-            type: string
-          type: object
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse'
       produces:
       - application/json
       responses:
@@ -831,9 +909,7 @@ paths:
         name: request
         required: true
         schema:
-          additionalProperties:
-            type: string
-          type: object
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse'
       produces:
       - application/json
       responses:
@@ -880,7 +956,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create One-Time Password (OTP)
       tags:
-      - email-confirmation
+      - emailConfirmation
   /email/otp/{otp}:
     get:
       consumes:
@@ -928,7 +1004,9 @@ paths:
           description: List of favourite stays
           schema:
             items:
-              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_favourite.FavouriteEntity'
+              additionalProperties:
+                $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntityFav'
+              type: object
             type: array
         "401":
           description: User not logged in
@@ -959,9 +1037,7 @@ paths:
         "200":
           description: Successfully removed from favourites
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "401":
           description: User not logged in
           schema:
@@ -990,9 +1066,7 @@ paths:
         "200":
           description: Successfully added to favourites
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "401":
           description: User not logged in
           schema:
@@ -1028,7 +1102,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get Search History
       tags:
-      - search-history
+      - searchHistory
     post:
       consumes:
       - application/json
@@ -1046,9 +1120,7 @@ paths:
         "201":
           description: message
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "400":
           description: Error
           schema:
@@ -1061,9 +1133,9 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Add Search History
+      summary: Create Search History
       tags:
-      - search-history
+      - searchHistory
   /locations:
     get:
       consumes:
@@ -1232,8 +1304,9 @@ paths:
         "200":
           description: List of messages for the user
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity'
+            type: array
         "401":
           description: Unauthorized
           schema:
@@ -1242,7 +1315,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      summary: Get Messages by User ID
+      summary: Get Messages
       tags:
       - messages
   /message/{messageId}:
@@ -1262,8 +1335,7 @@ paths:
         "204":
           description: Message deleted successfully
           schema:
-            additionalProperties: true
-            type: object
+            type: string
         "404":
           description: Message not found
           schema:
@@ -1291,8 +1363,7 @@ paths:
         "200":
           description: The message details
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Message'
         "404":
           description: Message not found
           schema:
@@ -1367,7 +1438,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create One-Time Password (OTP) for Password Reset
       tags:
-      - password-reset
+      - emailConfirmation
   /registration:
     post:
       consumes:
@@ -1420,7 +1491,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get all stay reports
       tags:
-      - stays-reports
+      - staysReports
   /report/{reportId}:
     delete:
       description: Deletes a specific stay report by report ID
@@ -1434,9 +1505,7 @@ paths:
         "200":
           description: '{"message": "Stay report was deleted"}'
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "401":
           description: '{"error": "user not logged in"}'
           schema:
@@ -1447,7 +1516,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete a stay report
       tags:
-      - stays-reports
+      - staysReports
     patch:
       consumes:
       - multipart/form-data
@@ -1492,7 +1561,34 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Partially update a stay report
       tags:
-      - stays-reports
+      - staysReports
+  /report/{stayId}:
+    get:
+      description: Fetches a specific stay report associated with the logged-in user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved stay report object
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "404":
+          description: '{"error": "report not found"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+        "500":
+          description: '{"error": "could not fetch report"}'
+          schema:
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve stay report by user ID
+      tags:
+      - staysReports
   /report/create/{stayId}:
     post:
       consumes:
@@ -1515,9 +1611,10 @@ paths:
         name: description
         required: true
         type: string
-      - description: Optional image file (JPEG or PNG)
+      - description: image file (JPEG or PNG)
         in: formData
         name: image
+        required: true
         type: file
       produces:
       - application/json
@@ -1525,9 +1622,7 @@ paths:
         "201":
           description: Confirmation message
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "400":
           description: Error message for invalid input or unsupported image type
           schema:
@@ -1550,7 +1645,7 @@ paths:
       - ApiKeyAuth: []
       summary: Create a new stay report
       tags:
-      - StaysReports
+      - staysReports
   /reservation/{reservationID}:
     delete:
       consumes:
@@ -1734,33 +1829,6 @@ paths:
       summary: Get all stays
       tags:
       - stays
-  /stays-reports:
-    get:
-      description: Fetches a specific stay report associated with the logged-in user.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Retrieved stay report object
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport'
-        "401":
-          description: '{"error": "user not logged in"}'
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        "404":
-          description: '{"error": "report not found"}'
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-        "500":
-          description: '{"error": "could not fetch report"}'
-          schema:
-            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Retrieve stay report by user ID
-      tags:
-      - stays-reports
   /stays/{stayId}:
     delete:
       consumes:
@@ -2470,24 +2538,19 @@ paths:
           description: OK
           schema:
             items:
-              additionalProperties: true
-              type: object
+              $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity'
             type: array
         "401":
-          description: Unauthorized
+          description: '{"error": "user not logged in"}'
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
-          description: Internal Server Error
+          description: '{"error": "could not get reports"}'
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Get All User Reports
       tags:
-      - UsersReports
+      - usersReports
   /user/report/{reportId}:
     delete:
       description: Deletes a specified report created by a user
@@ -2501,26 +2564,20 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User report was deleted
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Delete User Report
       tags:
-      - UsersReports
+      - usersReports
     patch:
       consumes:
       - multipart/form-data
@@ -2540,9 +2597,10 @@ paths:
         in: formData
         name: description
         type: string
-      - description: Optional new image file (JPEG or PNG)
+      - description: New image file (JPEG or PNG)
         in: formData
         name: image
+        required: true
         type: file
       produces:
       - application/json
@@ -2565,7 +2623,7 @@ paths:
             $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Update User Report
       tags:
-      - UsersReports
+      - usersReports
   /user/report/{toBlameId}:
     post:
       consumes:
@@ -2591,6 +2649,7 @@ paths:
       - description: Optional image file (JPEG or PNG)
         in: formData
         name: image
+        required: true
         type: file
       produces:
       - application/json
@@ -2598,30 +2657,22 @@ paths:
         "201":
           description: Message confirming successful creation
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "400":
           description: Invalid input, missing fields, or unsupported image type
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "401":
           description: Unauthorized, user not logged in
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
           description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       summary: Create a new user report
       tags:
-      - User Reports
+      - usersReports
   /users/report/{reportId}:
     get:
       consumes:
@@ -2640,23 +2691,18 @@ paths:
         "200":
           description: Successful response containing user report data
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity'
         "401":
           description: 'Unauthorized: User not logged in'
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError'
       security:
       - ApiKeyAuth: []
       summary: Get a user's report by ID
       tags:
-      - UsersReports
+      - usersReports
 swagger: "2.0"

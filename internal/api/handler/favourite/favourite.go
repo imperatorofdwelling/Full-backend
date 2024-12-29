@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	stays2 "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -39,7 +39,7 @@ func (h *FavHandler) NewFavouriteHandler(r chi.Router) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId		path		string		true	"ID of the stay to be added to favourites"
-//	@Success		200		{object}		map[string]string	"Successfully added to favourites"
+//	@Success		200		{object}	string	"Successfully added to favourites"
 //	@Failure		401		{object}	responseApi.ResponseError	"User not logged in"
 //	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/favourites/{stayId} [post]
@@ -78,7 +78,7 @@ func (h *FavHandler) AddFavourite(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			stayId		path		string		true	"ID of the stay to be removed from favourites"
-//	@Success		200		{object}		map[string]string	"Successfully removed from favourites"
+//	@Success		200		{object}	string	"Successfully removed from favourites"
 //	@Failure		401		{object}	responseApi.ResponseError	"User not logged in"
 //	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/favourites/{stayId} [delete]
@@ -116,7 +116,7 @@ func (h *FavHandler) RemoveFavourite(w http.ResponseWriter, r *http.Request) {
 //	@Tags			favourites
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200		{array}		favourite.FavouriteEntity	"List of favourite stays"
+//	@Success		200		{array}		map[string]stays2.StayEntityFav	"List of favourite stays"
 //	@Failure		401		{object}	responseApi.ResponseError	"User not logged in"
 //	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/favourites [get]
@@ -142,15 +142,9 @@ func (h *FavHandler) GetAllFavourites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cityMap := make(map[string][]uuid.UUID)
-
-	for _, fav := range favourites {
-		cityMap[fav.City] = append(cityMap[fav.City], fav.StayID)
-	}
-
-	response := make([]map[string][]uuid.UUID, 0)
-	for city, stays := range cityMap {
-		response = append(response, map[string][]uuid.UUID{city: stays})
+	cityMap := make(map[string][]stays2.StayEntityFav)
+	for _, stay := range favourites {
+		cityMap[stay.City] = append(cityMap[stay.City], stay)
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, cityMap)

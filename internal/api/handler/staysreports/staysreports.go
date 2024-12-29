@@ -29,10 +29,12 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
 			r.Get("/", h.GetAllStaysReports)
+			r.Get("/{stayId}", h.GetStaysReportById)
 			r.Put("/{reportId}", h.UpdateStaysReports)
 			r.Delete("/{reportId}", h.DeleteStaysReports)
 		})
 		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
 			r.Post("/create/{stayId}", h.CreateStaysReports)
 		})
 	})
@@ -42,14 +44,14 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 //
 // @Summary      Create a new stay report
 // @Description  Creates a report for a specific stay, including an optional image and required details like title and description.
-// @Tags         StaysReports
+// @Tags         staysReports
 // @Accept       multipart/form-data
 // @Produce      json
 // @Param        stayId       path      string                true   "ID of the stay being reported"
 // @Param        title        formData  string                true   "Title of the report"
 // @Param        description  formData  string                true   "Description of the report"
-// @Param        image        formData  file                  false  "Optional image file (JPEG or PNG)"
-// @Success      201          {object}  map[string]string     "Confirmation message"
+// @Param        image        formData  file                  true  "image file (JPEG or PNG)"
+// @Success      201          {object}  string   "Confirmation message"
 // @Failure      400          {object}  map[string]string     "Error message for invalid input or unsupported image type"
 // @Failure      401          {object}  map[string]string     "Error message for unauthorized access"
 // @Failure      500          {object}  map[string]string     "Error message for internal server error"
@@ -132,7 +134,7 @@ func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 // GetAllStaysReports handles fetching all stay reports
 // @Summary Get all stay reports
 // @Description Retrieves all stay reports for the authenticated user
-// @Tags stays-reports
+// @Tags staysReports
 // @Produce json
 // @Success 200 {array} staysreports.StaysReportEntity
 // @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
@@ -167,14 +169,14 @@ func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 // GetStaysReportById retrieves a stay report by user ID.
 // @Summary Retrieve stay report by user ID
 // @Description Fetches a specific stay report associated with the logged-in user.
-// @Tags stays-reports
+// @Tags staysReports
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} staysreports.StayReport "Retrieved stay report object"
 // @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
 // @Failure 404 {object} responseApi.ResponseError "{"error": "report not found"}"
 // @Failure 500 {object} responseApi.ResponseError "{"error": "could not fetch report"}"
-// @Router /stays-reports [get]
+// @Router /report/{stayId} [get]
 func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.GetStaysReportById"
 
@@ -212,7 +214,7 @@ func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 // UpdateStaysReports handles partially updating a stay report
 // @Summary Partially update a stay report
 // @Description Updates specific fields of a stay report, such as title, description, or image
-// @Tags stays-reports
+// @Tags staysReports
 // @Accept multipart/form-data
 // @Produce json
 // @Param reportId path string true "Report ID"
@@ -293,9 +295,9 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 // DeleteStaysReports handles deleting a stay report by report ID
 // @Summary Delete a stay report
 // @Description Deletes a specific stay report by report ID
-// @Tags stays-reports
+// @Tags staysReports
 // @Param reportId path string true "Report ID"
-// @Success 200 {object} map[string]string "{"message": "Stay report was deleted"}"
+// @Success 200 {object} string "{"message": "Stay report was deleted"}"
 // @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
 // @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
 // @Router /report/{reportId} [delete]

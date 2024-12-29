@@ -40,7 +40,7 @@ func (h *Handler) NewContractHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
-//	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
+//	@Param			request	body		contracts.ContractResponse	true	"Contract details including dateStart and dateEnd"
 //	@Success		200	{object}	map[string]interface{}	"Updated contract information"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
@@ -148,7 +148,7 @@ func (h *Handler) GetAllContracts(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
-//	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
+//	@Param			request	body		contracts.ContractResponse	true	"Contract details including dateStart and dateEnd"
 //	@Success		201	{object}	map[string]string	"Contract created successfully with message"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"

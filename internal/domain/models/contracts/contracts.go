@@ -25,3 +25,8 @@ type ContractEntity struct {
 	DateStart time.Time
 	DateEnd   time.Time
 }
+
+type ContractResponse struct {
+	DateStart string `json:"dateStart" example:"2023-01-01T00:00:00Z"`
+	DateEnd   string `json:"dateEnd" example:"2023-01-10T00:00:00Z"`
+}

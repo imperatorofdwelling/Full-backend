@@ -35,7 +35,7 @@ func (h *Handler) NewHistorySearchHandler(r chi.Router) {
 //
 //	@Summary		Get Search History
 //	@Description	Get all search history for a user by ID
-//	@Tags			search-history
+//	@Tags			searchHistory
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		searchhistory.SearchHistory	"ok"
@@ -69,13 +69,13 @@ func (h *Handler) GetAllHistoryByUserId(w http.ResponseWriter, r *http.Request) 
 
 // AddHistory godoc
 //
-//	@Summary		Add Search History
+//	@Summary		Create Search History
 //	@Description	Add a new entry to the search history for a user
-//	@Tags			search-history
+//	@Tags			searchHistory
 //	@Accept			json
 //	@Produce		json
 //	@Param			name	body		string	true	"Name of the search history entry"
-//	@Success		201	{object}	map[string]string	"message"
+//	@Success		201	{object}	string	"message"
 //	@Failure		401	{object}	responseApi.ResponseError	"Error"
 //	@Failure		400	{object}	responseApi.ResponseError	"Error"
 //	@Failure		500	{object}	responseApi.ResponseError	"Error"

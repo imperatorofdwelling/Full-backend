@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/chat"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
@@ -46,12 +47,12 @@ func (h *Handler) NewChatHandler(r chi.Router) {
 
 // GetChatsByUserID godoc
 //
-//	@Summary		Get Chats by User ID
+//	@Summary		Get Chats
 //	@Description	Retrieve all chats for a user by their user ID
 //	@Tags			chats
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	map[string]interface{}	"List of chats for the user"
+//	@Success		200	{array}		chat.Chat	"List of chats for the user"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/chat [get]
@@ -88,7 +89,7 @@ func (h *Handler) GetChatsByUserID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			chatId	path		string	true	"The ID of the chat"
-//	@Success		200	{object}	map[string]interface{}	"List of messages for the chat"
+//	@Success		200	{object}	message.Entity	"List of messages for the chat"
 //	@Failure		404	{object}	responseApi.ResponseError	"Chat not found"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
 //	@Router			/chat/{chatId} [get]
@@ -114,14 +115,14 @@ func (h *Handler) GetMessagesByChatID(w http.ResponseWriter, r *http.Request) {
 
 // SendMessage godoc
 //
-//	@Summary		Send a message to a chat
+//	@Summary		Create a message
 //	@Description	Send a message to a specified chat by its owner ID and user ID
 //	@Tags			chats
 //	@Accept			json
 //	@Produce		json
-//	@Param			ownerId	path		string	true	"The ID of the chat owner"
-//	@Param			request	body		message.Entity	true	"Message content to send"
-//	@Success		200	{object}	map[string]interface{}	"Message sent successfully"
+//	@Param			ownerId	path	string	true	"The ID of the chat owner"
+//	@Param			request	body	message.Entity	true	"Message content to send"
+//	@Success		200	{string}	string	"Message sent!"
 //	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
 //	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
 //	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
@@ -165,7 +166,7 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 //
 //	@Summary		Establishes a WebSocket connection for chat
 //	@Description	Handles WebSocket connections, retrieves chat history, and supports real-time messaging.
-//	@Tags			WebSocket, Chats
+//	@Tags			webSocket
 //	@Accept			json
 //	@Produce		json
 //	@Param			token	query		string	true	"JWT Token for authentication"

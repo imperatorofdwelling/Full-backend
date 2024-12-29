@@ -33,6 +33,27 @@ type (
 		Price               float32   `json:"price" validate:"required"`
 	}
 
+	StayEntityFav struct {
+		ID                  uuid.UUID `json:"id"`
+		UserID              uuid.UUID `json:"user_id" validate:"required,uuid"`
+		LocationID          uuid.UUID `json:"location_id" validate:"required,uuid"`
+		Name                string    `json:"name" validate:"required"`
+		Type                StayType  `json:"type" validate:"required"`
+		NumberOfBedrooms    int       `json:"number_of_bedrooms" validate:"required"`
+		NumberOfBeds        int       `json:"number_of_beds" validate:"required"`
+		NumberOfBathrooms   int       `json:"number_of_bathrooms" validate:"required"`
+		Guests              int       `json:"guests" validate:"required"`
+		IsSmokingProhibited bool      `json:"is_smoking_prohibited,omitempty" default:"false"`
+		Square              float32   `json:"square" validate:"required"`
+		Street              string    `json:"street" validate:"required"`
+		House               string    `json:"house" validate:"required"`
+		Entrance            string    `json:"entrance,omitempty"`
+		Floor               string    `json:"floor,omitempty"`
+		Room                string    `json:"room,omitempty"`
+		Price               float32   `json:"price" validate:"required"`
+		City                string    `json:"city" validate:"required"`
+	}
+
 	Stay struct {
 		ID                  uuid.UUID `json:"id"`
 		UserID              uuid.UUID `json:"user_id"`

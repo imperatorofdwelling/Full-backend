@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/usersreports"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
@@ -47,9 +48,9 @@ func (h *Handler) NewUsersReportsHandler(r chi.Router) {
 // @Param        description formData string                true   "Description of the report"
 // @Param        image      formData  file                  true  "Optional image file (JPEG or PNG)"
 // @Success      201        {object}  string    "Message confirming successful creation"
-// @Failure      400        {object}  responseApi.ResponseError    "Invalid input, missing fields, or unsupported image type"
-// @Failure      401        {object}  responseApi.ResponseError    "Unauthorized, user not logged in"
-// @Failure      500        {object}  responseApi.ResponseError    "Internal server error"
+// @Failure      400        {object}  response.ResponseError    "Invalid input, missing fields, or unsupported image type"
+// @Failure      401        {object}  response.ResponseError    "Unauthorized, user not logged in"
+// @Failure      500        {object}  response.ResponseError    "Internal server error"
 // @Router       /user/report/{toBlameId} [post]
 func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.CreateUsersReports"
@@ -127,8 +128,8 @@ func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 // @Tags usersReports
 // @Produce json
 // @Success 200 {array} usersreports.UsersReportEntity
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "could not get reports"}"
+// @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
+// @Failure 500 {object} response.ResponseError "{"error": "could not get reports"}"
 // @Router /user/report/ [get]
 func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.GetAllUsersReports"
@@ -164,8 +165,8 @@ func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 // @Produce      json
 // @Param        reportId   path      string  true  "Report ID"
 // @Success      200        {object} usersreports.UsersReportEntity "Successful response containing user report data"
-// @Failure      401        {object} responseApi.ResponseError  "Unauthorized: User not logged in"
-// @Failure      500        {object} responseApi.ResponseError  "Internal Server Error"
+// @Failure      401        {object} response.ResponseError  "Unauthorized: User not logged in"
+// @Failure      500        {object} response.ResponseError  "Internal Server Error"
 // @Security     ApiKeyAuth
 // @Router       /users/report/{reportId} [get]
 func (h *Handler) GetUsersReportById(w http.ResponseWriter, r *http.Request) {
@@ -206,9 +207,9 @@ func (h *Handler) GetUsersReportById(w http.ResponseWriter, r *http.Request) {
 // @Param description formData string false "New description for the report"
 // @Param image formData file true "New image file (JPEG or PNG)"
 // @Success 200 {object} usersreports.UsersReportEntity "Updated user report object"
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/report/{reportId} [patch]
 func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.UpdateUsersReports"
@@ -283,8 +284,8 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param reportId path string true "ID of the report to delete"
 // @Success 200 {object} string "User report was deleted"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
-// @Failure 500 {object} responseApi.ResponseError
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 500 {object} response.ResponseError
 // @Router /user/report/{reportId} [delete]
 func (h *Handler) DeleteUsersReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.UsersReports.DeleteUsersReports"

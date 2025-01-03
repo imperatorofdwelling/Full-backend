@@ -9,4 +9,4 @@ type Client struct {
 	ID     string
 	Conn   *websocket.Conn
 	ChatID uuid.UUID
-}
+} // @name Client

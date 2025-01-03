@@ -73,7 +73,7 @@ func SetSwaggerDefaultInfo(cfg *Config) {
 	docs.SwaggerInfo.Title = "IOD App API"
 	docs.SwaggerInfo.Description = "API Server for IOD application."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = cfg.Server.Host
+	docs.SwaggerInfo.Host = cfg.Server.Host + ":" + cfg.Server.Port
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 }

@@ -9,7 +9,7 @@ import (
 type ConnectionManager struct {
 	connections map[string]*websocket.Conn // userId -> connection
 	mu          sync.RWMutex               // for safe channels
-}
+} // @name ConnectionManager
 
 func NewConnectionManager() *ConnectionManager {
 	return &ConnectionManager{

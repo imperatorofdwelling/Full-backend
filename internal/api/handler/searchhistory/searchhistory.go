@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/searchhistory"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -39,8 +40,8 @@ func (h *Handler) NewHistorySearchHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		searchhistory.SearchHistory	"ok"
-//	@Failure		401	{object}	responseApi.ResponseError	"Error"
-//	@Failure		500	{object}	responseApi.ResponseError	"Error"
+//	@Failure		401	{object}	response.ResponseError	"Error"
+//	@Failure		500	{object}	response.ResponseError	"Error"
 //	@Router			/history [get]
 func (h *Handler) GetAllHistoryByUserId(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.searchHistory.GetAllHistoryByUserId"
@@ -76,9 +77,9 @@ func (h *Handler) GetAllHistoryByUserId(w http.ResponseWriter, r *http.Request) 
 //	@Produce		json
 //	@Param			name	body		string	true	"Name of the search history entry"
 //	@Success		201	{object}	string	"message"
-//	@Failure		401	{object}	responseApi.ResponseError	"Error"
-//	@Failure		400	{object}	responseApi.ResponseError	"Error"
-//	@Failure		500	{object}	responseApi.ResponseError	"Error"
+//	@Failure		401	{object}	response.ResponseError	"Error"
+//	@Failure		400	{object}	response.ResponseError	"Error"
+//	@Failure		500	{object}	response.ResponseError	"Error"
 //	@Router			/history [post]
 func (h *Handler) AddHistory(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.searchHistory.AddHistory"

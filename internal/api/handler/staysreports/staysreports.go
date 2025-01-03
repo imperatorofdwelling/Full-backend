@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreports"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
@@ -137,8 +138,8 @@ func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Tags staysReports
 // @Produce json
 // @Success 200 {array} staysreports.StaysReportEntity
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
+// @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
+// @Failure 500 {object} response.ResponseError "{"error": "message"}"
 // @Router /report [get]
 func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.GetAllStaysReports"
@@ -173,9 +174,9 @@ func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} staysreports.StayReport "Retrieved stay report object"
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 404 {object} responseApi.ResponseError "{"error": "report not found"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "could not fetch report"}"
+// @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
+// @Failure 404 {object} response.ResponseError "{"error": "report not found"}"
+// @Failure 500 {object} response.ResponseError "{"error": "could not fetch report"}"
 // @Router /report/{stayId} [get]
 func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.GetStaysReportById"
@@ -222,9 +223,9 @@ func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 // @Param description formData string false "Updated description"
 // @Param image formData file false "Image file (JPEG or PNG)"
 // @Success 200 {object} staysreports.StaysReportEntity "Updated stays report object"
-// @Failure 400 {object} responseApi.ResponseError "Bad Request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
-// @Failure 500 {object} responseApi.ResponseError "Internal Server Error"
+// @Failure 400 {object} response.ResponseError "Bad Request"
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 500 {object} response.ResponseError "Internal Server Error"
 // @Router /report/{reportId} [patch]
 func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.UpdateStaysReports"
@@ -298,8 +299,8 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Tags staysReports
 // @Param reportId path string true "Report ID"
 // @Success 200 {object} string "{"message": "Stay report was deleted"}"
-// @Failure 401 {object} responseApi.ResponseError "{"error": "user not logged in"}"
-// @Failure 500 {object} responseApi.ResponseError "{"error": "message"}"
+// @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
+// @Failure 500 {object} response.ResponseError "{"error": "message"}"
 // @Router /report/{reportId} [delete]
 func (h *Handler) DeleteStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.DeleteStaysReports"

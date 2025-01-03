@@ -80,7 +80,7 @@ func NewServerHTTP(
 		confirmEmailHandler.NewConfirmEmailHandler(r)
 
 		r.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL(fmt.Sprintf("http://%s/api/v1/swagger/doc.json", cfg.Server.Host)),
+			httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Host, cfg.Server.Port)),
 		))
 
 	})

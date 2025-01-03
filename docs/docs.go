@@ -42,20 +42,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage"
+                                "$ref": "#/definitions/Advantage"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -100,13 +100,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -144,13 +144,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -192,19 +192,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage"
+                            "$ref": "#/definitions/Advantage"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -229,20 +229,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_chat.Chat"
+                                "$ref": "#/definitions/Chat"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -287,19 +287,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request - Missing or invalid token",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized - Invalid token or claims",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -331,19 +331,19 @@ const docTemplate = `{
                     "200": {
                         "description": "List of messages for the chat",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                            "$ref": "#/definitions/MessageEntity"
                         }
                     },
                     "404": {
                         "description": "Chat not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -376,7 +376,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                            "$ref": "#/definitions/MessageEntity"
                         }
                     }
                 ],
@@ -390,19 +390,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -428,7 +428,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_passwordOTP.PasswordOTP"
+                            "$ref": "#/definitions/PasswordOTP"
                         }
                     }
                 ],
@@ -442,13 +442,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request - invalid OTP or missing fields",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error - could not verify OTP",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -473,20 +473,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract"
+                                "$ref": "#/definitions/Contract"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -519,7 +519,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse"
+                            "$ref": "#/definitions/ContractResponse"
                         }
                     }
                 ],
@@ -534,19 +534,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -577,7 +577,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse"
+                            "$ref": "#/definitions/ContractResponse"
                         }
                     }
                 ],
@@ -594,19 +594,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -635,13 +635,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized - user not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error - could not generate OTP",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -679,19 +679,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request - invalid OTP",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized - user not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error - could not verify OTP",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -718,7 +718,7 @@ const docTemplate = `{
                             "items": {
                                 "type": "object",
                                 "additionalProperties": {
-                                    "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntityFav"
+                                    "$ref": "#/definitions/StayEntityFav"
                                 }
                             }
                         }
@@ -726,13 +726,13 @@ const docTemplate = `{
                     "401": {
                         "description": "User not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -770,13 +770,13 @@ const docTemplate = `{
                     "401": {
                         "description": "User not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -812,13 +812,13 @@ const docTemplate = `{
                     "401": {
                         "description": "User not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -843,20 +843,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory"
+                                "$ref": "#/definitions/SearchHistory"
                             }
                         }
                     },
                     "401": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -894,19 +894,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -931,20 +931,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                                "$ref": "#/definitions/Location"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -978,20 +978,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                                "$ref": "#/definitions/Location"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1023,19 +1023,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                            "$ref": "#/definitions/Location"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1066,7 +1066,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity"
+                            "$ref": "#/definitions/LocationEntity"
                         }
                     }
                 ],
@@ -1074,19 +1074,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location"
+                            "$ref": "#/definitions/Location"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1112,7 +1112,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login"
+                            "$ref": "#/definitions/Login"
                         }
                     }
                 ],
@@ -1126,25 +1126,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1169,20 +1169,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                                "$ref": "#/definitions/MessageEntity"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1214,19 +1214,19 @@ const docTemplate = `{
                     "200": {
                         "description": "The message details",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Message"
+                            "$ref": "#/definitions/Message"
                         }
                     },
                     "404": {
                         "description": "Message not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1257,7 +1257,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                            "$ref": "#/definitions/MessageEntity"
                         }
                     }
                 ],
@@ -1265,25 +1265,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated message",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity"
+                            "$ref": "#/definitions/MessageEntity"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1319,13 +1319,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Message not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1363,7 +1363,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error - could not generate OTP",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1389,7 +1389,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration"
+                            "$ref": "#/definitions/Registration"
                         }
                     }
                 ],
@@ -1403,13 +1403,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1431,20 +1431,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
+                                "$ref": "#/definitions/StaysReportEntity"
                             }
                         }
                     },
                     "401": {
                         "description": "{\"error\": \"user not logged in\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "{\"error\": \"message\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1561,13 +1561,13 @@ const docTemplate = `{
                     "401": {
                         "description": "{\"error\": \"user not logged in\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "{\"error\": \"message\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1615,25 +1615,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated stays report object",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity"
+                            "$ref": "#/definitions/StaysReportEntity"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1658,25 +1658,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Retrieved stay report object",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport"
+                            "$ref": "#/definitions/StayReport"
                         }
                     },
                     "401": {
                         "description": "{\"error\": \"user not logged in\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "{\"error\": \"report not found\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "{\"error\": \"could not fetch report\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1702,7 +1702,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity"
+                            "$ref": "#/definitions/ReservationEntity"
                         }
                     }
                 ],
@@ -1716,13 +1716,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1755,7 +1755,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity"
+                            "$ref": "#/definitions/ReservationUpdateEntity"
                         }
                     }
                 ],
@@ -1770,19 +1770,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "Reservation not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1816,20 +1816,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation"
+                                "$ref": "#/definitions/Reservation"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1861,19 +1861,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation"
+                            "$ref": "#/definitions/Reservation"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1909,13 +1909,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1940,20 +1940,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
+                                "$ref": "#/definitions/Stay"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -1979,7 +1979,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity"
+                            "$ref": "#/definitions/StayEntity"
                         }
                     }
                 ],
@@ -1993,13 +1993,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2048,13 +2048,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2092,13 +2092,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2143,13 +2143,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2181,19 +2181,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage"
+                            "$ref": "#/definitions/StayImage"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2227,20 +2227,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage"
+                                "$ref": "#/definitions/StayImage"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2274,20 +2274,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
+                                "$ref": "#/definitions/Stay"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2321,20 +2321,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
+                                "$ref": "#/definitions/Stay"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2366,19 +2366,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
+                            "$ref": "#/definitions/Stay"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2402,7 +2402,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity"
+                            "$ref": "#/definitions/StayEntity"
                         }
                     }
                 ],
@@ -2410,19 +2410,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay"
+                            "$ref": "#/definitions/Stay"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2458,13 +2458,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2490,7 +2490,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq"
+                            "$ref": "#/definitions/StayAdvantageCreateReq"
                         }
                     }
                 ],
@@ -2504,13 +2504,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2548,13 +2548,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2579,20 +2579,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview"
+                                "$ref": "#/definitions/StaysReview"
                             }
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2618,7 +2618,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity"
+                            "$ref": "#/definitions/StaysReviewEntity"
                         }
                     }
                 ],
@@ -2632,13 +2632,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2671,7 +2671,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity"
+                            "$ref": "#/definitions/StaysReviewEntity"
                         }
                     }
                 ],
@@ -2686,19 +2686,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "Stays review not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2730,19 +2730,19 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview"
+                            "$ref": "#/definitions/StaysReview"
                         }
                     },
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2778,13 +2778,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "default": {
                         "description": "Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2811,7 +2811,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_newPassword.NewPassword"
+                            "$ref": "#/definitions/NewPassword"
                         }
                     }
                 ],
@@ -2825,19 +2825,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request or OTP verification failed",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2859,20 +2859,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity"
+                                "$ref": "#/definitions/UsersReportEntity"
                             }
                         }
                     },
                     "401": {
                         "description": "{\"error\": \"user not logged in\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "{\"error\": \"could not get reports\"}",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2907,13 +2907,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -2962,25 +2962,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Updated user report object",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity"
+                            "$ref": "#/definitions/UsersReportEntity"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3039,19 +3039,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input, missing fields, or unsupported image type",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized, user not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3084,19 +3084,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
+                            "$ref": "#/definitions/User"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "User  not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3133,7 +3133,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
+                            "$ref": "#/definitions/User"
                         }
                     }
                 ],
@@ -3141,25 +3141,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User"
+                            "$ref": "#/definitions/User"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3198,25 +3198,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3253,19 +3253,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Successful response containing user report data",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity"
+                            "$ref": "#/definitions/UsersReportEntity"
                         }
                     },
                     "401": {
                         "description": "Unauthorized: User not logged in",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError"
+                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3273,7 +3273,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_advantage.Advantage": {
+        "Advantage": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3293,49 +3293,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Login": {
-            "type": "object",
-            "required": [
-                "email",
-                "isHashed",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "isHashed": {
-                    "type": "boolean"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_auth.Registration": {
-            "type": "object",
-            "required": [
-                "email",
-                "isHashed",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "isHashed": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_chat.Chat": {
+        "Chat": {
             "type": "object",
             "properties": {
                 "chat_id": {
@@ -3358,7 +3316,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.Contract": {
+        "Contract": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3402,7 +3360,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_contracts.ContractResponse": {
+        "ContractResponse": {
             "type": "object",
             "properties": {
                 "dateEnd": {
@@ -3415,7 +3373,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.Location": {
+        "Location": {
             "type": "object",
             "properties": {
                 "city": {
@@ -3462,7 +3420,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_location.LocationEntity": {
+        "LocationEntity": {
             "type": "object",
             "properties": {
                 "city": {
@@ -3500,24 +3458,29 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Entity": {
+        "Login": {
             "type": "object",
+            "required": [
+                "email",
+                "isHashed",
+                "password"
+            ],
             "properties": {
-                "media": {
-                    "type": "string"
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
                 },
-                "text": {
-                    "type": "string"
+                "isHashed": {
+                    "type": "boolean",
+                    "example": false
                 },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
+                "password": {
+                    "type": "string",
+                    "example": "securepassword"
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_message.Message": {
+        "Message": {
             "type": "object",
             "properties": {
                 "chat_id": {
@@ -3543,7 +3506,24 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_newPassword.NewPassword": {
+        "MessageEntity": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "NewPassword": {
             "type": "object",
             "required": [
                 "email",
@@ -3558,7 +3538,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_passwordOTP.PasswordOTP": {
+        "PasswordOTP": {
             "type": "object",
             "required": [
                 "email",
@@ -3573,7 +3553,34 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.Reservation": {
+        "Registration": {
+            "type": "object",
+            "required": [
+                "email",
+                "isHashed",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "isHashed": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securepassword"
+                }
+            }
+        },
+        "Reservation": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -3599,7 +3606,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationEntity": {
+        "ReservationEntity": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -3616,7 +3623,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_reservation.ReservationUpdateEntity": {
+        "ReservationUpdateEntity": {
             "type": "object",
             "properties": {
                 "arrived": {
@@ -3630,7 +3637,15 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_searchhistory.SearchHistory": {
+        "ResponseError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "SearchHistory": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3644,7 +3659,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Stay": {
+        "Stay": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3709,7 +3724,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntity": {
+        "StayAdvantageCreateReq": {
+            "type": "object",
+            "properties": {
+                "advantage_id": {
+                    "type": "string"
+                },
+                "stay_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "StayEntity": {
             "type": "object",
             "required": [
                 "guests",
@@ -3777,7 +3803,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayEntityFav": {
+        "StayEntityFav": {
             "type": "object",
             "required": [
                 "city",
@@ -3852,7 +3878,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.StayImage": {
+        "StayImage": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3875,18 +3901,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysadvantage.StayAdvantageCreateReq": {
-            "type": "object",
-            "properties": {
-                "advantage_id": {
-                    "type": "string"
-                },
-                "stay_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StayReport": {
+        "StayReport": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3915,7 +3930,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreports.StaysReportEntity": {
+        "StaysReportEntity": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3935,7 +3950,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReview": {
+        "StaysReview": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -3964,7 +3979,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_staysreviews.StaysReviewEntity": {
+        "StaysReviewEntity": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3984,7 +3999,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_user.User": {
+        "User": {
             "description": "User details",
             "type": "object",
             "properties": {
@@ -4029,7 +4044,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_usersreports.UsersReportEntity": {
+        "UsersReportEntity": {
             "type": "object",
             "properties": {
                 "description": {
@@ -4045,14 +4060,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_utils_response.ResponseError": {
-            "type": "object",
-            "properties": {
-                "error": {
                     "type": "string"
                 }
             }

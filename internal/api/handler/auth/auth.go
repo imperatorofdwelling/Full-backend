@@ -13,6 +13,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/passwordOTP"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -55,8 +56,8 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // @Produce  json
 // @Param   request  body     model.Registration  true  "Registration"
 // @Success 201 {object} UUID
-// @Failure 400 {object} responseApi.ResponseError
-// @Failure 500 {object} responseApi.ResponseError
+// @Failure 400 {object} response.ResponseError
+// @Failure 500 {object} response.ResponseError
 // @Router /registration [post]
 func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.Registration"
@@ -118,10 +119,10 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param   request  body     model.Login  true  "Login"
 // @Success 200 {object} UUID
-// @Failure 401 {object} responseApi.ResponseError
-// @Failure 404 {object} responseApi.ResponseError
-// @Failure 400 {object} responseApi.ResponseError
-// @Failure 500 {object} responseApi.ResponseError
+// @Failure 401 {object} response.ResponseError
+// @Failure 404 {object} response.ResponseError
+// @Failure 400 {object} response.ResponseError
+// @Failure 500 {object} response.ResponseError
 // @Router /login [post]
 func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
@@ -188,9 +189,9 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			otp		path		string	true		"One-Time Password (OTP)"
 //	@Success		200	{string}	string	"OTP confirmed successfully!"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request - invalid OTP"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - user not logged in"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request - invalid OTP"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
 //	@Router			/email/otp/{otp} [get]
 func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.auth.ConfirmEmailOTP"
@@ -228,8 +229,8 @@ func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
 //		@Produce		json
 //	 @Param   		request  body     modelPass.PasswordOTP  true  "Request body with email and otp"
 //		@Success		200		{string}	string	"OTP confirmed successfully!"
-//		@Failure		400		{object}	responseApi.ResponseError	"Bad Request - invalid OTP or missing fields"
-//		@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
+//		@Failure		400		{object}	response.ResponseError	"Bad Request - invalid OTP or missing fields"
+//		@Failure		500		{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
 //		@Router			/confirm/password/otp [post]
 func (h *AuthHandler) ConfirmPasswordOTP(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.auth.ConfirmPasswordOTP"

@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysreviews"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -44,8 +45,8 @@ func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 //		@Produce		json
 //	 	@Param			request	body	model.StaysReviewEntity			true	"stays review request"
 //		@Success		201	{string}		string	"created"
-//		@Failure		400		{object}	responseApi.ResponseError			"Error"
-//		@Failure		default		{object}	responseApi.ResponseError			"Error"
+//		@Failure		400		{object}	response.ResponseError			"Error"
+//		@Failure		default		{object}	response.ResponseError			"Error"
 //		@Router			/staysreviews/create [post]
 func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.CreateStaysReview"
@@ -84,9 +85,9 @@ func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path		string		true	"ID of the stays review to update"
 //	@Param			request	body	model.StaysReviewEntity	true	"Details to update the stays review"
 //	@Success		200	{object}	map[string]interface{}	"Successfully updated stays review"
-//	@Failure		400	{object}	responseApi.ResponseError		"Invalid request"
-//	@Failure		404	{object}	responseApi.ResponseError		"Stays review not found"
-//	@Failure		500	{object}	responseApi.ResponseError		"Internal server error"
+//	@Failure		400	{object}	response.ResponseError		"Invalid request"
+//	@Failure		404	{object}	response.ResponseError		"Stays review not found"
+//	@Failure		500	{object}	response.ResponseError		"Internal server error"
 //	@Router			/staysreviews/update/{id} [put]
 func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.UpdateStaysReview"
@@ -132,8 +133,8 @@ func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path		string		true	"stays review id"
 //	@Success		200	{string}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/staysreviews/{id} [delete]
 func (h *Handler) DeleteStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.DeleteStaysReview"
@@ -170,8 +171,8 @@ func (h *Handler) DeleteStaysReview(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path		string		true	"stays review id"
 //	@Success		200	{object}		model.StaysReview	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/staysreviews/{id} [get]
 func (h *Handler) FindOneStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.FindOneStaysReview"
@@ -207,8 +208,8 @@ func (h *Handler) FindOneStaysReview(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Success		200	{object}		[]model.StaysReview	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/staysreviews [get]
 func (h *Handler) FindAllStaysReviews(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.FindAllStaysReviews"

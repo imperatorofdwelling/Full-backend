@@ -12,6 +12,7 @@ import (
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/chat"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -53,8 +54,8 @@ func (h *Handler) NewChatHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		chat.Chat	"List of chats for the user"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/chat [get]
 func (h *Handler) GetChatsByUserID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.chat.GetChatsByUserID"
@@ -90,8 +91,8 @@ func (h *Handler) GetChatsByUserID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			chatId	path		string	true	"The ID of the chat"
 //	@Success		200	{object}	message.Entity	"List of messages for the chat"
-//	@Failure		404	{object}	responseApi.ResponseError	"Chat not found"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		404	{object}	response.ResponseError	"Chat not found"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/chat/{chatId} [get]
 func (h *Handler) GetMessagesByChatID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.chat.GetMessagesByChatID"
@@ -123,9 +124,9 @@ func (h *Handler) GetMessagesByChatID(w http.ResponseWriter, r *http.Request) {
 //	@Param			ownerId	path	string	true	"The ID of the chat owner"
 //	@Param			request	body	message.Entity	true	"Message content to send"
 //	@Success		200	{string}	string	"Message sent!"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/chat/{ownerId} [post]
 func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.chat.GetMessagesByChatID"
@@ -172,9 +173,9 @@ func (h *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 //	@Param			token	query		string	true	"JWT Token for authentication"
 //	@Param			chatId	path		string	true	"Chat ID to retrieve messages from"
 //	@Success		101	{string}	string	"WebSocket connection established"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request - Missing or invalid token"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - Invalid token or claims"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request - Missing or invalid token"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - Invalid token or claims"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/chat/ws/{chatId} [get]
 func (h *Handler) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	// Getting and checking token

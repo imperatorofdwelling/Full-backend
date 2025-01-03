@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -42,8 +43,8 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 //		@Produce		json
 //	 	@Param			request 	body	reservation.ReservationEntity	true	"Create reservation request"
 //		@Success		201	{object}		string	"created"
-//		@Failure		400		{object}	responseApi.ResponseError			"Error"
-//		@Failure		default		{object}	responseApi.ResponseError			"Error"
+//		@Failure		400		{object}	response.ResponseError			"Error"
+//		@Failure		default		{object}	response.ResponseError			"Error"
 //		@Router			/reservation/create [post]
 func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.CreateReservation"
@@ -82,9 +83,9 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 //	@Param			reservationId	path		string		true	"ID of the reservation to update"
 //	@Param			request		body	reservation.ReservationUpdateEntity	true	"Details to update the reservation"
 //	@Success		200	{object}	map[string]interface{}	"Successfully updated reservation"
-//	@Failure		400	{object}	responseApi.ResponseError		"Invalid request"
-//	@Failure		404	{object}	responseApi.ResponseError		"Reservation not found"
-//	@Failure		500	{object}	responseApi.ResponseError		"Internal server error"
+//	@Failure		400	{object}	response.ResponseError		"Invalid request"
+//	@Failure		404	{object}	response.ResponseError		"Reservation not found"
+//	@Failure		500	{object}	response.ResponseError		"Internal server error"
 //	@Router			/reservation/update/{reservationId} [put]
 func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.UpdateReservation"
@@ -139,8 +140,8 @@ func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			reservationID	path		string		true	"reservation id"
 //	@Success		200	{string}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/reservation/{reservationID} [delete]
 func (h *Handler) DeleteReservationByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.DeleteReservationByID"
@@ -177,8 +178,8 @@ func (h *Handler) DeleteReservationByID(w http.ResponseWriter, r *http.Request) 
 //	@Produce		json
 //	@Param			reservationID	path		string		true	"reservation id"
 //	@Success		200	{object}		reservation.Reservation	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/reservation/{reservationID} [get]
 func (h *Handler) GetReservationByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.GetReservationByID"
@@ -215,8 +216,8 @@ func (h *Handler) GetReservationByID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			userID	path		string		true	"user id"
 //	@Success		200	{object}		[]reservation.Reservation	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/reservation/user/{userID} [get]
 func (h *Handler) GetAllReservationsByUser(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.GetAllReservationsByUser"

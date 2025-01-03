@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -48,8 +49,8 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 // @Produce  json
 // @Param   id   path     string     true  "User  ID"
 // @Success 200 {object} model.User
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 404 {object} responseApi.ResponseError "User  not found"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 404 {object} response.ResponseError "User  not found"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.GetUserByID"
@@ -92,9 +93,9 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Param   model.User	body     model.User true  "User update data"
 // @Success 200 {object} model.User
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
@@ -158,10 +159,10 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 // @Param id path string true "User ID"
 // @Security ApiKeyAuth
 // @Success 204 {object} nil "User successfully deleted"
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
-// @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.DeleteUserByID"
@@ -199,9 +200,9 @@ func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param userNewPassword body modelPass.NewPassword true "User's new password and OTP"
 // @Success 200 {string} string "Password changed successfully"
-// @Failure 400 {object} responseApi.ResponseError "Invalid request or OTP verification failed"
-// @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request or OTP verification failed"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/password [put]
 func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.UpdateUserPasswordByID"

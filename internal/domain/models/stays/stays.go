@@ -31,7 +31,7 @@ type (
 		Floor               string    `json:"floor,omitempty"`
 		Room                string    `json:"room,omitempty"`
 		Price               float32   `json:"price" validate:"required"`
-	}
+	} // @name StayEntity
 
 	StayEntityFav struct {
 		ID                  uuid.UUID `json:"id"`
@@ -52,7 +52,7 @@ type (
 		Room                string    `json:"room,omitempty"`
 		Price               float32   `json:"price" validate:"required"`
 		City                string    `json:"city" validate:"required"`
-	}
+	} // @name StayEntityFav
 
 	Stay struct {
 		ID                  uuid.UUID `json:"id"`
@@ -75,12 +75,12 @@ type (
 		Price               float32   `json:"price"`
 		CreatedAt           time.Time `json:"created_at"`
 		UpdatedAt           time.Time `json:"updated_at"`
-	}
+	} // @name Stay
 
 	StayImagesEntity struct {
 		Images []byte    `json:"images"`
 		StayID uuid.UUID `json:"stay_id"`
-	}
+	} // @name StayImagesEntity
 
 	StayImage struct {
 		ID        uuid.UUID `json:"id"`
@@ -89,5 +89,5 @@ type (
 		IsMain    bool      `json:"is_main"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
-	}
+	} // @name StayImage
 )

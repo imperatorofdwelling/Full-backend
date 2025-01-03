@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -36,8 +37,8 @@ func (h *Handler) NewConfirmEmailHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{string}	string	"success in creating otp for email verification!"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - user not logged in"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not generate OTP"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not generate OTP"
 //	@Router			/email/otp [get]
 func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.confirmEmail.CreateOTP"
@@ -73,7 +74,7 @@ func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			email	path		string	true	"Email of the user"
 //	@Success		200		{string}	string	"success in creating otp for password reset!"
-//	@Failure		500		{object}	responseApi.ResponseError	"Internal Server Error - could not generate OTP"
+//	@Failure		500		{object}	response.ResponseError	"Internal Server Error - could not generate OTP"
 //	@Router			/password/otp/{email} [get]
 func (h *Handler) CreateOTPPassword(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.confirmEmail.CreateOTPPassword"

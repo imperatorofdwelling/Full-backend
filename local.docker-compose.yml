@@ -37,7 +37,7 @@ services:
     env_file: .env.local
     volumes:
       - ./cmd/migrator/migrations:/migrations
-    command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
+    command: [ "-path", "/migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
     depends_on:
       server:
         condition: service_started
@@ -55,10 +55,44 @@ services:
     env_file: .env.local
     volumes:
       - ./cmd/migrator/migrations_mock:/migrations_mock
-    command: [ "-source", "file://migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    command: [ "-path", "/migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
     depends_on:
       migrate-cities-json:
         condition: service_completed_successfully
+#  migrate-up:
+#    image: migrate/migrate
+#    build:
+#      context: .
+#      dockerfile: ./docker/Dockerfile_cities_migrate
+#    env_file: .env.local
+#    volumes:
+#      - ./cmd/migrator/migrations:/migrations
+#      - ./cmd/migrator/migrations_mock:/migrations_mock
+#    command: >
+#      sh -c "migrate -source file://migrations -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable up && migrate -source file://migrations_mock -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations up && ./citiesmigrator --db-user-name ${POSTGRES_USER} --db-pass ${POSTGRES_PASSWORD} --db-host db:${POSTGRES_PORT} --db-name ${POSTGRES_DB}"
+#    profiles: [migrate-up]
+  migrate-down-mock:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/migrations_mock:/migrations_mock
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "-path", "migrations_mock", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_started
+    profiles: [migrate-down]
+  migrate-down:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/migrations:/migrations
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "-path", "migrations", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_started
+      migrate-down-mock:
+        condition: service_completed_successfully
+    profiles: [migrate-down]
   nginx:
     image: nginx:latest
     container_name: nginx

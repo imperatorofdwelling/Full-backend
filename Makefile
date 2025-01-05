@@ -28,3 +28,8 @@ test:
 	go test ./internal/api/handler/...
 mock:
 	go generate ./internal/domain/interfaces
+
+### MIGRATIONS ###
+migrate-down-docker-local:
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-down-mock
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-down

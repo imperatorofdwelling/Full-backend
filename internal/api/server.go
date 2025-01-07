@@ -7,6 +7,7 @@ import (
 	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
 	authHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/auth"
 	chatHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/chat"
+	confirmEmailHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/confirmEmail"
 	ctrctHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/contracts"
 	fvrtHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/favourite"
 	fileHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/file"
@@ -50,6 +51,7 @@ func NewServerHTTP(
 	messageHandler *msgHdl.Handler,
 	chatHandler *chatHdl.Handler,
 	fileHandler *fileHdl.Handler,
+	confirmEmailHandler *confirmEmailHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -75,12 +77,11 @@ func NewServerHTTP(
 		messageHandler.NewMessageHandler(r)
 		chatHandler.NewChatHandler(r)
 		fileHandler.NewFileHandler(r)
-
+		confirmEmailHandler.NewConfirmEmailHandler(r)
 
 		r.Get("/swagger/*", httpSwagger.Handler(
-			httpSwagger.URL(fmt.Sprintf("http://%s/api/v1/swagger/doc.json", cfg.Server.Host)),
+			httpSwagger.URL(fmt.Sprintf("http://%s:%s/api/v1/swagger/doc.json", cfg.Server.Host, cfg.Server.Port)),
 		))
-
 
 	})
 

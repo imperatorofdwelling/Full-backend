@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	stays2 "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 )
 
@@ -64,13 +64,29 @@ func (r *Repo) RemoveFavourite(ctx context.Context, userId, stayID string) error
 	return nil
 }
 
-func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error) {
-	const op = "repo.Favourite.GetAllFavourites"
+func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]stays2.StayEntityFav, error) {
+	const op = "repo.Favourite.GetAllFavouriteStays"
 
 	stmt, err := r.Db.PrepareContext(ctx, `
-		SELECT f.user_id, 
-		       f.stay_id, 
-		       l.city
+		SELECT 
+		    s.id,
+		    f.user_id,
+		    s.location_id,
+		    s.name,
+		    s.type,
+		    s.number_of_bedrooms,
+		    s.number_of_beds,
+		    s.number_of_bathrooms,
+		    s.guests,
+		    s.is_smoking_prohibited,
+		    s.square,
+		    s.street,
+		    s.house,
+		    s.entrance,
+		    s.floor,
+		    s.room,
+		    s.price,
+		    l.city
 		FROM favourite f
 		JOIN stays s ON f.stay_id = s.id
 		JOIN locations l ON s.location_id = l.id
@@ -84,24 +100,42 @@ func (r *Repo) GetAllFavourites(ctx context.Context, userID string) ([]model.Fav
 
 	rows, err := stmt.QueryContext(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: querying favourites: %w", op, err)
+		return nil, fmt.Errorf("%s: querying favourite stays: %w", op, err)
 	}
 	defer rows.Close()
 
-	var favourites []model.Favourite
+	var stays []stays2.StayEntityFav
 
 	for rows.Next() {
-		var fav model.Favourite
-		// Now scanning only the necessary fields
-		if err := rows.Scan(&fav.UserID, &fav.StayID, &fav.City); err != nil {
+		var stay stays2.StayEntityFav
+		if err := rows.Scan(
+			&stay.ID,
+			&stay.UserID,
+			&stay.LocationID,
+			&stay.Name,
+			&stay.Type,
+			&stay.NumberOfBedrooms,
+			&stay.NumberOfBeds,
+			&stay.NumberOfBathrooms,
+			&stay.Guests,
+			&stay.IsSmokingProhibited,
+			&stay.Square,
+			&stay.Street,
+			&stay.House,
+			&stay.Entrance,
+			&stay.Floor,
+			&stay.Room,
+			&stay.Price,
+			&stay.City,
+		); err != nil {
 			return nil, fmt.Errorf("%s: scanning row: %w", op, err)
 		}
-		favourites = append(favourites, fav)
+		stays = append(stays, stay)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("%s: rows error: %w", op, err)
 	}
 
-	return favourites, nil
+	return stays, nil
 }

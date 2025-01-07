@@ -12,12 +12,13 @@ import (
 )
 
 type Service struct {
-	AuthRepo interfaces.AuthRepository
-	UserRepo interfaces.UserRepository
+	AuthRepo         interfaces.AuthRepository
+	UserRepo         interfaces.UserRepository
+	ConfirmEmailRepo interfaces.ConfirmEmailRepository
 }
 
 func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.UUID, error) {
-	const op = "service.user.Registration"
+	const op = "service.auth.Registration"
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
@@ -49,7 +50,7 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 }
 
 func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
-	const op = "service.user.Login"
+	const op = "service.auth.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
 		return uuid.Nil, err
@@ -65,6 +66,82 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error
 	}
 
 	return id, err
+}
+
+func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.auth.CheckEmailOTP"
+
+	isVerified, err := s.AuthRepo.CheckIfUserEmailValidated(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if isVerified {
+		return fmt.Errorf("user is already verified")
+	}
+
+	exist, err := s.ConfirmEmailRepo.CheckEmailOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckEmailOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.EmailVerification(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckPasswordOTP(ctx context.Context, email, otp string) error {
+	const op = "service.auth.CheckPasswordOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckPasswordOTPExists(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckPasswordOTPNotExpired(ctx, email)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetPasswordOTP(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to get password OTP %w", op, err)
+	}
+
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.PasswordVerification(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
 }
 
 func (s *Service) validate(user model.Registration) bool {

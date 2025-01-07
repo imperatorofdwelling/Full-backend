@@ -8,6 +8,8 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
@@ -32,6 +34,7 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 
 		r.Group(func(r chi.Router) {
 			r.Get("/{id}", h.GetUserByID)
+			r.Put("/password", h.UpdateUserPasswordByEmail)
 		})
 	})
 }
@@ -46,8 +49,8 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 // @Produce  json
 // @Param   id   path     string     true  "User  ID"
 // @Success 200 {object} model.User
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 404 {object} responseApi.ResponseError "User  not found"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 404 {object} response.ResponseError "User  not found"
 // @Router /user/{id} [get]
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.GetUserByID"
@@ -90,9 +93,9 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 // @Security ApiKeyAuth
 // @Param   model.User	body     model.User true  "User update data"
 // @Success 200 {object} model.User
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/{id} [put]
 func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
@@ -156,10 +159,10 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 // @Param id path string true "User ID"
 // @Security ApiKeyAuth
 // @Success 204 {object} nil "User successfully deleted"
-// @Failure 400 {object} responseApi.ResponseError "Invalid request"
-// @Failure 401 {object} responseApi.ResponseError "Unauthorized"
-// @Failure 404 {object} responseApi.ResponseError "User not found"
-// @Failure 500 {object} responseApi.ResponseError "Internal server error"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
 // @Router /user/{id} [delete]
 func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.DeleteUserByID"
@@ -185,4 +188,58 @@ func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	responseApi.WriteJson(w, r, http.StatusNoContent, nil)
+}
+
+// UpdateUserPasswordByEmail
+//
+// @Summary Update user password by email
+// @Description Updates the user's password after verifying the OTP and checking its expiration
+// @ID updateUserPasswordByEmail
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param userNewPassword body modelPass.NewPassword true "User's new password and OTP"
+// @Success 200 {string} string "Password changed successfully"
+// @Failure 400 {object} response.ResponseError "Invalid request or OTP verification failed"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/password [put]
+func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.UpdateUserPasswordByID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var userNewPassword modelPass.NewPassword
+	if err := render.DecodeJSON(r.Body, &userNewPassword); err != nil {
+		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	if userNewPassword.Password == "" || userNewPassword.Email == "" {
+		h.Log.Error("invalid request body", slogError.Err(errors.New("invalid request body")))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid request body")))
+		return
+	}
+
+	err := h.Svc.CheckUserPassword(context.Background(), userNewPassword)
+	if err != nil {
+		h.Log.Error("failed to check user password", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.UpdateUserPasswordByEmail(context.Background(), userNewPassword)
+	if err != nil {
+		if errors.Is(err, service.ErrNotFound) {
+			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(err))
+		}
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "password changed")
 }

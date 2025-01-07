@@ -38,7 +38,7 @@ func (r *Repository) Register(ctx context.Context, user model.Registration) (uui
 }
 
 func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
-	const op = "repo.user.Login"
+	const op = "repo.auth.Login"
 
 	var storedPassword string
 	var userID uuid.UUID
@@ -72,4 +72,56 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, er
 	}
 
 	return userID, nil
+}
+
+func (r *Repository) EmailVerification(ctx context.Context, userId string) error {
+	const op = "repo.auth.EmailVerification"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET is_email_verified = true WHERE id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare statement: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute statement: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) PasswordVerification(ctx context.Context, email string) error {
+	const op = "repo.auth.EmailVerification"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE password_verifications SET is_verified = true WHERE email = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare statement: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute statement: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error) {
+	const op = "repo.auth.CheckIfUserEmailValidated"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT is_email_verified FROM users WHERE id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query %w", op, err)
+	}
+	defer stmt.Close()
+
+	var isVerified bool
+	err = stmt.QueryRowContext(ctx, userId).Scan(&isVerified)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to execute query %w", op, err)
+	}
+
+	return isVerified, nil
 }

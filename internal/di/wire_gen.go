@@ -14,6 +14,7 @@ import (
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/confirmEmail"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
@@ -39,12 +40,13 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	}
 	repository := auth.ProvideAuthRepository(sqlDB)
 	userRepository := user.ProvideUserRepository(sqlDB)
-	service := auth.ProvideAuthService(repository, userRepository)
+	repo := confirmEmail.ProvideConfirmEmailRepo(sqlDB)
+	service := auth.ProvideAuthService(repository, userRepository, repo)
 	authHandler := auth.ProvideAuthHandler(service, log)
-	userService := user.ProvideUserService(userRepository)
+	userService := user.ProvideUserService(userRepository, repo)
 	userHandler := user.ProvideUserHandler(userService, log)
-	repo := providers.ProvideLocationRepository(sqlDB)
-	locationService := providers.ProvideLocationService(repo)
+	locationRepo := providers.ProvideLocationRepository(sqlDB)
+	locationService := providers.ProvideLocationService(locationRepo)
 	handler := providers.ProvideLocationHandler(locationService, log)
 	advantageRepo := providers2.ProvideAdvantageRepository(sqlDB)
 	fileService := providers3.ProvideFileService()
@@ -85,6 +87,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	connectionManager := connectionmanager.NewConnectionManager()
 	chatHandler := chat.ProvideChatHandler(chatService, log, connectionManager)
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler)
+	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
+	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)
 	return serverHTTP, nil
 }

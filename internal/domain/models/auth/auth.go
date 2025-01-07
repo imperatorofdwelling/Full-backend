@@ -4,17 +4,17 @@ import "github.com/imperatorofdwelling/Full-backend/pkg/validator"
 
 type (
 	Login struct {
-		Email    string `json:"email" validate:"required"`
-		Password string `json:"password" validate:"required"`
-		IsHashed bool   `json:"isHashed" validate:"required"`
-	}
+		Email    string `json:"email" validate:"required" example:"user@example.com"`
+		Password string `json:"password" validate:"required" example:"securepassword"`
+		IsHashed bool   `json:"isHashed" validate:"required" example:"false"`
+	} // @name Login
 
 	Registration struct {
-		Name     string `json:"name" validate:"required"`
-		Email    string `json:"email" validate:"required"`
-		Password string `json:"password" validate:"required"`
-		IsHashed bool   `json:"isHashed" validate:"required"`
-	}
+		Name     string `json:"name" validate:"required" example:"John Doe"`
+		Email    string `json:"email" validate:"required" example:"user@example.com"`
+		Password string `json:"password" validate:"required" example:"securepassword"`
+		IsHashed bool   `json:"isHashed" validate:"required" example:"false"`
+	} // @name Registration
 )
 
 func ValidateRegistration(v *validator.Validator, registration *Registration) {

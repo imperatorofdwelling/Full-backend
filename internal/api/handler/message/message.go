@@ -8,6 +8,8 @@ import (
 	"github.com/go-chi/render"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"github.com/pkg/errors"
@@ -23,6 +25,7 @@ type Handler struct {
 func (h *Handler) NewMessageHandler(r chi.Router) {
 	r.Route("/message", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
 			r.Get("/", h.GetMessagesByUserID)
 			r.Get("/{messageId}", h.GetMessageByMessageID)
 			r.Put("/{messageId}", h.UpdateMessageByID)
@@ -33,14 +36,14 @@ func (h *Handler) NewMessageHandler(r chi.Router) {
 
 // GetMessagesByUserID godoc
 //
-//	@Summary		Get Messages by User ID
+//	@Summary		Get Messages
 //	@Description	Retrieve all messages for a user by their user ID
 //	@Tags			messages
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	map[string]interface{}	"List of messages for the user"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Success		200	{array}	    message.Entity	"List of messages for the user"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/message [get]
 func (h *Handler) GetMessagesByUserID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.message.GetMessagesByUserID"
@@ -75,9 +78,9 @@ func (h *Handler) GetMessagesByUserID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			messageId	path		string	true	"The ID of the message"
-//	@Success		200	{object}	map[string]interface{}	"The message details"
-//	@Failure		404	{object}	responseApi.ResponseError	"Message not found"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Success		200	{object}	message.Message	"The message details"
+//	@Failure		404	{object}	response.ResponseError	"Message not found"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/message/{messageId} [get]
 func (h *Handler) GetMessageByMessageID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.message.GetMessageByMessageID"
@@ -115,9 +118,9 @@ func (h *Handler) GetMessageByMessageID(w http.ResponseWriter, r *http.Request) 
 //	@Param			messageId	path		string	true	"The ID of the message"
 //	@Param			request	body		message.Entity	true	"Updated message content"
 //	@Success		200	{object}	message.Entity	"Updated message"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/message/{messageId} [put]
 func (h *Handler) UpdateMessageByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.message.UpdateMessageByID"
@@ -155,9 +158,9 @@ func (h *Handler) UpdateMessageByID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			messageId	path		string	true	"The ID of the message"
-//	@Success		204	{object}	map[string]interface{}	"Message deleted successfully"
-//	@Failure		404	{object}	responseApi.ResponseError	"Message not found"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Success		204	{object}	string 	"Message deleted successfully"
+//	@Failure		404	{object}	response.ResponseError	"Message not found"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/message/{messageId} [delete]
 func (h *Handler) DeleteMessageByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.message.DeleteMessageByID"

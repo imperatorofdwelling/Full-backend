@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
-	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	stays2 "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 )
 
 type Service struct {
@@ -33,7 +33,7 @@ func (s *Service) RemoveFromFavourites(ctx context.Context, userId, stayID strin
 	return nil
 }
 
-func (s *Service) GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error) {
+func (s *Service) GetAllFavourites(ctx context.Context, userID string) ([]stays2.StayEntityFav, error) {
 	const op = "service.Favourite.GetAllFavourites"
 
 	favorites, err := s.Repo.GetAllFavourites(ctx, userID)

@@ -14,28 +14,51 @@ services:
       timeout: 10s
   migrate:
     image: migrate/migrate
-    env_file: .env.stage
+    env_file: .env.dev
     volumes:
       - ./cmd/migrator/migrations:/migrations
-    command: [ "-source", "file://migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable", "up" ]
+    command: [ "-path", "/migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable", "up" ]
     depends_on:
       db:
         condition: service_healthy
+    profiles: [ migrate-up ]
   migrate-cities-json:
     build:
       context: .
       dockerfile: ./docker/Dockerfile_cities_migrate
-    env_file: .env.stage
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
+    env_file: .env.dev
+    profiles: [ migrate-up ]
     command: [ "./citiesmigrator", "--db-user-name", "${POSTGRES_USER}", "--db-pass", "${POSTGRES_PASSWORD}", "--db-host", "db:5432", "--db-name", "${POSTGRES_DB}" ]
+    depends_on:
+      db:
+        condition: service_healthy
   migrate-mock:
     image: migrate/migrate
-    env_file: .env.stage
+    env_file: .env.dev
     volumes:
       - ./cmd/migrator/migrations_mock:/migrations_mock
-    command: [ "-source", "file://migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    command: [ "-path", "/migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    profiles: [ migrate-up ]
     depends_on:
-      migrate-cities-json:
-        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+  migrate-down-mock:
+    image: migrate/migrate
+    env_file: .env.dev
+    volumes:
+      - ./cmd/migrator/migrations_mock:/migrations_mock
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "-path", "migrations_mock", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [ migrate-down ]
+  migrate-down:
+    image: migrate/migrate
+    env_file: .env.dev
+    volumes:
+      - ./cmd/migrator/migrations:/migrations
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable", "-path", "migrations", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [ migrate-down ]

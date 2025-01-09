@@ -15,6 +15,7 @@ import (
 	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	kafkaProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/kafka"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
@@ -48,6 +49,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		msgProvider.MessageProviderSet,
 		chatProvider.ChatProviderSet,
 		confirmEmailProvider.ProvideSet,
+		kafkaProvider.KafkaProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

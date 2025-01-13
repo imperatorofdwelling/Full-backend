@@ -7,8 +7,18 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"log"
 	"net/http"
 	"os"
+)
+
+type contextKey string
+
+// Константы для получения значений из куки
+const (
+	userIDKey   contextKey = "user_id"
+	userRoleKey contextKey = "user_role"
+	pathKey     contextKey = "request_path"
 )
 
 func WithAuth(handler http.Handler) http.Handler {
@@ -28,8 +38,17 @@ func WithAuth(handler http.Handler) http.Handler {
 			permissionDenied(w, r, "unable to get user ID from token")
 		}
 
+		userRole, err := getUserRoleFromToken(token)
+		if err != nil {
+			permissionDenied(w, r, "unable to get user role from token")
+			return
+		}
+		requestPath := r.URL.Path
+		log.Println(requestPath)
+
 		// Store the user ID in the request context
-		ctx := context.WithValue(r.Context(), "user_id", userID)
+		ctx := context.WithValue(r.Context(), userIDKey, userID)
+		ctx = context.WithValue(r.Context(), userRoleKey, userRole)
 		r = r.WithContext(ctx)
 
 		handler.ServeHTTP(w, r)
@@ -67,10 +86,24 @@ func getUserIDFromToken(token *jwt.Token) (string, error) {
 		return "", errors.New("invalid token claims")
 	}
 
-	userID, ok := claims["user_id"].(string)
+	userID, ok := claims["user_id"].(string) // ID сохраняется при LOGIN
 	if !ok {
 		return "", errors.New("invalid user ID in token")
 	}
 
 	return userID, nil
+}
+
+func getUserRoleFromToken(token *jwt.Token) (string, error) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("invalid token claims")
+	}
+
+	userRole, ok := claims["role_id"].(string) // Роль сохраняется при LOGIN
+	if !ok {
+		return "", errors.New("invalid user role in token")
+	}
+
+	return userRole, nil
 }

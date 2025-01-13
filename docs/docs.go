@@ -1094,7 +1094,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Authenticates an existing user and returns a JWT token",
+                "description": "Authenticates an existing user and returns a JWT token(claim USER_ID, ROLE_ID)",
                 "consumes": [
                     "application/json"
                 ],
@@ -1371,7 +1371,7 @@ const docTemplate = `{
         },
         "/registration": {
             "post": {
-                "description": "Creates a new user account",
+                "description": "Creates a new user account(DEFAULT ROLE_ID=TENANT)",
                 "consumes": [
                     "application/json"
                 ],
@@ -4037,6 +4037,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 },
                 "updatedAt": {

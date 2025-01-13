@@ -50,7 +50,7 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // Registration
 //
 // @Summary Register a new user
-// @Description Creates a new user account
+// @Description Creates a new user account(DEFAULT ROLE_ID=TENANT)
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -113,7 +113,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // LoginUser
 //
 // @Summary Login an existing user
-// @Description Authenticates an existing user and returns a JWT token
+// @Description Authenticates an existing user and returns a JWT token(claim USER_ID, ROLE_ID)
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -144,7 +144,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := h.Svc.Login(context.Background(), userCurrent)
+	userID, userRoleID, err := h.Svc.Login(context.Background(), userCurrent)
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) {
 			responseApi.WriteError(w, r, http.StatusNotFound, slogError.Err(service.ErrNotFound))
@@ -161,7 +161,9 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
 		"user_id": userID,
+		"role_id": userRoleID,
 	})
+
 	tokenString, err := token.SignedString([]byte("your-secret-key"))
 	if err != nil {
 		http.Error(w, `{"error": "Failed to generate token"}`, http.StatusInternalServerError)

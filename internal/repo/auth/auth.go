@@ -37,41 +37,42 @@ func (r *Repository) Register(ctx context.Context, user model.Registration) (uui
 	return id, nil
 }
 
-func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
+func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, int, error) {
 	const op = "repo.auth.Login"
 
 	var storedPassword string
 	var userID uuid.UUID
+	var roleID int
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, password FROM users WHERE email = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, role, password FROM users WHERE email = $1")
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, user.Email).Scan(&userID, &storedPassword)
+	err = stmt.QueryRowContext(ctx, user.Email).Scan(&userID, &roleID, &storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+			return uuid.Nil, -1, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 		}
-		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, err)
 	}
 
 	if user.IsHashed {
 		if storedPassword == user.Password {
-			return userID, nil
+			return userID, -1, nil
 		}
-		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
 	hashedPassword := sha256.Sum256([]byte(user.Password))
 	hashedPasswordHex := hex.EncodeToString(hashedPassword[:])
 
 	if hashedPasswordHex != storedPassword {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
-	return userID, nil
+	return userID, roleID, nil
 }
 
 func (r *Repository) EmailVerification(ctx context.Context, userId string) error {

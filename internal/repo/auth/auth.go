@@ -44,7 +44,7 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, in
 	var userID uuid.UUID
 	var roleID int
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, role_id, password FROM users WHERE email = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, role, password FROM users WHERE email = $1")
 	if err != nil {
 		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, err)
 	}

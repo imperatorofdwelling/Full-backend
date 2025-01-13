@@ -8,6 +8,7 @@ import (
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	_ "github.com/lib/pq"
+	"log"
 	"time"
 )
 
@@ -31,15 +32,15 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", op, err)
 	}
-
 	return exists, nil
 }
 
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	const op = "repo.user.FindUserByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, role_id, created_at, updated_at FROM users WHERE id = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, role, created_at, updated_at FROM users WHERE id = $1")
 	if err != nil {
+		log.Println(err)
 		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
@@ -58,7 +59,7 @@ func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User
 		&user.Gender,
 		&user.Country,
 		&user.City,
-		&user.RoleID,
+		&user.Role,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -85,7 +86,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 			gender = $8, 
 			country = $9, 
 			city = $10, 
-			role_id = &11,
+			role = &11,
 			updatedAt = $12
 		WHERE id = $1
 	`)
@@ -108,7 +109,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 		user.Gender,
 		user.Country,
 		user.City,
-		user.RoleID,
+		user.Role,
 		rfc1123zTime,
 	)
 	if err != nil {

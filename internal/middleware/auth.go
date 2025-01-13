@@ -7,15 +7,18 @@ import (
 	"github.com/dgrijalva/jwt-go/v4"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"log"
 	"net/http"
 	"os"
 )
 
 type contextKey string
 
+// Константы для получения значений из куки
 const (
 	userIDKey   contextKey = "user_id"
 	userRoleKey contextKey = "user_role"
+	pathKey     contextKey = "request_path"
 )
 
 func WithAuth(handler http.Handler) http.Handler {
@@ -40,6 +43,8 @@ func WithAuth(handler http.Handler) http.Handler {
 			permissionDenied(w, r, "unable to get user role from token")
 			return
 		}
+		requestPath := r.URL.Path
+		log.Println(requestPath)
 
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), userIDKey, userID)
@@ -81,7 +86,7 @@ func getUserIDFromToken(token *jwt.Token) (string, error) {
 		return "", errors.New("invalid token claims")
 	}
 
-	userID, ok := claims["user_id"].(string)
+	userID, ok := claims["user_id"].(string) // ID сохраняется при LOGIN
 	if !ok {
 		return "", errors.New("invalid user ID in token")
 	}

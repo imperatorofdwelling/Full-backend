@@ -11,7 +11,7 @@ build:
 swag:
 	swag init --exclude docker,nginx,assets,pkg --md ./docs --parseInternal --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	wire ./internal/di
+	google-wire ./internal/di
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:
@@ -21,7 +21,7 @@ migrate-down:
 docker-stage:
 	docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage up --build -d
 docker-local: wire swag
-	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build -d
+	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build
 docker-dev:
 	docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
 test:

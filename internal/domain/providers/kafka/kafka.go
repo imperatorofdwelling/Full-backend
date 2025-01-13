@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"github.com/IBM/sarama"
 	"github.com/google/wire"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
@@ -19,11 +18,9 @@ var KafkaProviderSet wire.ProviderSet = wire.NewSet(
 	wire.Bind(new(interfaces.KafkaProducer), new(*kafka.Producer)),
 )
 
-func ProvideKafkaProducer(sarama sarama.SyncProducer) *kafka.Producer {
+func ProvideKafkaProducer() *kafka.Producer {
 	producerOnce.Do(func() {
-		producer = &kafka.Producer{
-			Sarama: sarama,
-		}
+		producer = &kafka.Producer{}
 	})
 
 	return producer

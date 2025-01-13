@@ -18,8 +18,10 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	providers6 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
+	providers7 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/payment"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -89,6 +91,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)
+	producer := providers6.ProvideKafkaProducer()
+	paymentHandler := providers7.ProvidePaymentHandler(producer, log)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler, producer, paymentHandler)
 	return serverHTTP, nil
 }

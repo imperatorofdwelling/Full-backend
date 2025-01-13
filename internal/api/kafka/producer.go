@@ -12,7 +12,7 @@ const (
 var ServerAddr = []string{"localhost:9094", "localhost:9095", "localhost:9096"}
 
 type Producer struct {
-	Sarama sarama.SyncProducer
+	sarama sarama.SyncProducer
 }
 
 func (p *Producer) NewKafkaProducer() (*Producer, error) {
@@ -24,12 +24,12 @@ func (p *Producer) NewKafkaProducer() (*Producer, error) {
 	}
 
 	return &Producer{
-		Sarama: producer,
+		sarama: producer,
 	}, nil
 }
 
 func (p *Producer) Close() error {
-	return p.Sarama.Close()
+	return p.sarama.Close()
 }
 
 func (p *Producer) SendMessage(topic string, message []byte) error {
@@ -38,6 +38,6 @@ func (p *Producer) SendMessage(topic string, message []byte) error {
 		Value: sarama.ByteEncoder(message),
 	}
 
-	_, _, err := p.Sarama.SendMessage(msg)
+	_, _, err := p.sarama.SendMessage(msg)
 	return err
 }

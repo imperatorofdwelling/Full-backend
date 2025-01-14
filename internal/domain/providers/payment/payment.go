@@ -2,7 +2,8 @@ package providers
 
 import (
 	"github.com/google/wire"
-	pHdl "github.com/imperatorofdwelling/Full-backend/internal/api/kafka/payment"
+	pHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/payment"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"log/slog"
 	"sync"
@@ -19,7 +20,7 @@ var PaymentProviderSet wire.ProviderSet = wire.NewSet(
 	wire.Bind(new(interfaces.PaymentHandler), new(*pHdl.Handler)),
 )
 
-func ProvidePaymentHandler(kafka interfaces.KafkaProducer, log *slog.Logger) *pHdl.Handler {
+func ProvidePaymentHandler(kafka *kafka.Producer, log *slog.Logger) *pHdl.Handler {
 	hdlOnce.Do(func() {
 		hdl = &pHdl.Handler{
 			Kafka: kafka,

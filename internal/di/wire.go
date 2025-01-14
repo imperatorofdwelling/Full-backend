@@ -33,6 +33,7 @@ import (
 
 func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error) {
 	panic(wire.Build(
+		kafkaProvider.KafkaProviderSet,
 		usrProvider.ProviderSet,
 		locProvider.LocationProviderSet,
 		authProvider.ProviderSet,
@@ -50,7 +51,6 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		msgProvider.MessageProviderSet,
 		chatProvider.ChatProviderSet,
 		confirmEmailProvider.ProvideSet,
-		kafkaProvider.KafkaProviderSet,
 		paymentProvider.PaymentProviderSet,
 
 		db.ConnectToBD,

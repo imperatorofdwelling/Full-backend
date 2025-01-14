@@ -15,7 +15,7 @@ type Producer struct {
 	sarama sarama.SyncProducer
 }
 
-func (p *Producer) NewKafkaProducer() (*Producer, error) {
+func NewKafkaProducer() (*Producer, error) {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	producer, err := sarama.NewSyncProducer(ServerAddr, config)

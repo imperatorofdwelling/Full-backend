@@ -5,21 +5,20 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"log/slog"
 	"net/http"
 )
 
 type Handler struct {
-	Kafka interfaces.KafkaProducer
+	Kafka *kafka.Producer
 	Log   *slog.Logger
 }
 
 func (h *Handler) NewPaymentHandler(r chi.Router) {
 	r.Route("/payment", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Post("/", h.MakePayment)
+			r.Get("/", h.MakePayment)
 		})
 	})
 }

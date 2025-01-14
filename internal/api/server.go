@@ -21,12 +21,10 @@ import (
 	staysRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/staysreviews"
 	usrHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	usersReportHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/usersreports"
-	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	paymentHdl "github.com/imperatorofdwelling/Full-backend/internal/api/kafka/payment"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"log"
 	"log/slog"
 	"net/http"
 	"time"
@@ -55,16 +53,9 @@ func NewServerHTTP(
 	chatHandler *chatHdl.Handler,
 	fileHandler *fileHdl.Handler,
 	confirmEmailHandler *confirmEmailHdl.Handler,
-	kafkaProducer *kafka.Producer,
 	paymentHandler *paymentHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
-
-	kafkaProducer, err := kafkaProducer.NewKafkaProducer()
-	if err != nil {
-		log.Fatal("error creating kafka producer")
-	}
-	defer kafkaProducer.Close()
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.DefaultLogger)

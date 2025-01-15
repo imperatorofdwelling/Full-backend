@@ -8,7 +8,6 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/sirupsen/logrus"
-	"log"
 )
 
 func ConnectToBD(cfg *config.Config) (*sql.DB, error) {
@@ -25,12 +24,14 @@ func ConnectToBD(cfg *config.Config) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", addr)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Errorf("Error connecting to DB")
+		logrus.Fatal(err)
 		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
+		logrus.Errorf("Error pinging DB")
 		logrus.Fatal(err)
 		return nil, err
 	}

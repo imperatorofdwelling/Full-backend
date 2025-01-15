@@ -100,7 +100,7 @@ func getUserRoleFromToken(token *jwt.Token) (string, error) {
 		return "", errors.New("invalid token claims")
 	}
 
-	userRole, ok := claims["role_id"].(string) // Роль сохраняется при LOGIN
+	userRole, ok := claims["user_role"].(string) // Роль сохраняется при LOGIN
 	if !ok {
 		return "", errors.New("invalid user role in token")
 	}

@@ -24,7 +24,7 @@ func main() {
 	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
-			fmt.Println("asdf")
+			fmt.Println("defer close migration BD")
 		}
 	}(db)
 

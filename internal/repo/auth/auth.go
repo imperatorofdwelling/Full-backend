@@ -42,7 +42,7 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, in
 
 	var storedPassword string
 	var userID uuid.UUID
-	var roleID int
+	var userRole int
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, role, password FROM users WHERE email = $1")
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, in
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, user.Email).Scan(&userID, &roleID, &storedPassword)
+	err = stmt.QueryRowContext(ctx, user.Email).Scan(&userID, &userRole, &storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return uuid.Nil, -1, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
@@ -72,7 +72,7 @@ func (r *Repository) Login(ctx context.Context, user model.Login) (uuid.UUID, in
 		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
 
-	return userID, roleID, nil
+	return userID, userRole, nil
 }
 
 func (r *Repository) EmailVerification(ctx context.Context, userId string) error {

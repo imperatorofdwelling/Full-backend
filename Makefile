@@ -17,13 +17,15 @@ migration-create:
 migrate-up:
 	go run cmd/migrator/main.go up
 migrate-down:
-	go run cmd/migrator/main.go down
+	go run cmd/migrator/main.go down -env='local'
 docker-stage:
 	docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage up --build -d
 docker-local: wire swag
 	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build
 docker-dev:
 	docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
+db-only:
+	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up db --build
 test:
 	go test ./internal/api/handler/...
 mock:

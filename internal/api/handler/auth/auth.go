@@ -50,7 +50,7 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // Registration
 //
 // @Summary Register a new user
-// @Description Creates a new user account(DEFAULT ROLE_ID=TENANT)
+// @Description Creates a new user account(DEFAULT USER_ROLE=TENANT)
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -113,7 +113,7 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // LoginUser
 //
 // @Summary Login an existing user
-// @Description Authenticates an existing user and returns a JWT token(claim USER_ID, ROLE_ID)
+// @Description Authenticates an existing user and returns a JWT token(claim USER_ID, USER_ROLE)
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -138,7 +138,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userCurrent model.Login
-	if err := jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
+	if err = jsonReader.ReadJSON(w, r, &userCurrent); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, errors.New("failed to decode request body"))
 		return
@@ -159,9 +159,9 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
-		"user_id": userID,
-		"role_id": userRoleID,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(), // token expires in 24 hours
+		"user_id":   userID,
+		"user_role": userRoleID,
 	})
 
 	tokenString, err := token.SignedString([]byte("your-secret-key"))

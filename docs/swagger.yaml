@@ -515,6 +515,8 @@ definitions:
         type: string
       phone:
         type: string
+      role:
+        type: string
       updatedAt:
         type: string
     type: object
@@ -1266,7 +1268,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticates an existing user and returns a JWT token
+      description: Authenticates an existing user and returns a JWT token(claim USER_ID,
+        USER_ROLE)
       parameters:
       - description: Login
         in: body
@@ -1450,7 +1453,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new user account
+      description: Creates a new user account(DEFAULT USER_ROLE=TENANT)
       parameters:
       - description: Registration
         in: body

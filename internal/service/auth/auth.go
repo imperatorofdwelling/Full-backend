@@ -7,6 +7,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	"log"
 	"net/mail"
 	"strings"
 )
@@ -22,50 +23,56 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
+		log.Println("Error checking user existence: " + err.Error())
 		return uuid.Nil, err
 	}
 
 	if userExists {
+		log.Println("User already exists")
 		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrUserAlreadyExists)
 	}
 	if !s.validate(user) {
+		log.Println("Invalid user")
 		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrValid)
 	}
 
 	id, err := s.AuthRepo.Register(ctx, user)
 	if err != nil {
+		log.Println("Error registering user: " + err.Error())
 		return uuid.Nil, err
 	}
 
 	userFound, err := s.UserRepo.FindUserByID(ctx, id)
 	if err != nil {
+		log.Println("Error finding user: " + err.Error())
 		return uuid.Nil, err
 	}
 
 	if userFound.ID == uuid.Nil {
+		log.Println("User not found")
 		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
 	return userFound.ID, nil
 }
 
-func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, int, error) {
 	const op = "service.auth.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, -1, err
 	}
 
 	if !userExists {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
-	id, err := s.AuthRepo.Login(ctx, user)
+	id, roleID, err := s.AuthRepo.Login(ctx, user)
 	if err != nil {
-		return id, err
+		return id, -1, err
 	}
 
-	return id, err
+	return id, roleID, err
 }
 
 func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {

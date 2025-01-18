@@ -93,7 +93,7 @@ func NewServerHTTP(
 
 func (sh *ServerHTTP) Start(cfg *config.Config, log *slog.Logger) {
 	fmt.Print(fmt.Sprintf("Port is %s", cfg.Server.Port))
-	log.Info(fmt.Sprintf("Starting server on port: %s", cfg.Server.Port))
+	log.Info(fmt.Sprintf("Starting server on address: %s:%s", cfg.Server.Addr, cfg.Server.Port))
 	addr := cfg.Server.Addr + ":" + cfg.Server.Port
 	err := http.ListenAndServe(addr, sh.router)
 	if err != nil {

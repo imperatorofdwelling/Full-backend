@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users
     "gender" varchar(255) DEFAULT '',
     "country" varchar(255) DEFAULT '',
     "city" varchar(255) DEFAULT '',
+    "role" integer DEFAULT 0,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );

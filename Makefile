@@ -17,16 +17,40 @@ migration-create:
 migrate-up:
 	go run cmd/migrator/main.go up
 migrate-down:
-	go run cmd/migrator/main.go down -env='local'
+	go run cmd/migrator/main.go down
 docker-stage:
-	docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage up --build -d
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage up --build -d
+	@$(MAKE) migrate-up-docker-stage
 docker-local: wire swag
-	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build -d
+	@$(MAKE) migrate-up-docker-local
 docker-dev:
-	docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
-db-only:
-	docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up db --build
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
+	@$(MAKE) migrate-up-docker-dev
 test:
 	go test ./internal/api/handler/...
 mock:
 	go generate ./internal/domain/interfaces
+
+### MIGRATIONS ###
+migrate-down-docker-local:
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-down-mock
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-down
+migrate-up-docker-local:
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-cities-json
+	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-mock
+migrate-down-docker-dev:
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod run --rm migrate-down-mock
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod run --rm migrate-down
+migrate-up-docker-dev:
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod run --rm migrate
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod run --rm migrate-cities-json
+	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod run --rm migrate-mock
+migrate-down-docker-stage:
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage run --rm migrate-down-mock
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage run --rm migrate-down
+migrate-up-docker-stage:
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage run --rm migrate
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage run --rm migrate-cities-json
+	@docker compose --env-file ./.env.stage -f ./stage.docker-compose.yml -p iod-stage run --rm migrate-mock

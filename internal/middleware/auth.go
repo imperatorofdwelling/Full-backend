@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
+	domain "github.com/imperatorofdwelling/Full-backend/internal/domain/models/role"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
-	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type contextKey string
@@ -33,24 +34,36 @@ func WithAuth(handler http.Handler) http.Handler {
 			permissionDenied(w, r, "invalid token")
 		}
 
-		userID, err := getUserIDFromToken(token)
+		tokenClaims, err := getTokenClaims(token)
+		if err != nil {
+			permissionDenied(w, r, "cannot get token")
+		}
+
+		userID, err := getUserIDFromTClaims(tokenClaims)
 		if err != nil {
 			permissionDenied(w, r, "unable to get user ID from token")
 		}
 
-		userRole, err := getUserRoleFromToken(token)
+		userRole, err := getUserRoleFromClaims(tokenClaims)
 		if err != nil {
 			permissionDenied(w, r, "unable to get user role from token")
 			return
 		}
+
+		// Получаем путь и метод запроса
 		requestPath := r.URL.Path
-		log.Println(requestPath)
+		requestMethod := r.Method
+
+		// Проверяем доступ в зависимости от роли
+		if !permissionCheck(userRole, requestPath, requestMethod) {
+			responseApi.WriteError(w, r, http.StatusForbidden, "forbidden")
+			return
+		}
 
 		// Store the user ID in the request context
 		ctx := context.WithValue(r.Context(), userIDKey, userID)
 		ctx = context.WithValue(r.Context(), userRoleKey, userRole)
 		r = r.WithContext(ctx)
-
 		handler.ServeHTTP(w, r)
 	})
 }
@@ -80,12 +93,15 @@ func validateToken(token string) (*jwt.Token, error) {
 	})
 }
 
-func getUserIDFromToken(token *jwt.Token) (string, error) {
+func getTokenClaims(token *jwt.Token) (jwt.MapClaims, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", errors.New("invalid token claims")
+		return nil, errors.New("invalid token claims")
 	}
+	return claims, nil
+}
 
+func getUserIDFromTClaims(claims jwt.MapClaims) (string, error) {
 	userID, ok := claims["user_id"].(string) // ID сохраняется при LOGIN
 	if !ok {
 		return "", errors.New("invalid user ID in token")
@@ -94,16 +110,37 @@ func getUserIDFromToken(token *jwt.Token) (string, error) {
 	return userID, nil
 }
 
-func getUserRoleFromToken(token *jwt.Token) (string, error) {
-	claims, ok := token.Claims.(jwt.MapClaims)
+func getUserRoleFromClaims(claims jwt.MapClaims) (float64, error) {
+	userRole, ok := claims["user_role"].(float64) // Роль сохраняется при LOGIN
 	if !ok {
-		return "", errors.New("invalid token claims")
-	}
-
-	userRole, ok := claims["user_role"].(string) // Роль сохраняется при LOGIN
-	if !ok {
-		return "", errors.New("invalid user role in token")
+		return -1, errors.New("invalid user role in token")
 	}
 
 	return userRole, nil
+}
+
+func permissionCheck(role float64, path string, method string) bool {
+	var routes []domain.Route
+
+	// Определяем маршруты в зависимости от роли
+	if role == domain.TenantRole {
+		routes = domain.TenantRoutes
+	} else if role == domain.LandlordRole {
+		routes = domain.LandlordRoutes
+	} else {
+		return false // Неизвестная роль
+	}
+
+	// Проверяем, есть ли путь и метод в разрешенных маршрутах
+	for _, route := range routes {
+		if strings.Contains(path, route.Path) {
+			for _, allowedMethod := range route.Methods {
+				if strings.Contains(allowedMethod, method) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false // Доступ запрещен
 }

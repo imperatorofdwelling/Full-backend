@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"log/slog"
@@ -31,10 +32,17 @@ func (h *Handler) MakePayment(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	idempotenceKey := r.Header.Get("Idempotence-Key")
+	if idempotenceKey == "" {
+		h.Log.Error(handler.ErrGettingIdempotenceKey.Error())
+		responseApi.WriteError(w, r, http.StatusBadRequest, handler.ErrGettingIdempotenceKey.Error())
+		return
+	}
+
 	message := "Hello World!"
 	messageJSON, err := json.Marshal(message)
 
-	err = h.Kafka.SendMessage(kafka.PaymentTopic, messageJSON)
+	err = h.Kafka.SendMessage(kafka.PaymentTopic, idempotenceKey, messageJSON)
 	if err != nil {
 		h.Log.Error("failed to send message", "error", err.Error())
 		responseApi.WriteError(w, r, http.StatusServiceUnavailable, err)

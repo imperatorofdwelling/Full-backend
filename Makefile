@@ -26,7 +26,7 @@ docker-local: wire swag
 	@$(MAKE) migrate-up-docker-local
 docker-dev:
 	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
-	@$(MAKE) migrate-up-docker-dev
+	@#$(MAKE) migrate-up-docker-dev
 test:
 	go test ./internal/api/handler/...
 mock:

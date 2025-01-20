@@ -25,7 +25,7 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 	r.Route("/staysadvantage", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateStaysAdvantage)
+			r.Post("/", h.CreateStaysAdvantage)
 			r.Delete("/{id}", h.DeleteStaysAdvantageByID)
 		})
 	})
@@ -42,7 +42,7 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 //		@Success		201	{object}		string	"created"
 //		@Failure		400		{object}	response.ResponseError			"Error"
 //		@Failure		default		{object}	response.ResponseError			"Error"
-//		@Router			/staysadvantage/create [post]
+//		@Router			/staysadvantage [post]
 func (h *Handler) CreateStaysAdvantage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysadvantage.CreateStaysAdvantage"
 

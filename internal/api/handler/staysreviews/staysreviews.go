@@ -24,8 +24,8 @@ func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 	r.Route("/staysreviews", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateStaysReview)
-			r.Put("/update/{id}", h.UpdateStaysReview)
+			r.Post("/", h.CreateStaysReview)
+			r.Put("/{id}", h.UpdateStaysReview)
 			r.Delete("/{id}", h.DeleteStaysReview)
 		})
 
@@ -47,7 +47,7 @@ func (h *Handler) NewStaysReviewsHandler(r chi.Router) {
 //		@Success		201	{string}		string	"created"
 //		@Failure		400		{object}	response.ResponseError			"Error"
 //		@Failure		default		{object}	response.ResponseError			"Error"
-//		@Router			/staysreviews/create [post]
+//		@Router			/staysreviews [post]
 func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.CreateStaysReview"
 
@@ -88,7 +88,7 @@ func (h *Handler) CreateStaysReview(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	response.ResponseError		"Invalid request"
 //	@Failure		404	{object}	response.ResponseError		"Stays review not found"
 //	@Failure		500	{object}	response.ResponseError		"Internal server error"
-//	@Router			/staysreviews/update/{id} [put]
+//	@Router			/staysreviews/{id} [put]
 func (h *Handler) UpdateStaysReview(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysreviews.UpdateStaysReview"
 

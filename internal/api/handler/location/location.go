@@ -32,7 +32,7 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 		})
 
 		r.Group(func(r chi.Router) {
-			r.Get("/match/{locationName}", h.FindByNameMatch)
+			r.Get("/{locationName}", h.FindByNameMatch)
 			r.Get("/", h.GetAll)
 		})
 	})
@@ -49,7 +49,7 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 //	@Success		200	{object}		[]location.Location	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
-//	@Router			/locations/match/{locationName} [get]
+//	@Router			/locations/{locationName} [get]
 func (h *Handler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.FindByNameMatch"
 

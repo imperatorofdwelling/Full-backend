@@ -7,16 +7,19 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	"github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
 	"log/slog"
 	"net/http"
+	"strings"
 )
 
 type UserHandler struct {
@@ -30,6 +33,8 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 			r.Use(mw.WithAuth)
 			r.Put("/{id}", h.UpdateUserByID)
 			r.Delete("/{id}", h.DeleteUserByID)
+			r.Post("/profile/picture", h.CreateUserPfp)
+			r.Get("/profile/picture", h.GetUserPfp)
 		})
 
 		r.Group(func(r chi.Router) {
@@ -242,4 +247,109 @@ func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.R
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "password changed")
+}
+
+// CreateUserPfp
+//
+// @Summary Create user profile picture
+// @Description Uploads a new profile picture for the authenticated user
+// @ID createUserPfp
+// @Tags users
+// @Accept multipart/form-data
+// @Produce json
+// @Param image formData file true "User's profile picture (JPEG or PNG)"
+// @Success 201 {object} map[string]string "User pfp added successfully"
+// @Failure 400 {object} response.ResponseError "Invalid request or unsupported content type"
+// @Failure 401 {object} response.ResponseError "User not logged in"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/profile/picture [post]
+func (h *UserHandler) CreateUserPfp(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.CreateUserPfp"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, file.MaxImageMemorySize)
+
+	err := r.ParseMultipartForm(file.MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	image, hdl, err := r.FormFile("image")
+	if err != nil {
+		h.Log.Error("failed to parse form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+	defer image.Close()
+
+	contentType := hdl.Header.Get("Content-Type")
+	if !(strings.Contains(contentType, "image/jpeg") || strings.Contains(contentType, "image/png")) {
+		h.Log.Error("unsupported content type", slogError.Err(handler.ErrInvalidImageType))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(handler.ErrInvalidImageType))
+		return
+	}
+
+	buf := make([]byte, hdl.Size)
+	n, err := image.Read(buf)
+	if err != nil {
+		h.Log.Error("failed to read image", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	if err = h.Svc.CreateUserPfp(r.Context(), userID, buf[:n]); err != nil {
+		h.Log.Error("service failed to create user profile picture", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusCreated, map[string]string{"message": "User pfp added successfully"})
+}
+
+// GetUserPfp
+//
+// @Summary Get user profile picture
+// @Description Retrieves the profile picture path for the authenticated user
+// @ID getUserPfp
+// @Tags users
+// @Produce json
+// @Success 200 {string} string "Path to the user's profile picture"
+// @Failure 401 {object} response.ResponseError "User not logged in"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/profile/picture [get]
+func (h *UserHandler) GetUserPfp(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.GetUserPfp"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		return
+	}
+
+	pfpPath, err := h.Svc.GetUserPfp(context.Background(), userID)
+	if err != nil {
+		h.Log.Error("service failed to get user profile picture", slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, pfpPath)
 }

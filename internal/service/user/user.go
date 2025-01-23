@@ -10,12 +10,15 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	fileSvc "github.com/imperatorofdwelling/Full-backend/internal/service/file"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"github.com/imperatorofdwelling/Full-backend/pkg/sendMail"
 )
 
 type Service struct {
 	UserRepo         interfaces.UserRepository
 	ConfirmEmailRepo interfaces.ConfirmEmailRepository
+	FileSvc          interfaces.FileService
 }
 
 func (s *Service) GetUserByID(ctx context.Context, idStr string) (model.User, error) {
@@ -152,6 +155,50 @@ func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.New
 	}
 
 	return nil
+}
+
+func (s *Service) CreateUserPfp(ctx context.Context, userId string, image []byte) error {
+	const op = "service.user.CreateUserPfp"
+
+	imageType, err := checkers.DetectImageType(image)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	currentPfpPath, err := s.UserRepo.GetUserPfp(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to get current avatar: %w", op, err)
+	}
+
+	if currentPfpPath != "" {
+		err = s.FileSvc.RemoveFile(currentPfpPath)
+		if err != nil {
+			return fmt.Errorf("%s: failed to remove old avatar: %w", op, err)
+		}
+	}
+
+	fWithPath, err := s.FileSvc.UploadImage(image, imageType, fileSvc.FilePathUsersPFPImages)
+	if err != nil {
+		return err
+	}
+
+	err = s.UserRepo.CreateUserPfp(ctx, userId, fWithPath)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) GetUserPfp(ctx context.Context, userId string) (string, error) {
+	const op = "service.user.GetUserPfp"
+
+	imagePath, err := s.UserRepo.GetUserPfp(ctx, userId)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return imagePath, nil
 }
 
 func (s *Service) stringToUUID(id string) (uuid.UUID, error) {

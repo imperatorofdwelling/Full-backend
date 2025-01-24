@@ -90,4 +90,9 @@ type (
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
 	} // @name StayImage
+
+	StayResponse struct {
+		Stay
+		Images []StayImage `json:"images"`
+	} // @name StayResponse
 )

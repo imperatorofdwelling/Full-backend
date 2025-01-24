@@ -132,7 +132,7 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]model.Stay	"ok"
+//	@Success		200	{object}		[]model.StayResponse	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays [get]

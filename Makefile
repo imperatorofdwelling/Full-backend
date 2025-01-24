@@ -23,10 +23,10 @@ docker-stage:
 	@$(MAKE) migrate-up-docker-stage
 docker-local: wire swag
 	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod up --build -d
-	@$(MAKE) migrate-up-docker-local
+	@#$(MAKE) migrate-up-docker-local
 docker-dev:
 	@docker compose --env-file ./.env.dev -f ./dev.docker-compose.yml -p iod up --build -d
-	@#$(MAKE) migrate-up-docker-dev
+	@$(MAKE) migrate-up-docker-dev
 test:
 	go test ./internal/api/handler/...
 mock:

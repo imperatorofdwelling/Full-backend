@@ -1,3 +1,7 @@
+networks:
+  iod_iod-net:
+    external: true
+
 services:
   kafka-ui:
     container_name: kafka-ui
@@ -8,6 +12,8 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=iod
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka-1:9090,kafka-2:9090,kafka-3:9090
+    networks:
+      - iod_iod-net
 
   kafka-1:
     image: bitnami/kafka:3.8.1
@@ -28,6 +34,8 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/1:/kafka
+    networks:
+      - iod_iod-net
 
   kafka-2:
     image: bitnami/kafka:3.8.1
@@ -48,6 +56,8 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/2:/kafka
+    networks:
+      - iod_iod-net
 
   kafka-3:
     image: bitnami/kafka:3.8.1
@@ -68,3 +78,5 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - ./kafka_data/3:/kafka
+    networks:
+      - iod_iod-net

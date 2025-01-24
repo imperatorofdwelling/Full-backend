@@ -53,7 +53,11 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	advantageRepo := providers2.ProvideAdvantageRepository(sqlDB)
 	fileService := providers3.ProvideFileService()
 	advantageService := providers2.ProvideAdvantageService(advantageRepo, fileService)
-	advantageHandler := providers2.ProvideAdvantageHandler(advantageService, log)
+	producer, err := kafka.NewKafkaProducer()
+	if err != nil {
+		return nil, err
+	}
+	advantageHandler := providers2.ProvideAdvantageHandler(advantageService, log, producer)
 	staysRepo := providers4.ProvideStaysRepo(sqlDB)
 	staysService := providers4.ProvideStaysService(staysRepo, locationService, fileService, userService)
 	staysHandler := providers4.ProvideStaysHandler(staysService, log)
@@ -91,10 +95,6 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
-	producer, err := kafka.NewKafkaProducer()
-	if err != nil {
-		return nil, err
-	}
 	paymentHandler := providers6.ProvidePaymentHandler(producer, log)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler, paymentHandler)
 	return serverHTTP, nil

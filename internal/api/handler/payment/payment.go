@@ -1,7 +1,6 @@
 package payment
 
 import (
-	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
@@ -39,15 +38,15 @@ func (h *Handler) MakePayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := "Hello World!"
-	messageJSON, err := json.Marshal(message)
+	//message := "Hello World!"
+	//messageJSON, err := json.Marshal(message)
 
-	err = h.Kafka.SendMessage(kafka.PaymentTopic, idempotenceKey, messageJSON)
-	if err != nil {
-		h.Log.Error("failed to send message", "error", err.Error())
-		responseApi.WriteError(w, r, http.StatusServiceUnavailable, err)
-		return
-	}
+	//err = h.Kafka.SendMessage(kafka.PaymentTopic, idempotenceKey, messageJSON)
+	//if err != nil {
+	//	h.Log.Error("failed to send message", "error", err.Error())
+	//	responseApi.WriteError(w, r, http.StatusServiceUnavailable, err)
+	//	return
+	//}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "successfully sent")
 }

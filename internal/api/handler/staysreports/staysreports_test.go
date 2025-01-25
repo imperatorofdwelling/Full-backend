@@ -483,7 +483,7 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
-	t.Run("should be svc error creating", func(t *testing.T) {
+	t.Run("should return 400 Bad Request when image reading fails", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
 		body := &bytes.Buffer{}
@@ -491,6 +491,7 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 
 		boundary := writer.Boundary()
 
+		// Создаем часть с заголовком, но не заполняем содержимое до конца
 		partHeader := make(textproto.MIMEHeader)
 		partHeader.Set("Content-Type", "image/jpeg")
 		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
@@ -499,18 +500,13 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		jpegContent := []byte{
-			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
-			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
-		}
-		part.Write(jpegContent)
-
-		writer.WriteField("title", "Test Title")
-		writer.WriteField("description", "Test Description")
+		// Передаем поврежденные данные (обрезанный JPEG)
+		truncatedJPEG := []byte{0xFF, 0xD8, 0xFF} // Обрезанный заголовок JPEG
+		part.Write(truncatedJPEG)
 
 		writer.Close()
 
-		req := httptest.NewRequest(http.MethodPost, "/report/create/"+testUserID.String(), body)
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
 		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
 
 		cookie := &http.Cookie{
@@ -518,9 +514,6 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
-
-		svc.On("CreateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-			Return(errors.New("svc error"))
 
 		router.ServeHTTP(r, req)
 

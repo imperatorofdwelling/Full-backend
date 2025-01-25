@@ -348,6 +348,7 @@ func (h *UserHandler) GetUserPfp(w http.ResponseWriter, r *http.Request) {
 	pfpPath, err := h.Svc.GetUserPfp(context.Background(), userID)
 	if err != nil {
 		h.Log.Error("service failed to get user profile picture", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 

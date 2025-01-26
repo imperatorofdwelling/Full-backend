@@ -43,11 +43,12 @@ func ProvideUserHandler(svc interfaces.UserService, log *slog.Logger) *usrHdl.Us
 	return hdl
 }
 
-func ProvideUserService(userRepo interfaces.UserRepository, confirmRepo interfaces.ConfirmEmailRepository) *usrSvc.Service {
+func ProvideUserService(userRepo interfaces.UserRepository, fileSvc interfaces.FileService, confirmRepo interfaces.ConfirmEmailRepository) *usrSvc.Service {
 	svcOnce.Do(func() {
 		svc = &usrSvc.Service{
-			UserRepo:         repo,
+			UserRepo:         userRepo,
 			ConfirmEmailRepo: confirmRepo,
+			FileSvc:          fileSvc,
 		}
 	})
 

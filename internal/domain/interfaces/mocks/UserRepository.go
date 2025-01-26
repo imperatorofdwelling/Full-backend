@@ -45,6 +45,24 @@ func (_m *UserRepository) CheckUserExists(ctx context.Context, email string) (bo
 	return r0, r1
 }
 
+// CreateUserPfp provides a mock function with given fields: ctx, userId, imagePath
+func (_m *UserRepository) CreateUserPfp(ctx context.Context, userId string, imagePath string) error {
+	ret := _m.Called(ctx, userId, imagePath)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUserPfp")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, userId, imagePath)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteUserByID provides a mock function with given fields: ctx, id
 func (_m *UserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	ret := _m.Called(ctx, id)
@@ -140,6 +158,34 @@ func (_m *UserRepository) GetUserPasswordByEmail(ctx context.Context, email stri
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserPfp provides a mock function with given fields: ctx, userId
+func (_m *UserRepository) GetUserPfp(ctx context.Context, userId string) (string, error) {
+	ret := _m.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserPfp")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, userId)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, userId)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userId)
 	} else {
 		r1 = ret.Error(1)
 	}

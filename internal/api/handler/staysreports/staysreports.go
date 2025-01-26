@@ -26,7 +26,7 @@ type Handler struct {
 }
 
 func (h *Handler) NewStaysReportsHandler(r chi.Router) {
-	r.Route("/report", func(r chi.Router) {
+	r.Route("/stays/report", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
 			r.Get("/", h.GetAllStaysReports)
@@ -36,7 +36,7 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 		})
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create/{stayId}", h.CreateStaysReports)
+			r.Post("/{stayId}", h.CreateStaysReports)
 		})
 	})
 }
@@ -57,7 +57,7 @@ func (h *Handler) NewStaysReportsHandler(r chi.Router) {
 // @Failure      401          {object}  map[string]string     "Error message for unauthorized access"
 // @Failure      500          {object}  map[string]string     "Error message for internal server error"
 // @Security     ApiKeyAuth
-// @Router       /report/create/{stayId} [post]
+// @Router       /stays/report/{stayId} [post]
 func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.CreateStaysReports"
 
@@ -140,7 +140,7 @@ func (h *Handler) CreateStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {array} staysreports.StaysReportEntity
 // @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
 // @Failure 500 {object} response.ResponseError "{"error": "message"}"
-// @Router /report [get]
+// @Router /stays/report [get]
 func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.GetAllStaysReports"
 
@@ -177,7 +177,7 @@ func (h *Handler) GetAllStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
 // @Failure 404 {object} response.ResponseError "{"error": "report not found"}"
 // @Failure 500 {object} response.ResponseError "{"error": "could not fetch report"}"
-// @Router /report/{stayId} [get]
+// @Router /stays/report/{stayId} [get]
 func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.GetStaysReportById"
 
@@ -226,7 +226,7 @@ func (h *Handler) GetStaysReportById(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.ResponseError "Bad Request"
 // @Failure 401 {object} response.ResponseError "Unauthorized"
 // @Failure 500 {object} response.ResponseError "Internal Server Error"
-// @Router /report/{reportId} [patch]
+// @Router /stays/report/{reportId} [patch]
 func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.UpdateStaysReports"
 
@@ -301,7 +301,7 @@ func (h *Handler) UpdateStaysReports(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} string "{"message": "Stay report was deleted"}"
 // @Failure 401 {object} response.ResponseError "{"error": "user not logged in"}"
 // @Failure 500 {object} response.ResponseError "{"error": "message"}"
-// @Router /report/{reportId} [delete]
+// @Router /stays/report/{reportId} [delete]
 func (h *Handler) DeleteStaysReports(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.StaysReports.DeleteStaysReports"
 

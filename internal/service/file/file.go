@@ -26,6 +26,7 @@ const (
 	FilePathStaysImages        PathType = "/images/stays_images"
 	FilePathUsersReportsImages PathType = "/images/users_reports_images"
 	FilePathStaysReportsImages PathType = "/images/stays_reports_images"
+	FilePathUsersPFPImages     PathType = "/images/users_pfp_images"
 )
 
 type Service struct{}

@@ -180,7 +180,6 @@ func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
-
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, id)
@@ -189,4 +188,38 @@ func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *Repository) CreateUserPfp(ctx context.Context, userId, imagePath string) error {
+	const op = "repo.user.CreateUserPfp"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET avatar = $1 WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, imagePath, userId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetUserPfp(ctx context.Context, userId string) (string, error) {
+	const op = "repo.user.GetUserPfp"
+
+	var avatarPath string
+	query := "SELECT avatar FROM users WHERE id = $1"
+
+	err := r.Db.QueryRowContext(ctx, query, userId).Scan(&avatarPath)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("%s: failed to query avatar path: %w", op, err)
+	}
+
+	return avatarPath, nil
 }

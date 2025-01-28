@@ -172,6 +172,23 @@ func (r *Repository) UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, n
 	return nil
 }
 
+func (r *Repository) UpdateUserEmailByID(ctx context.Context, id uuid.UUID, newEmail string) error {
+	const op = "repo.user.UpdateUserEmailByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET email = $1, is_email_verified = false WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newEmail, id)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	const op = "repo.user.DeleteUserByID"
 

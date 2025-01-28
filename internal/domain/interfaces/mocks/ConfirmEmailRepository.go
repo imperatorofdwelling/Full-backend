@@ -515,6 +515,24 @@ func (_m *ConfirmEmailRepository) UpdateEmailChangeOTP(ctx context.Context, user
 	return r0
 }
 
+// UpdateEmailChangeOTPFalse provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) UpdateEmailChangeOTPFalse(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateEmailChangeOTPFalse")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateEmailOTP provides a mock function with given fields: ctx, userID
 func (_m *ConfirmEmailRepository) UpdateEmailOTP(ctx context.Context, userID string) error {
 	ret := _m.Called(ctx, userID)

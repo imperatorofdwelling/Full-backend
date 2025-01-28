@@ -173,6 +173,24 @@ func (_m *UserService) UpdateUserByID(ctx context.Context, idStr string, _a2 use
 	return r0, r1
 }
 
+// UpdateUserEmailByID provides a mock function with given fields: ctx, userID, newEmail
+func (_m *UserService) UpdateUserEmailByID(ctx context.Context, userID string, newEmail string) error {
+	ret := _m.Called(ctx, userID, newEmail)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserEmailByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, userID, newEmail)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateUserPasswordByEmail provides a mock function with given fields: ctx, newPass
 func (_m *UserService) UpdateUserPasswordByEmail(ctx context.Context, newPass newPassword.NewPassword) error {
 	ret := _m.Called(ctx, newPass)

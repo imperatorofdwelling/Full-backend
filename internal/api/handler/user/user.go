@@ -291,6 +291,13 @@ func (h *UserHandler) UpdateUserEmailById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	err = h.Svc.UpdateUserEmailByID(context.Background(), userID, newEmail)
+	if err != nil {
+		h.Log.Error("failed to update user email", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
 	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "email changed successfully"})
 }
 

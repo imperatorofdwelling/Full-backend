@@ -120,6 +120,31 @@ func (s *Service) UpdateUserPasswordByEmail(ctx context.Context, newPass newPass
 	return nil
 }
 
+func (s *Service) UpdateUserEmailByID(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.UpdateUserEmailByID"
+
+	user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, service.ErrNotFound)
+	}
+
+	if user.Email == newEmail {
+		return fmt.Errorf("%s: email is the same as new email", op)
+	}
+
+	err = s.UserRepo.UpdateUserEmailByID(ctx, uuid.FromStringOrNil(userID), newEmail)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.ConfirmEmailRepo.UpdateEmailChangeOTPFalse(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
 func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.NewPassword) error {
 	const op = "service.user.CheckUserPassword"
 

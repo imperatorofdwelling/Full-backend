@@ -402,6 +402,23 @@ func (r *Repo) UpdatePasswordOTPFalse(ctx context.Context, email string) error {
 	return nil
 }
 
+func (r *Repo) UpdateEmailChangeOTPFalse(ctx context.Context, userID string) error {
+	const op = "repo.confirmEmail.UpdatePasswordOTP"
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_change_verifications SET is_verified = false WHERE user_id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repo) ResetPasswordOTP(ctx context.Context, email string) error {
 	const op = "repo.confirmEmail.UpdatePasswordOTP"
 

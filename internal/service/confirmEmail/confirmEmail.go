@@ -120,6 +120,55 @@ func (s *Service) CreateOTPPassword(ctx context.Context, email string) error {
 	return nil
 }
 
+func (s *Service) SendOtpForEmailChange(ctx context.Context, userID string) error {
+	const op = "service.confirmEmail.SendOtpForEmailChange"
+
+	exist, err := s.ConfirmEmailRepo.CheckEmailChangeOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckEmailChangeOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if !expired {
+			return fmt.Errorf("OTP already exists and is not expired")
+		}
+
+		err = s.ConfirmEmailRepo.UpdateEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to update expired OTP: %w", op, err)
+		}
+
+		userOTP, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to get OTP: %w", op, err)
+		}
+
+		err = s.SendOTPEmail(ctx, userID, userOTP, "Email change")
+		if err != nil {
+			return fmt.Errorf("%s : failed to send OTP: %w", op, err)
+		}
+
+		return nil
+	}
+
+	userOTP, err := s.ConfirmEmailRepo.CreateEmailChangeOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	err = s.SendOTPEmail(ctx, userID, userOTP, "Email change")
+	if err != nil {
+		return fmt.Errorf("%s : failed to send OTP: %w", op, err)
+	}
+
+	return nil
+
+}
+
 func (s *Service) SendOTPEmail(ctx context.Context, userID, userOTP, title string) error {
 	const op = "service.confirmEmail.sendOTPEmail"
 

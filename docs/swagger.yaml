@@ -987,6 +987,30 @@ paths:
       summary: Update an Existing Contract
       tags:
       - contracts
+  /email/change/otp:
+    get:
+      consumes:
+      - application/json
+      description: Generate and send a one-time password (OTP) to the user's current
+        email for changing their email address
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: otp for email change created!
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - invalid user ID in context
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal Server Error - failed to send OTP for email change
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Send OTP for Email Change
+      tags:
+      - emailConfirmation
   /email/otp:
     get:
       consumes:

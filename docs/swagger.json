@@ -601,6 +601,41 @@
                 }
             }
         },
+        "/email/change/otp": {
+            "get": {
+                "description": "Generate and send a one-time password (OTP) to the user's current email for changing their email address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "emailConfirmation"
+                ],
+                "summary": "Send OTP for Email Change",
+                "responses": {
+                    "200": {
+                        "description": "otp for email change created!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid user ID in context",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - failed to send OTP for email change",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/email/otp": {
             "get": {
                 "description": "Generate a one-time password (OTP) for email confirmation by user ID",

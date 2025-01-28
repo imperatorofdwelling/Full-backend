@@ -157,6 +157,50 @@ func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.New
 	return nil
 }
 
+func (s *Service) CheckUserEmail(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.CheckUserEmail"
+
+	isVerified, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerified(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if !isVerified {
+		return fmt.Errorf("%s: attempt to change password without verifying email", op)
+	}
+
+	tooLong, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerifiedForTooLong(ctx, userID)
+	if tooLong {
+		err = s.ConfirmEmailRepo.ResetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		newOTP, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		fmt.Println("EMAIIIL: " + user.Email)
+
+		err = sendMail.SimpleEmailSend(user.Email, newOTP, "Email change")
+		if err != nil {
+			return fmt.Errorf("%s : failed to send email to user: %w", op, err)
+		}
+
+		return fmt.Errorf("%s: previous code expired, we sent you a new one, please approve it again", op)
+	}
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
 func (s *Service) CreateUserPfp(ctx context.Context, userId string, image []byte) error {
 	const op = "service.user.CreateUserPfp"
 

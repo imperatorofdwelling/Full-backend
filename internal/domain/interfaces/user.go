@@ -31,6 +31,7 @@ type (
 		UpdateUserByID(ctx context.Context, idStr string, user user.User) (user.User, error)
 		UpdateUserPasswordByEmail(ctx context.Context, newPass newPassword.NewPassword) error
 		CheckUserPassword(ctx context.Context, newPass newPassword.NewPassword) error
+		CheckUserEmail(ctx context.Context, userID, newEmail string) error
 		DeleteUserByID(ctx context.Context, idStr string) error
 		CreateUserPfp(ctx context.Context, userId string, image []byte) error
 	}
@@ -44,5 +45,6 @@ type (
 		UpdateUserByID(w http.ResponseWriter, r *http.Request)
 		DeleteUserByID(w http.ResponseWriter, r *http.Request)
 		UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.Request)
+		UpdateUserEmailById(w http.ResponseWriter, r *http.Request)
 	}
 )

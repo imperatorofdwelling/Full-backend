@@ -27,6 +27,9 @@ type (
 		UpdatePasswordOTPFalse(ctx context.Context, email string) error
 		UpdateEmailChangeOTP(ctx context.Context, userID string) error
 		ResetPasswordOTP(ctx context.Context, email string) error
+		ResetEmailChangeOTP(ctx context.Context, userID string) error
+		CheckEmailChangeOTPVerified(ctx context.Context, userID string) (bool, error)
+		CheckEmailChangeOTPVerifiedForTooLong(ctx context.Context, userID string) (bool, error)
 	}
 )
 

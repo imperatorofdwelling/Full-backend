@@ -267,6 +267,44 @@ func (r *Repo) CheckPasswordOTPVerified(ctx context.Context, email string) (bool
 	return verified, nil
 }
 
+func (r *Repo) CheckEmailChangeOTPVerified(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPVerified"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT is_verified FROM email_change_verifications where user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var verified bool
+	err = stmt.QueryRowContext(ctx, userID).Scan(&verified)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query verified: %w", op, err)
+	}
+
+	return verified, nil
+}
+
+func (r *Repo) CheckEmailChangeOTPVerifiedForTooLong(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPVerifiedForTooLong"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM email_change_verifications where user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var expiresAt time.Time
+	err = stmt.QueryRowContext(ctx, userID).Scan(&expiresAt)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query expires_at: %w", op, err)
+	}
+
+	tenMinutesAgo := time.Now().UTC().Add(-1 * time.Minute)
+
+	return expiresAt.Before(tenMinutesAgo), nil
+}
+
 func (r *Repo) CheckPasswordOTPVerifiedForTooLong(ctx context.Context, email string) (bool, error) {
 	const op = "repo.confirmEmail.CheckPasswordOTPVerified"
 
@@ -377,6 +415,26 @@ func (r *Repo) ResetPasswordOTP(ctx context.Context, email string) error {
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) ResetEmailChangeOTP(ctx context.Context, userID string) error {
+	const op = "repo.confirmEmail.ResetEmailChangeOTP"
+
+	newOTP := otp.GenerateOTP()
+	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_change_verifications SET expires_at = $1, confirmation_code = $2, is_verified = false WHERE user_id = $3")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, userID)
 	if err != nil {
 		return fmt.Errorf("%s: failed to execute update: %w", op, err)
 	}

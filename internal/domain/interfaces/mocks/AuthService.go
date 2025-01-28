@@ -17,6 +17,24 @@ type AuthService struct {
 	mock.Mock
 }
 
+// CheckEmailChangeOTP provides a mock function with given fields: ctx, userID, otp
+func (_m *AuthService) CheckEmailChangeOTP(ctx context.Context, userID string, otp string) error {
+	ret := _m.Called(ctx, userID, otp)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckEmailChangeOTP")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, userID, otp)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CheckEmailOTP provides a mock function with given fields: ctx, userID, otp
 func (_m *AuthService) CheckEmailOTP(ctx context.Context, userID string, otp string) error {
 	ret := _m.Called(ctx, userID, otp)

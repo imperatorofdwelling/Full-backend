@@ -108,6 +108,23 @@ func (r *Repository) PasswordVerification(ctx context.Context, email string) err
 	return nil
 }
 
+func (r *Repository) ConfirmEmailChangeOTP(ctx context.Context, userId string) error {
+	const op = "repo.auth.ConfirmEmailChangeOTP"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE email_change_verifications SET is_verified = true WHERE user_id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare statement: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute statement: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repository) CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error) {
 	const op = "repo.auth.CheckIfUserEmailValidated"
 

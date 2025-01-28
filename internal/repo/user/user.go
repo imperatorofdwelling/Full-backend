@@ -111,46 +111,45 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	stmt, err := r.Db.PrepareContext(ctx, `
 		UPDATE users 
 		SET 
-			name = $2, 
-			email = $3, 
-			phone = $4, 
-			avatar = $5, 
-			birth_date = $6, 
-			national = $7, 
-			gender = $8, 
-			country = $9, 
-			city = $10, 
-			updatedAt = $11
+			name = COALESCE($2, name), 
+			avatar = COALESCE($3, avatar), 
+			birth_date = COALESCE($4, birth_date), 
+			national = COALESCE($5, national), 
+			gender = COALESCE($6, gender), 
+			country = COALESCE($7, country), 
+			city = COALESCE($8, city), 
+			updated_at = $9
 		WHERE id = $1
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, repo.ErrUpdateFailed)
 	}
-
 	defer stmt.Close()
+
 	currentTime := time.Now()
-	rfc1123zTime := currentTime.Format(time.RFC1123Z)
 
 	result, err := stmt.ExecContext(ctx,
 		id,
 		user.Name,
-		user.Email,
-		user.Phone,
-		user.Avatar,
+		string(user.Avatar),
 		user.BirthDate,
 		user.National,
 		user.Gender,
 		user.Country,
 		user.City,
-		rfc1123zTime,
+		currentTime,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, "Error: no rows affected")
 	}
 
 	return nil

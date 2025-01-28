@@ -8,6 +8,7 @@ import (
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -226,16 +227,20 @@ func (r *Repository) CreateUserPfp(ctx context.Context, userId, imagePath string
 func (r *Repository) GetUserPfp(ctx context.Context, userId string) (string, error) {
 	const op = "repo.user.GetUserPfp"
 
-	var avatarPath string
+	var avatarPath sql.NullString
 	query := "SELECT avatar FROM users WHERE id = $1"
 
 	err := r.Db.QueryRowContext(ctx, query, userId).Scan(&avatarPath)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
 		}
 		return "", fmt.Errorf("%s: failed to query avatar path: %w", op, err)
 	}
 
-	return avatarPath, nil
+	if !avatarPath.Valid {
+		return "", nil
+	}
+
+	return avatarPath.String, nil
 }

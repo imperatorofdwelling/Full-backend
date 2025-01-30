@@ -121,7 +121,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 			gender = $8, 
 			country = $9, 
 			city = $10, 
-			role_id = &11,
+			role_id = $11,
 			updatedAt = $12
 		WHERE id = $1
 	`)
@@ -130,8 +130,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	}
 
 	defer stmt.Close()
-	currentTime := time.Now()
-	rfc1123zTime := currentTime.Format(time.RFC1123Z)
+	rfc1123zTime := time.Now().Format(time.RFC1123Z)
 
 	result, err := stmt.ExecContext(ctx,
 		id,

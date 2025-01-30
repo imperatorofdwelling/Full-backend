@@ -8,6 +8,7 @@ import (
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/repo"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -111,46 +112,45 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	stmt, err := r.Db.PrepareContext(ctx, `
 		UPDATE users 
 		SET 
-			name = $2, 
-			email = $3, 
-			phone = $4, 
-			avatar = $5, 
-			birth_date = $6, 
-			national = $7, 
-			gender = $8, 
-			country = $9, 
-			city = $10, 
-			updatedAt = $11
+			name = COALESCE($2, name), 
+			avatar = COALESCE($3, avatar), 
+			birth_date = COALESCE($4, birth_date), 
+			national = COALESCE($5, national), 
+			gender = COALESCE($6, gender), 
+			country = COALESCE($7, country), 
+			city = COALESCE($8, city), 
+			updated_at = $9
 		WHERE id = $1
 	`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, repo.ErrUpdateFailed)
 	}
-
 	defer stmt.Close()
+
 	currentTime := time.Now()
-	rfc1123zTime := currentTime.Format(time.RFC1123Z)
 
 	result, err := stmt.ExecContext(ctx,
 		id,
 		user.Name,
-		user.Email,
-		user.Phone,
-		user.Avatar,
+		string(user.Avatar),
 		user.BirthDate,
 		user.National,
 		user.Gender,
 		user.Country,
 		user.City,
-		rfc1123zTime,
+		currentTime,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = result.RowsAffected()
+	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, "Error: no rows affected")
 	}
 
 	return nil
@@ -166,6 +166,23 @@ func (r *Repository) UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, n
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, newPassword, id.String())
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) UpdateUserEmailByID(ctx context.Context, id uuid.UUID, newEmail string) error {
+	const op = "repo.user.UpdateUserEmailByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET email = $1, is_email_verified = false WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newEmail, id)
 	if err != nil {
 		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
 	}
@@ -210,16 +227,20 @@ func (r *Repository) CreateUserPfp(ctx context.Context, userId, imagePath string
 func (r *Repository) GetUserPfp(ctx context.Context, userId string) (string, error) {
 	const op = "repo.user.GetUserPfp"
 
-	var avatarPath string
+	var avatarPath sql.NullString
 	query := "SELECT avatar FROM users WHERE id = $1"
 
 	err := r.Db.QueryRowContext(ctx, query, userId).Scan(&avatarPath)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
 		}
 		return "", fmt.Errorf("%s: failed to query avatar path: %w", op, err)
 	}
 
-	return avatarPath, nil
+	if !avatarPath.Valid {
+		return "", nil
+	}
+
+	return avatarPath.String, nil
 }

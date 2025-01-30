@@ -144,6 +144,39 @@ func (s *Service) CheckPasswordOTP(ctx context.Context, email, otp string) error
 	return nil
 }
 
+func (s *Service) CheckEmailChangeOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.auth.CheckEmailChangeOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckEmailChangeOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckEmailChangeOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.ConfirmEmailChangeOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
+}
+
 func (s *Service) validate(user model.Registration) bool {
 	if strings.TrimSpace(user.Name) == "" || strings.TrimSpace(user.Email) == "" {
 		return false

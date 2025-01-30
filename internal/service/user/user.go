@@ -120,6 +120,31 @@ func (s *Service) UpdateUserPasswordByEmail(ctx context.Context, newPass newPass
 	return nil
 }
 
+func (s *Service) UpdateUserEmailByID(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.UpdateUserEmailByID"
+
+	user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, service.ErrNotFound)
+	}
+
+	if user.Email == newEmail {
+		return fmt.Errorf("%s: email is the same as new email", op)
+	}
+
+	err = s.UserRepo.UpdateUserEmailByID(ctx, uuid.FromStringOrNil(userID), newEmail)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.ConfirmEmailRepo.UpdateEmailChangeOTPFalse(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
 func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.NewPassword) error {
 	const op = "service.user.CheckUserPassword"
 
@@ -152,6 +177,50 @@ func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.New
 		}
 
 		return fmt.Errorf("%s: previous code expired, we sent you a new one, please approve it again", op)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckUserEmail(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.CheckUserEmail"
+
+	isVerified, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerified(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if !isVerified {
+		return fmt.Errorf("%s: attempt to change password without verifying email", op)
+	}
+
+	tooLong, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerifiedForTooLong(ctx, userID)
+	if tooLong {
+		err = s.ConfirmEmailRepo.ResetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		newOTP, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		fmt.Println("EMAIIIL: " + user.Email)
+
+		err = sendMail.SimpleEmailSend(user.Email, newOTP, "Email change")
+		if err != nil {
+			return fmt.Errorf("%s : failed to send email to user: %w", op, err)
+		}
+
+		return fmt.Errorf("%s: previous code expired, we sent you a new one, please approve it again", op)
+	}
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	return nil

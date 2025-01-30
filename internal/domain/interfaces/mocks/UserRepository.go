@@ -211,6 +211,24 @@ func (_m *UserRepository) UpdateUserByID(ctx context.Context, id uuid.UUID, _a2 
 	return r0
 }
 
+// UpdateUserEmailByID provides a mock function with given fields: ctx, id, newEmail
+func (_m *UserRepository) UpdateUserEmailByID(ctx context.Context, id uuid.UUID, newEmail string) error {
+	ret := _m.Called(ctx, id, newEmail)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserEmailByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) error); ok {
+		r0 = rf(ctx, id, newEmail)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateUserPasswordByID provides a mock function with given fields: ctx, id, newPassword
 func (_m *UserRepository) UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, newPassword string) error {
 	ret := _m.Called(ctx, id, newPassword)

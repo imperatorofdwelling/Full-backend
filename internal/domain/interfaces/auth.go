@@ -15,6 +15,7 @@ type (
 		EmailVerification(ctx context.Context, userId string) error
 		PasswordVerification(ctx context.Context, email string) error
 		CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error)
+		ConfirmEmailChangeOTP(ctx context.Context, userId string) error
 	}
 )
 
@@ -25,6 +26,7 @@ type (
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
 		CheckEmailOTP(ctx context.Context, userID, otp string) error
 		CheckPasswordOTP(ctx context.Context, email, otp string) error
+		CheckEmailChangeOTP(ctx context.Context, userID, otp string) error
 	}
 )
 

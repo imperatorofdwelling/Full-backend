@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -40,6 +41,11 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Get("/{id}", h.GetUserByID)
 			r.Put("/password", h.UpdateUserPasswordByEmail)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(mw.WithAuth)
+			r.Put("/email/change", h.UpdateUserEmailById)
 		})
 	})
 }
@@ -247,6 +253,52 @@ func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.R
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "password changed")
+}
+
+func (h *UserHandler) UpdateUserEmailById(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.UpdateUserEmailByID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
+		return
+	}
+
+	var reqBody map[string]string
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		h.Log.Error("failed to decode JSON body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid JSON body")))
+		return
+	}
+
+	newEmail, ok := reqBody["email"]
+	if !ok || newEmail == "" {
+		h.Log.Error("email is missing or empty", slogError.Err(errors.New("email field is required")))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("email field is required")))
+		return
+	}
+
+	err := h.Svc.CheckUserEmail(context.Background(), userID, newEmail)
+	if err != nil {
+		h.Log.Error("failed to check user email", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.UpdateUserEmailByID(context.Background(), userID, newEmail)
+	if err != nil {
+		h.Log.Error("failed to update user email", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, map[string]string{"message": "email changed successfully"})
 }
 
 // CreateUserPfp

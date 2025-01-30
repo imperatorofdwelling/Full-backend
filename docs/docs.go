@@ -408,6 +408,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/confirm/email/change/otp/{otp}": {
+            "post": {
+                "description": "Verify the one-time password (OTP) provided by the user for email change confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm Email Change OTP",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "One-Time Password (OTP)",
+                        "name": "otp",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP confirmed successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/confirm/email/otp/{otp}": {
+            "post": {
+                "description": "Verify the one-time password (OTP) provided by the user for email confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm One-Time Password (OTP)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "One-Time Password (OTP)",
+                        "name": "otp",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP confirmed successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/confirm/password/otp": {
             "post": {
                 "description": "Verify the one-time password (OTP) provided by the user for password changing",
@@ -612,6 +712,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/email/change/otp": {
+            "get": {
+                "description": "Generate and send a one-time password (OTP) to the user's current email for changing their email address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "emailConfirmation"
+                ],
+                "summary": "Send OTP for Email Change",
+                "responses": {
+                    "200": {
+                        "description": "otp for email change created!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid user ID in context",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - failed to send OTP for email change",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/email/otp": {
             "get": {
                 "description": "Generate a one-time password (OTP) for email confirmation by user ID",
@@ -640,56 +775,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error - could not generate OTP",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/email/otp/{otp}": {
-            "get": {
-                "description": "Verify the one-time password (OTP) provided by the user for email confirmation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Confirm One-Time Password (OTP)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "One-Time Password (OTP)",
-                        "name": "otp",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OTP confirmed successfully!",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - invalid OTP",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - user not logged in",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error - could not verify OTP",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
                         }

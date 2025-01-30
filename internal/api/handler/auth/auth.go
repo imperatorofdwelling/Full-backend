@@ -43,7 +43,8 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 
 	r.Group(func(r chi.Router) {
 		r.Use(mw.WithAuth)
-		r.Post("/email/otp/{otp}", h.ConfirmEmailOTP)
+		r.Post("/confirm/email/otp/{otp}", h.ConfirmEmailOTP)
+		r.Post("/confirm/email/change/otp/{otp}", h.ConfirmEmailChangeOTP)
 	})
 }
 
@@ -192,7 +193,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	response.ResponseError	"Bad Request - invalid OTP"
 //	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
 //	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
-//	@Router			/email/otp/{otp} [get]
+//	@Router			/confirm/email/otp/{otp} [post]
 func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.auth.ConfirmEmailOTP"
 
@@ -261,4 +262,44 @@ func (h *AuthHandler) ConfirmPasswordOTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "password otp confirmed!")
+}
+
+// ConfirmEmailChangeOTP godoc
+//
+//	@Summary		Confirm Email Change OTP
+//	@Description	Verify the one-time password (OTP) provided by the user for email change confirmation
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			otp		path		string	true		"One-Time Password (OTP)"
+//	@Success		200	{string}	string	"OTP confirmed successfully!"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request - invalid OTP"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
+//	@Router			/confirm/email/change/otp/{otp} [post]
+func (h *AuthHandler) ConfirmEmailChangeOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmEmailChangeOTP"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user id not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logger in")))
+		return
+	}
+
+	otp := chi.URLParam(r, "otp")
+
+	err := h.Svc.CheckEmailChangeOTP(context.Background(), userID, otp)
+	if err != nil {
+		h.Log.Error("failed to check otp", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "otp confirmed!")
 }

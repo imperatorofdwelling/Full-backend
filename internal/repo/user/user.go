@@ -75,7 +75,7 @@ func (r *Repository) GetUserPasswordByEmail(ctx context.Context, email string) (
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	const op = "repo.user.FindUserByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, created_at, updated_at FROM users WHERE id = $1")
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id, name, email, phone, avatar, birth_date, national, gender, country, city, role_id, created_at, updated_at FROM users WHERE id = $1")
 	if err != nil {
 		return model.User{}, fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
@@ -95,6 +95,7 @@ func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User
 		&user.Gender,
 		&user.Country,
 		&user.City,
+		&user.RoleID,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -112,14 +113,17 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	stmt, err := r.Db.PrepareContext(ctx, `
 		UPDATE users 
 		SET 
-			name = COALESCE($2, name), 
-			avatar = COALESCE($3, avatar), 
-			birth_date = COALESCE($4, birth_date), 
-			national = COALESCE($5, national), 
-			gender = COALESCE($6, gender), 
-			country = COALESCE($7, country), 
-			city = COALESCE($8, city), 
-			updated_at = $9
+			name = $2, 
+			email = $3, 
+			phone = $4, 
+			avatar = $5, 
+			birth_date = $6, 
+			national = $7, 
+			gender = $8, 
+			country = $9, 
+			city = $10, 
+			role_id = &11,
+			updatedAt = $12
 		WHERE id = $1
 	`)
 	if err != nil {
@@ -138,7 +142,8 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 		user.Gender,
 		user.Country,
 		user.City,
-		currentTime,
+		user.RoleID,
+		rfc1123zTime,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

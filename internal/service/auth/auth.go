@@ -68,8 +68,8 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, int, 
 	return id, roleID, err
 }
 
-func (s *Service) CheckOTP(ctx context.Context, userID, otp string) error {
-	const op = "service.auth.CheckOTP"
+func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.auth.CheckEmailOTP"
 
 	isVerified, err := s.AuthRepo.CheckIfUserValidated(ctx, userID)
 	if err != nil {

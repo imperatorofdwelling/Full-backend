@@ -22,7 +22,7 @@ type (
 	AuthService interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, int, error)
-		CheckOTP(ctx context.Context, userID, otp string) error
+		CheckEmailOTP(ctx context.Context, userID, otp string) error
 	}
 )
 type (

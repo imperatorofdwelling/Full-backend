@@ -205,7 +205,7 @@ func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 
 	otp := chi.URLParam(r, "otp")
 
-	err := h.Svc.CheckOTP(context.Background(), userID, otp)
+	err := h.Svc.CheckEmailOTP(context.Background(), userID, otp)
 	if err != nil {
 		h.Log.Error("failed to check otp", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))

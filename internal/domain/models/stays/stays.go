@@ -95,4 +95,10 @@ type (
 		Stay
 		Images []StayImage `json:"images"`
 	} // @name StayResponse
+
+	Search struct {
+		Type     StayType `json:"type" validate:"required"`
+		PriceMin float32  `json:"price_min" validate:"required"`
+		PriceMax float32  `json:"price_max" validate:"required"`
+	}
 )

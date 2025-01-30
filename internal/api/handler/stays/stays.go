@@ -44,8 +44,19 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 			r.Get("/location/{locationId}", h.GetStaysByLocationID)
+			r.Get("/", h.SearchStays)
 		})
 	})
+}
+
+func (h *Handler) SearchStays(w http.ResponseWriter, r *http.Request) {
+	const op = "h.stays.SearchStays"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
 }
 
 // CreateStay godoc

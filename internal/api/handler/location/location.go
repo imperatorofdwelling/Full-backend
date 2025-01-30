@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -31,7 +32,7 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 		})
 
 		r.Group(func(r chi.Router) {
-			r.Get("/match/{locationName}", h.FindByNameMatch)
+			r.Get("/{locationName}", h.FindByNameMatch)
 			r.Get("/", h.GetAll)
 		})
 	})
@@ -46,9 +47,9 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 //	@Produce		json
 //	@Param			locationName	path		string		true	"location name match"
 //	@Success		200	{object}		[]location.Location	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
-//	@Router			/locations/match/{locationName} [get]
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
+//	@Router			/locations/{locationName} [get]
 func (h *Handler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.FindByNameMatch"
 
@@ -77,8 +78,8 @@ func (h *Handler) FindByNameMatch(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Success		200	{object}		[]location.Location	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations [get]
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.GetAll"
@@ -107,8 +108,8 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path		string		true	"location id"
 //	@Success		200	{object}		location.Location	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{id} [get]
 func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.GetOneByID"
@@ -145,8 +146,8 @@ func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path		string		true	"location id"
 //	@Success		200	{object}		location.Location	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{id} [delete]
 func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.DeleteByID"
@@ -184,8 +185,8 @@ func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path		string		true	"location id"
 //	@Param			request	body		location.LocationEntity		true	"location request"
 //	@Success		200	{object}		location.Location	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{id} [delete]
 func (h *Handler) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.UpdateByID"

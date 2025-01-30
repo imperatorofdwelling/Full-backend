@@ -24,7 +24,7 @@ type (
 		RoleID    int64        `json:"role_id"`
 		CreatedAt time.Time    `json:"createdAt,omitempty"`
 		UpdatedAt time.Time    `json:"updatedAt,omitempty"`
-	}
+	} // @name UserEntity
 
 	// User represents a user in the system.
 	// @Description User details
@@ -42,7 +42,7 @@ type (
 		RoleID    int64        `json:"role_id"`
 		CreatedAt time.Time    `json:"createdAt"`
 		UpdatedAt time.Time    `json:"updatedAt"`
-	}
+	} // @name User
 
 	Info struct {
 		ID        int64        `json:"id"`
@@ -53,6 +53,5 @@ type (
 		BirthDate sql.NullTime `json:"birthDate"`
 		National  string       `json:"national"`
 		Gender    string       `json:"gender"`
-		RoleID    int64        `json:"role_id"`
-	}
+	} // @name UserInfo
 )

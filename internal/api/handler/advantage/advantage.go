@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -49,8 +50,8 @@ func (h *Handler) NewAdvantageHandler(r chi.Router) {
 //	 	@Param			title	formData	string			true	"title of advantage"
 //		@Produce		json
 //		@Success		201	{string}		string	"created"
-//		@Failure		400		{object}	responseApi.ResponseError			"Error"
-//		@Failure		default		{object}	responseApi.ResponseError			"Error"
+//		@Failure		400		{object}	response.ResponseError			"Error"
+//		@Failure		default		{object}	response.ResponseError			"Error"
 //		@Router			/advantages/create [post]
 func (h *Handler) CreateAdvantage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.advantage.CreateAdvantage"
@@ -121,8 +122,8 @@ func (h *Handler) CreateAdvantage(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			advantageId	path		string		true	"advantage id"
 //	@Success		204	{string}		string	"no content"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/advantages/{advantageId} [delete]
 func (h *Handler) RemoveAdvantage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.advantage.RemoveAdvantage"
@@ -159,8 +160,8 @@ func (h *Handler) RemoveAdvantage(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Success		200	{object}		[]advantage.Advantage	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/advantages/all [get]
 func (h *Handler) GetAllAdvantages(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.advantage.GetAllAdvantage"
@@ -191,8 +192,8 @@ func (h *Handler) GetAllAdvantages(w http.ResponseWriter, r *http.Request) {
 //	@Param			image	formData	file			false	"image file"
 //	@Param			title	formData	string			false	"title of advantage"
 //	@Success		200	{object}		advantage.Advantage	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/advantages/{advantageId} [patch]
 func (h *Handler) UpdateAdvantage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.advantage.UpdateAdvantage"

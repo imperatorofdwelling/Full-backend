@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func SimpleEmailSend(userMail, userOTP string) error {
+func SimpleEmailSend(userMail, userOTP, title string) error {
 	smtpUser := os.Getenv("SMTP_USER")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
 
@@ -25,13 +25,13 @@ func SimpleEmailSend(userMail, userOTP string) error {
 		smtpHost,
 	)
 
-	subject := "Subject: Registration"
+	subject := "Subject: " + title
 	to := []string{userMail}
 	body := fmt.Sprintf("Your code: %s", userOTP)
 
 	message := []byte(subject + "\r\n" +
 		"To: " + strings.Join(to, ",") + "\r\n" +
-		"From: " + smtpUser + "\r\n" +
+		"From: " + "Someone Of Dwellers" + "\r\n" +
 		"Content-Type: text/plain; charset=UTF-8\r\n" +
 		"\r\n" +
 		body)

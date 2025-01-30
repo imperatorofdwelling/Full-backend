@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -27,13 +28,13 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateStay)
+			r.Post("/", h.CreateStay)
 
 			r.Delete("/{stayId}", h.DeleteStayByID)
 			r.Put("/{stayId}", h.UpdateStayByID)
 			r.Post("/images", h.CreateImages)
 			r.Post("/images/main", h.CreateMainImage)
-			r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
+			r.Delete("/images/{imageId}", h.DeleteStayImage)
 		})
 
 		r.Group(func(r chi.Router) {
@@ -56,9 +57,9 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 //	@Produce		json
 //	@Param	request body model.StayEntity	true	"request stay data"
 //	@Success		201	{string}		string		"created"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
-//	@Router			/stays/create [post]
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
+//	@Router			/stays [post]
 func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateStay"
 
@@ -95,8 +96,8 @@ func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			stayId	path		string		true	"stay id"
 //	@Success		200	{object}		model.Stay		"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/{stayId} [get]
 func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStayByID"
@@ -131,9 +132,9 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]model.Stay	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Success		200	{object}		[]model.StayResponse	"ok"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays [get]
 func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStays"
@@ -162,8 +163,8 @@ func (h *Handler) GetStays(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			stayId	path		string		true	"stay id"
 //	@Success		204	{string}		string	"no content"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/{stayId} [delete]
 func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.DeleteStay"
@@ -200,8 +201,8 @@ func (h *Handler) DeleteStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param	request body model.StayEntity	true	"request stay data"
 //	@Success		200	{object}		model.Stay	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/{stayId} [put]
 func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.UpdateStayByID"
@@ -247,8 +248,8 @@ func (h *Handler) UpdateStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Param			userId	path		string		true	"user id"
 //	@Produce		json
 //	@Success		200	{object}		[]model.Stay	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/user/{userId} [get]
 func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStaysByUserID"
@@ -285,8 +286,8 @@ func (h *Handler) GetStaysByUserID(w http.ResponseWriter, r *http.Request) {
 //	@Param			stayId	path		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		[]model.StayImage	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/images/{stayId} [get]
 func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStayImagesByStayID"
@@ -323,8 +324,8 @@ func (h *Handler) GetStayImagesByStayID(w http.ResponseWriter, r *http.Request) 
 //	@Param			stayId	path		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		model.StayImage	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/images/main/{stayId} [get]
 func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetMainImageByStayID"
@@ -362,8 +363,8 @@ func (h *Handler) GetMainImageByStayID(w http.ResponseWriter, r *http.Request) {
 //	@Param			stay_id	formData		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/images [post]
 func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateImages"
@@ -414,8 +415,8 @@ func (h *Handler) CreateImages(w http.ResponseWriter, r *http.Request) {
 //	@Param			stay_id	formData		string		true	"stay id"
 //	@Produce		json
 //	@Success		200	{object}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/images/main [post]
 func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateMainImage"
@@ -464,9 +465,9 @@ func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
 //	@Param			imageId	path		string		true	"stay image id"
 //	@Produce		json
 //	@Success		200	{object}		string	"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
-//	@Router			/stays/images/delete/{imageId} [delete]
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
+//	@Router			/stays/images/{imageId} [delete]
 func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.DeleteStayImage"
 
@@ -503,8 +504,8 @@ func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			locationId	path		string		true	"stay id"
 //	@Success		200	{object}		[]model.Stay		"ok"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays/location/{locationId} [get]
 func (h *Handler) GetStaysByLocationID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.GetStaysByLocationID"

@@ -26,6 +26,7 @@ const (
 	FilePathStaysImages        PathType = "/images/stays_images"
 	FilePathUsersReportsImages PathType = "/images/users_reports_images"
 	FilePathStaysReportsImages PathType = "/images/stays_reports_images"
+	FilePathUsersPFPImages     PathType = "/images/users_pfp_images"
 )
 
 type Service struct{}
@@ -60,23 +61,17 @@ func (s *Service) UploadImage(img []byte, t ImageType, filePath PathType) (strin
 func (s *Service) RemoveFile(fileName string) error {
 	const op = "service.FileService.RemoveFile"
 
-	file, err := os.Open(fileName)
-	if err != nil {
+	fullPath := fmt.Sprintf("./static%s", fileName)
+
+	if _, err := os.Stat(fullPath); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("%s: %s", op, "file does not exist")
-		} else {
-			return fmt.Errorf("%s: %w", op, err)
+			return fmt.Errorf("%s: file does not exist at path %s", op, fullPath)
 		}
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = file.Close()
-	if err != nil {
-		return err
-	}
-
-	err = os.Remove(fileName)
-	if err != nil {
-		return fmt.Errorf("%s: %v", op, err)
+	if err := os.Remove(fullPath); err != nil {
+		return fmt.Errorf("%s: failed to remove file: %w", op, err)
 	}
 
 	return nil

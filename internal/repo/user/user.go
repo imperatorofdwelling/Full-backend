@@ -16,7 +16,7 @@ type Repository struct {
 }
 
 func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, error) {
-	const op = "repo.user.CheckUserIfExists"
+	const op = "repo.user.CheckUserExists"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)")
 	if err != nil {
@@ -33,6 +33,42 @@ func (r *Repository) CheckUserExists(ctx context.Context, email string) (bool, e
 	}
 
 	return exists, nil
+}
+
+func (r *Repository) GetUserIDByEmail(ctx context.Context, email string) (string, error) {
+	const op = "repo.user.GetUserIDByEmail"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT id FROM users WHERE email = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while prepating query %w", op, err)
+	}
+	defer stmt.Close()
+
+	var id string
+	err = stmt.QueryRowContext(ctx, email).Scan(&id)
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while executing query %w", op, err)
+	}
+
+	return id, nil
+}
+
+func (r *Repository) GetUserPasswordByEmail(ctx context.Context, email string) (string, error) {
+	const op = "repo.user.GetUserPasswordByEmail"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT password FROM users WHERE email = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while prepating query %w", op, err)
+	}
+	defer stmt.Close()
+
+	var password string
+	err = stmt.QueryRowContext(ctx, email).Scan(&password)
+	if err != nil {
+		return "", fmt.Errorf("%s: Error while executing query %w", op, err)
+	}
+
+	return password, nil
 }
 
 func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
@@ -123,6 +159,23 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 	return nil
 }
 
+func (r *Repository) UpdateUserPasswordByID(ctx context.Context, id uuid.UUID, newPassword string) error {
+	const op = "repo.user.UpdateUserPasswordByID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newPassword, id.String())
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	const op = "repo.user.DeleteUserByID"
 
@@ -130,7 +183,6 @@ func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, repo.ErrUserNotFound)
 	}
-
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, id)
@@ -139,4 +191,38 @@ func (r *Repository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (r *Repository) CreateUserPfp(ctx context.Context, userId, imagePath string) error {
+	const op = "repo.user.CreateUserPfp"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET avatar = $1 WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, imagePath, userId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetUserPfp(ctx context.Context, userId string) (string, error) {
+	const op = "repo.user.GetUserPfp"
+
+	var avatarPath string
+	query := "SELECT avatar FROM users WHERE id = $1"
+
+	err := r.Db.QueryRowContext(ctx, query, userId).Scan(&avatarPath)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("%s: failed to query avatar path: %w", op, err)
+	}
+
+	return avatarPath, nil
 }

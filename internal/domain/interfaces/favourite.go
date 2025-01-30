@@ -2,7 +2,7 @@ package interfaces
 
 import (
 	"context"
-	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/favourite"
+	stays2 "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"net/http"
 )
 
@@ -10,14 +10,14 @@ import (
 type FavouriteRepo interface {
 	AddFavourite(ctx context.Context, userId, stayID string) error
 	RemoveFavourite(ctx context.Context, userID, stayID string) error
-	GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error)
+	GetAllFavourites(ctx context.Context, userID string) ([]stays2.StayEntityFav, error)
 }
 
 //go:generate mockery --name FavouriteService
 type FavouriteService interface {
 	AddToFavourites(ctx context.Context, userID, stayID string) error
 	RemoveFromFavourites(ctx context.Context, userID, stayID string) error
-	GetAllFavourites(ctx context.Context, userID string) ([]model.Favourite, error)
+	GetAllFavourites(ctx context.Context, userID string) ([]stays2.StayEntityFav, error)
 }
 
 type FavouriteHandler interface {

@@ -183,15 +183,17 @@ func (_m *StaysRepo) GetStayImageByID(_a0 context.Context, _a1 uuid.UUID) (stays
 }
 
 // GetStays provides a mock function with given fields: _a0
-func (_m *StaysRepo) GetStays(_a0 context.Context) ([]*stays.Stay, error) {
+func (_m *StaysRepo) GetStays(_a0 context.Context) ([]stays.StayResponse, error) {
 	ret := _m.Called(_a0)
+
 
 	var r0 []*stays.Stay
 	if rf, ok := ret.Get(0).(func(context.Context) []*stays.Stay); ok {
+
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*stays.Stay)
+			r0 = ret.Get(0).([]stays.StayResponse)
 		}
 	}
 

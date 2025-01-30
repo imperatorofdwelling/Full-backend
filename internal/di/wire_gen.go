@@ -11,14 +11,14 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
-	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
+	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/advantage"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/auth"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/chat"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/confirmEmail"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	user2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
-	providers3 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
-	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
@@ -43,15 +43,15 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	repo := confirmEmail.ProvideConfirmEmailRepo(sqlDB)
 	service := auth.ProvideAuthService(repository, userRepository, repo)
 	authHandler := auth.ProvideAuthHandler(service, log)
-	userService := user.ProvideUserService(userRepository)
+	fileService := providers.ProvideFileService()
+	userService := user.ProvideUserService(userRepository, fileService, repo)
 	userHandler := user.ProvideUserHandler(userService, log)
-	locationRepo := providers.ProvideLocationRepository(sqlDB)
-	locationService := providers.ProvideLocationService(locationRepo)
-	handler := providers.ProvideLocationHandler(locationService, log)
-	advantageRepo := providers2.ProvideAdvantageRepository(sqlDB)
-	fileService := providers3.ProvideFileService()
-	advantageService := providers2.ProvideAdvantageService(advantageRepo, fileService)
-	advantageHandler := providers2.ProvideAdvantageHandler(advantageService, log)
+	locationRepo := providers2.ProvideLocationRepository(sqlDB)
+	locationService := providers2.ProvideLocationService(locationRepo)
+	handler := providers2.ProvideLocationHandler(locationService, log)
+	advantageRepo := providers3.ProvideAdvantageRepository(sqlDB)
+	advantageService := providers3.ProvideAdvantageService(advantageRepo, fileService)
+	advantageHandler := providers3.ProvideAdvantageHandler(advantageService, log)
 	staysRepo := providers4.ProvideStaysRepo(sqlDB)
 	staysService := providers4.ProvideStaysService(staysRepo, locationService, fileService, userService)
 	staysHandler := providers4.ProvideStaysHandler(staysService, log)
@@ -86,7 +86,7 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	chatService := chat.ProvideChatService(chatRepo)
 	connectionManager := connectionmanager.NewConnectionManager()
 	chatHandler := chat.ProvideChatHandler(chatService, log, connectionManager)
-	fileHandler := providers3.ProvideFileHandler(fileService, log)
+	fileHandler := providers.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)

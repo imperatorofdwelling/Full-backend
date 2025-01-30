@@ -13,7 +13,9 @@ type (
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, int, error)
 		EmailVerification(ctx context.Context, userId string) error
-		CheckIfUserValidated(ctx context.Context, userId string) (bool, error)
+		PasswordVerification(ctx context.Context, email string) error
+		CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error)
+		ConfirmEmailChangeOTP(ctx context.Context, userId string) error
 	}
 )
 
@@ -23,11 +25,16 @@ type (
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
 		Login(ctx context.Context, user auth.Login) (uuid.UUID, int, error)
 		CheckEmailOTP(ctx context.Context, userID, otp string) error
+		CheckPasswordOTP(ctx context.Context, email, otp string) error
+		CheckEmailChangeOTP(ctx context.Context, userID, otp string) error
+
 	}
 )
+
 type (
 	AuthHandler interface {
 		Registration(w http.ResponseWriter, r *http.Request)
 		LoginUser(w http.ResponseWriter, r *http.Request)
+		ConfirmEmailOTP(w http.ResponseWriter, r *http.Request)
 	}
 )

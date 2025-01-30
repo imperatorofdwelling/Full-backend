@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/contracts"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -40,11 +41,11 @@ func (h *Handler) NewContractHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
-//	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
+//	@Param			request	body		contracts.ContractResponse	true	"Contract details including dateStart and dateEnd"
 //	@Success		200	{object}	map[string]interface{}	"Updated contract information"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/contract/{stayId} [put]
 func (h *Handler) UpdateContract(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.contracts.UpdateContract"
@@ -112,8 +113,8 @@ func (h *Handler) UpdateContract(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		contracts.Contract	"ok" // Adjust the type based on your actual Contract struct
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/contract [get]
 func (h *Handler) GetAllContracts(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.contracts.GetAllContracts"
@@ -148,11 +149,11 @@ func (h *Handler) GetAllContracts(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			stayId	path		string	true	"The ID of the stay"
-//	@Param			request	body		map[string]string	true	"Contract details including dateStart and dateEnd"
+//	@Param			request	body		contracts.ContractResponse	true	"Contract details including dateStart and dateEnd"
 //	@Success		201	{object}	map[string]string	"Contract created successfully with message"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error"
 //	@Router			/contract/{stayId} [post]
 func (h *Handler) AddContract(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.contracts.AddContract"

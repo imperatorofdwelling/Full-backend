@@ -17,9 +17,10 @@ type AuthRepository struct {
 	mock.Mock
 }
 
-// CheckIfUserValidated provides a mock function with given fields: ctx, userId
-func (_m *AuthRepository) CheckIfUserValidated(ctx context.Context, userId string) (bool, error) {
+// CheckIfUserEmailValidated provides a mock function with given fields: ctx, userId
+func (_m *AuthRepository) CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error) {
 	ret := _m.Called(ctx, userId)
+
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
@@ -36,6 +37,24 @@ func (_m *AuthRepository) CheckIfUserValidated(ctx context.Context, userId strin
 	}
 
 	return r0, r1
+}
+
+// ConfirmEmailChangeOTP provides a mock function with given fields: ctx, userId
+func (_m *AuthRepository) ConfirmEmailChangeOTP(ctx context.Context, userId string) error {
+	ret := _m.Called(ctx, userId)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConfirmEmailChangeOTP")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // EmailVerification provides a mock function with given fields: ctx, userId
@@ -80,6 +99,24 @@ func (_m *AuthRepository) Login(ctx context.Context, user auth.Login) (uuid.UUID
 	}
 
 	return r0, r1, r2
+}
+
+// PasswordVerification provides a mock function with given fields: ctx, email
+func (_m *AuthRepository) PasswordVerification(ctx context.Context, email string) error {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PasswordVerification")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Register provides a mock function with given fields: ctx, user

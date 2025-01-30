@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/staysadvantage"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -24,7 +25,7 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 	r.Route("/staysadvantage", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateStaysAdvantage)
+			r.Post("/", h.CreateStaysAdvantage)
 			r.Delete("/{id}", h.DeleteStaysAdvantageByID)
 		})
 	})
@@ -39,9 +40,9 @@ func (h *Handler) NewStaysAdvantageHandler(r chi.Router) {
 //		@Produce		json
 //	 	@Param			request		body	model.StayAdvantageCreateReq	true	"staysAdvantage request"
 //		@Success		201	{object}		string	"created"
-//		@Failure		400		{object}	responseApi.ResponseError			"Error"
-//		@Failure		default		{object}	responseApi.ResponseError			"Error"
-//		@Router			/staysadvantage/create [post]
+//		@Failure		400		{object}	response.ResponseError			"Error"
+//		@Failure		default		{object}	response.ResponseError			"Error"
+//		@Router			/staysadvantage [post]
 func (h *Handler) CreateStaysAdvantage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysadvantage.CreateStaysAdvantage"
 
@@ -78,8 +79,8 @@ func (h *Handler) CreateStaysAdvantage(w http.ResponseWriter, r *http.Request) {
 //	@Param			id	path		string		true	"stay advantage id"
 //	@Produce		json
 //	@Success		204	{object}		string	"no content"
-//	@Failure		400		{object}	responseApi.ResponseError			"Error"
-//	@Failure		default		{object}	responseApi.ResponseError			"Error"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/staysadvantage/{id} [delete]
 func (h *Handler) DeleteStaysAdvantageByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.staysadvantage.DeleteStaysAdvantageByID"

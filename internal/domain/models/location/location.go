@@ -18,7 +18,7 @@ type (
 		Population      float32 `json:"population,omitempty"`
 		RegionIsoCode   string  `json:"region_iso_code,omitempty"`
 		RegionName      string  `json:"region_name,omitempty"`
-	}
+	} // @name LocationEntity
 
 	Location struct {
 		ID              uuid.UUID `json:"id"`
@@ -35,5 +35,5 @@ type (
 		RegionName      string    `json:"region_name"`
 		CreatedAt       time.Time `json:"createdAt"`
 		UpdatedAt       time.Time `json:"updatedAt"`
-	}
+	} // @name Location
 )

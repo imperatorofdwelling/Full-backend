@@ -13,9 +13,11 @@ type ConfirmEmailRepository struct {
 	mock.Mock
 }
 
-// CheckOTPExists provides a mock function with given fields: ctx, userID
-func (_m *ConfirmEmailRepository) CheckOTPExists(ctx context.Context, userID string) (bool, error) {
+// CheckEmailChangeOTPExists provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CheckEmailChangeOTPExists(ctx context.Context, userID string) (bool, error) {
 	ret := _m.Called(ctx, userID)
+
+
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
@@ -34,9 +36,122 @@ func (_m *ConfirmEmailRepository) CheckOTPExists(ctx context.Context, userID str
 	return r0, r1
 }
 
-// CheckOTPNotExpired provides a mock function with given fields: ctx, userID
-func (_m *ConfirmEmailRepository) CheckOTPNotExpired(ctx context.Context, userID string) (bool, error) {
+// CheckEmailChangeOTPNotExpired provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CheckEmailChangeOTPNotExpired(ctx context.Context, email string) (bool, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckEmailChangeOTPNotExpired")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckEmailChangeOTPVerified provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CheckEmailChangeOTPVerified(ctx context.Context, userID string) (bool, error) {
 	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckEmailChangeOTPVerified")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckEmailChangeOTPVerifiedForTooLong provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CheckEmailChangeOTPVerifiedForTooLong(ctx context.Context, userID string) (bool, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckEmailChangeOTPVerifiedForTooLong")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckEmailOTPExists provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CheckEmailOTPExists(ctx context.Context, userID string) (bool, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckEmailOTPExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckEmailOTPNotExpired provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CheckEmailOTPNotExpired(ctx context.Context, userID string) (bool, error) {
+	ret := _m.Called(ctx, userID)
+
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
@@ -55,8 +170,148 @@ func (_m *ConfirmEmailRepository) CheckOTPNotExpired(ctx context.Context, userID
 	return r0, r1
 }
 
-// CreateOTP provides a mock function with given fields: ctx, userId
-func (_m *ConfirmEmailRepository) CreateOTP(ctx context.Context, userId string) (string, error) {
+// CheckPasswordOTPExists provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CheckPasswordOTPExists(ctx context.Context, email string) (bool, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckPasswordOTPExists")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckPasswordOTPNotExpired provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CheckPasswordOTPNotExpired(ctx context.Context, email string) (bool, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckPasswordOTPNotExpired")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckPasswordOTPVerified provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CheckPasswordOTPVerified(ctx context.Context, email string) (bool, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckPasswordOTPVerified")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CheckPasswordOTPVerifiedForTooLong provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CheckPasswordOTPVerifiedForTooLong(ctx context.Context, email string) (bool, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckPasswordOTPVerifiedForTooLong")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (bool, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateEmailChangeOTP provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) CreateEmailChangeOTP(ctx context.Context, userID string) (string, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateEmailChangeOTP")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateEmailOTP provides a mock function with given fields: ctx, userId
+func (_m *ConfirmEmailRepository) CreateEmailOTP(ctx context.Context, userId string) (string, error) {
 	ret := _m.Called(ctx, userId)
 
 	var r0 string
@@ -76,8 +331,64 @@ func (_m *ConfirmEmailRepository) CreateOTP(ctx context.Context, userId string) 
 	return r0, r1
 }
 
-// GetOTP provides a mock function with given fields: ctx, userId
-func (_m *ConfirmEmailRepository) GetOTP(ctx context.Context, userId string) (string, error) {
+// CreatePasswordOTP provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) CreatePasswordOTP(ctx context.Context, email string) (string, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreatePasswordOTP")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetEmailChangeOTP provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) GetEmailChangeOTP(ctx context.Context, email string) (string, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetEmailChangeOTP")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetEmailOTP provides a mock function with given fields: ctx, userId
+func (_m *ConfirmEmailRepository) GetEmailOTP(ctx context.Context, userId string) (string, error) {
 	ret := _m.Called(ctx, userId)
 
 	var r0 string
@@ -97,8 +408,108 @@ func (_m *ConfirmEmailRepository) GetOTP(ctx context.Context, userId string) (st
 	return r0, r1
 }
 
-// UpdateOTP provides a mock function with given fields: ctx, userID
-func (_m *ConfirmEmailRepository) UpdateOTP(ctx context.Context, userID string) error {
+// GetPasswordOTP provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) GetPasswordOTP(ctx context.Context, email string) (string, error) {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPasswordOTP")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+		return rf(ctx, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ResetEmailChangeOTP provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) ResetEmailChangeOTP(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ResetEmailChangeOTP")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ResetPasswordOTP provides a mock function with given fields: ctx, email
+func (_m *ConfirmEmailRepository) ResetPasswordOTP(ctx context.Context, email string) error {
+	ret := _m.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ResetPasswordOTP")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateEmailChangeOTP provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) UpdateEmailChangeOTP(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateEmailChangeOTP")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateEmailChangeOTPFalse provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) UpdateEmailChangeOTPFalse(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateEmailChangeOTPFalse")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UpdateEmailOTP provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailRepository) UpdateEmailOTP(ctx context.Context, userID string) error {
 	ret := _m.Called(ctx, userID)
 
 	var r0 error

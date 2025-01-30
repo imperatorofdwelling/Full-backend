@@ -62,7 +62,7 @@ func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*stays.Stay, e
 	return stay, nil
 }
 
-func (s *Service) GetStays(ctx context.Context) ([]*stays.Stay, error) {
+func (s *Service) GetStays(ctx context.Context) ([]stays.StayResponse, error) {
 	const op = "service.stays.GetStays"
 
 	staysFromRepo, err := s.Repo.GetStays(ctx)

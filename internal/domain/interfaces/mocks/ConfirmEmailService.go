@@ -13,9 +13,10 @@ type ConfirmEmailService struct {
 	mock.Mock
 }
 
-// CreateOTP provides a mock function with given fields: ctx, userID
-func (_m *ConfirmEmailService) CreateOTP(ctx context.Context, userID string) error {
+// CreateOTPEmail provides a mock function with given fields: ctx, userID
+func (_m *ConfirmEmailService) CreateOTPEmail(ctx context.Context, userID string) error {
 	ret := _m.Called(ctx, userID)
+
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {

@@ -12,7 +12,7 @@ import (
 type StaysRepo interface {
 	CreateStay(context.Context, *stays.StayEntity) error
 	GetStayByID(context.Context, uuid.UUID) (*stays.Stay, error)
-	GetStays(context.Context) ([]*stays.Stay, error)
+	GetStays(context.Context) ([]stays.StayResponse, error)
 	GetStaysByUserID(context.Context, uuid.UUID) ([]*stays.Stay, error)
 	DeleteStayByID(context.Context, uuid.UUID) error
 	UpdateStayByID(context.Context, *stays.StayEntity, uuid.UUID) error
@@ -29,7 +29,7 @@ type StaysRepo interface {
 type StaysService interface {
 	CreateStay(context.Context, *stays.StayEntity) error
 	GetStayByID(context.Context, uuid.UUID) (*stays.Stay, error)
-	GetStays(context.Context) ([]*stays.Stay, error)
+	GetStays(context.Context) ([]stays.StayResponse, error)
 	GetStaysByUserID(context.Context, uuid.UUID) ([]*stays.Stay, error)
 	DeleteStayByID(context.Context, uuid.UUID) error
 	UpdateStayByID(context.Context, *stays.StayEntity, uuid.UUID) (*stays.Stay, error)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/go-chi/chi/v5"
@@ -11,6 +12,8 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	modelPass "github.com/imperatorofdwelling/Full-backend/internal/domain/models/passwordOTP"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
@@ -35,8 +38,13 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 	})
 
 	r.Group(func(r chi.Router) {
+		r.Post("/confirm/password/otp", h.ConfirmPasswordOTP)
+	})
+
+	r.Group(func(r chi.Router) {
 		r.Use(mw.WithAuth)
-		r.Post("/otp/{otp}", h.ConfirmOTP)
+		r.Post("/confirm/email/otp/{otp}", h.ConfirmEmailOTP)
+		r.Post("/confirm/email/change/otp/{otp}", h.ConfirmEmailChangeOTP)
 	})
 }
 
@@ -49,8 +57,8 @@ func (h *AuthHandler) NewAuthHandler(r chi.Router) {
 // @Produce  json
 // @Param   request  body     model.Registration  true  "Registration"
 // @Success 201 {object} UUID
-// @Failure 400 {object} responseApi.ResponseError
-// @Failure 500 {object} responseApi.ResponseError
+// @Failure 400 {object} response.ResponseError
+// @Failure 500 {object} response.ResponseError
 // @Router /registration [post]
 func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.Registration"
@@ -112,10 +120,10 @@ func (h *AuthHandler) Registration(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param   request  body     model.Login  true  "Login"
 // @Success 200 {object} UUID
-// @Failure 401 {object} responseApi.ResponseError
-// @Failure 404 {object} responseApi.ResponseError
-// @Failure 400 {object} responseApi.ResponseError
-// @Failure 500 {object} responseApi.ResponseError
+// @Failure 401 {object} response.ResponseError
+// @Failure 404 {object} response.ResponseError
+// @Failure 400 {object} response.ResponseError
+// @Failure 500 {object} response.ResponseError
 // @Router /login [post]
 func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.LoginUser"
@@ -147,7 +155,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 			responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(service.ErrValid))
 			return
 		}
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(err))
 		return
 	}
 
@@ -175,7 +183,7 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, userID.String())
 }
 
-// ConfirmOTP godoc
+// ConfirmEmailOTP godoc
 //
 //	@Summary		Confirm One-Time Password (OTP)
 //	@Description	Verify the one-time password (OTP) provided by the user for email confirmation
@@ -184,12 +192,12 @@ func (h *AuthHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			otp		path		string	true		"One-Time Password (OTP)"
 //	@Success		200	{string}	string	"OTP confirmed successfully!"
-//	@Failure		400	{object}	responseApi.ResponseError	"Bad Request - invalid OTP"
-//	@Failure		401	{object}	responseApi.ResponseError	"Unauthorized - user not logged in"
-//	@Failure		500	{object}	responseApi.ResponseError	"Internal Server Error - could not verify OTP"
-//	@Router			/otp/{otp} [get]
-func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
-	const op = "handler.auth.ConfirmOTP"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request - invalid OTP"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
+//	@Router			/confirm/email/otp/{otp} [post]
+func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmEmailOTP"
 
 	h.Log = h.Log.With(
 		slog.String("op", op),
@@ -206,6 +214,90 @@ func (h *AuthHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 	otp := chi.URLParam(r, "otp")
 
 	err := h.Svc.CheckEmailOTP(context.Background(), userID, otp)
+	if err != nil {
+		h.Log.Error("failed to check otp", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "otp confirmed!")
+}
+
+// ConfirmPasswordOTP godoc
+//
+//		@Summary		Confirm One-Time Password (OTP)
+//		@Description	Verify the one-time password (OTP) provided by the user for password changing
+//		@Tags			auth
+//		@Accept			json
+//		@Produce		json
+//	 @Param   		request  body     modelPass.PasswordOTP  true  "Request body with email and otp"
+//		@Success		200		{string}	string	"OTP confirmed successfully!"
+//		@Failure		400		{object}	response.ResponseError	"Bad Request - invalid OTP or missing fields"
+//		@Failure		500		{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
+//		@Router			/confirm/password/otp [post]
+func (h *AuthHandler) ConfirmPasswordOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmPasswordOTP"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var req modelPass.PasswordOTP
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.Log.Error("failed to decode request body", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("invalid request body")))
+		return
+	}
+
+	if req.Email == "" || req.OTP == "" {
+		h.Log.Error("missing email or otp in request")
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("email and otp are required")))
+		return
+	}
+
+	err := h.Svc.CheckPasswordOTP(context.Background(), req.Email, req.OTP)
+	if err != nil {
+		h.Log.Error("failed to check otp", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "password otp confirmed!")
+}
+
+// ConfirmEmailChangeOTP godoc
+//
+//	@Summary		Confirm Email Change OTP
+//	@Description	Verify the one-time password (OTP) provided by the user for email change confirmation
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			otp		path		string	true		"One-Time Password (OTP)"
+//	@Success		200	{string}	string	"OTP confirmed successfully!"
+//	@Failure		400	{object}	response.ResponseError	"Bad Request - invalid OTP"
+//	@Failure		401	{object}	response.ResponseError	"Unauthorized - user not logged in"
+//	@Failure		500	{object}	response.ResponseError	"Internal Server Error - could not verify OTP"
+//	@Router			/confirm/email/change/otp/{otp} [post]
+func (h *AuthHandler) ConfirmEmailChangeOTP(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.auth.ConfirmEmailChangeOTP"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		h.Log.Error("user id not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logger in")))
+		return
+	}
+
+	otp := chi.URLParam(r, "otp")
+
+	err := h.Svc.CheckEmailChangeOTP(context.Background(), userID, otp)
+
 	if err != nil {
 		h.Log.Error("failed to check otp", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(errors.Wrap(err, "could not check otp")))

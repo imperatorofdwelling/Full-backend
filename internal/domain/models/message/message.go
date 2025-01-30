@@ -13,11 +13,11 @@ type Message struct {
 	Media     *string   `json:"media"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
+} // @name Message
 
 type Entity struct {
 	UserID    uuid.UUID `json:"user_id"`
 	Text      string    `json:"text"`
 	Media     *string   `json:"media"`
 	UpdatedAt time.Time `json:"updated_at"`
-}
+} // @name MessageEntity

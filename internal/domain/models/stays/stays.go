@@ -31,7 +31,28 @@ type (
 		Floor               string    `json:"floor,omitempty"`
 		Room                string    `json:"room,omitempty"`
 		Price               float32   `json:"price" validate:"required"`
-	}
+	} // @name StayEntity
+
+	StayEntityFav struct {
+		ID                  uuid.UUID `json:"id"`
+		UserID              uuid.UUID `json:"user_id" validate:"required,uuid"`
+		LocationID          uuid.UUID `json:"location_id" validate:"required,uuid"`
+		Name                string    `json:"name" validate:"required"`
+		Type                StayType  `json:"type" validate:"required"`
+		NumberOfBedrooms    int       `json:"number_of_bedrooms" validate:"required"`
+		NumberOfBeds        int       `json:"number_of_beds" validate:"required"`
+		NumberOfBathrooms   int       `json:"number_of_bathrooms" validate:"required"`
+		Guests              int       `json:"guests" validate:"required"`
+		IsSmokingProhibited bool      `json:"is_smoking_prohibited,omitempty" default:"false"`
+		Square              float32   `json:"square" validate:"required"`
+		Street              string    `json:"street" validate:"required"`
+		House               string    `json:"house" validate:"required"`
+		Entrance            string    `json:"entrance,omitempty"`
+		Floor               string    `json:"floor,omitempty"`
+		Room                string    `json:"room,omitempty"`
+		Price               float32   `json:"price" validate:"required"`
+		City                string    `json:"city" validate:"required"`
+	} // @name StayEntityFav
 
 	Stay struct {
 		ID                  uuid.UUID `json:"id"`
@@ -54,12 +75,12 @@ type (
 		Price               float32   `json:"price"`
 		CreatedAt           time.Time `json:"created_at"`
 		UpdatedAt           time.Time `json:"updated_at"`
-	}
+	} // @name Stay
 
 	StayImagesEntity struct {
 		Images []byte    `json:"images"`
 		StayID uuid.UUID `json:"stay_id"`
-	}
+	} // @name StayImagesEntity
 
 	StayImage struct {
 		ID        uuid.UUID `json:"id"`
@@ -68,5 +89,10 @@ type (
 		IsMain    bool      `json:"is_main"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
-	}
+	} // @name StayImage
+
+	StayResponse struct {
+		Stay
+		Images []StayImage `json:"images"`
+	} // @name StayResponse
 )

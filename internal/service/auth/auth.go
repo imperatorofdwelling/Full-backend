@@ -71,7 +71,7 @@ func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, int, 
 func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 	const op = "service.auth.CheckEmailOTP"
 
-	isVerified, err := s.AuthRepo.CheckIfUserValidated(ctx, userID)
+	isVerified, err := s.AuthRepo.CheckIfUserEmailValidated(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}
@@ -79,12 +79,12 @@ func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 		return fmt.Errorf("user is already verified")
 	}
 
-	exist, err := s.ConfirmEmailRepo.CheckOTPExists(ctx, userID)
+	exist, err := s.ConfirmEmailRepo.CheckEmailOTPExists(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 	if exist {
-		expired, err := s.ConfirmEmailRepo.CheckOTPNotExpired(ctx, userID)
+		expired, err := s.ConfirmEmailRepo.CheckEmailOTPNotExpired(ctx, userID)
 		if err != nil {
 			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
 		}
@@ -93,7 +93,7 @@ func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 		}
 	}
 
-	otpFromDB, err := s.ConfirmEmailRepo.GetOTP(ctx, userID)
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailOTP(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -103,6 +103,73 @@ func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 	}
 
 	err = s.AuthRepo.EmailVerification(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckPasswordOTP(ctx context.Context, email, otp string) error {
+	const op = "service.auth.CheckPasswordOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckPasswordOTPExists(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckPasswordOTPNotExpired(ctx, email)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetPasswordOTP(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to get password OTP %w", op, err)
+	}
+
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.PasswordVerification(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckEmailChangeOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.auth.CheckEmailChangeOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckEmailChangeOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckEmailChangeOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.ConfirmEmailChangeOTP(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}

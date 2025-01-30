@@ -10,6 +10,7 @@ build:
 	go build -o bin/app cmd/app/main.go
 swag:
 	swag init --exclude docker,nginx,assets,pkg --md ./docs --parseInternal --parseDependency --parseDepth 2 -g cmd/app/main.go
+# $ Update code
 wire:
 	wire ./internal/di
 migration-create:

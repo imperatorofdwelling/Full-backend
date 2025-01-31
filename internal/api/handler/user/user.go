@@ -39,6 +39,7 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 		})
 
 		r.Group(func(r chi.Router) {
+			r.Get("/profile/picture/{id}", h.GetUserPfpByUserID)
 			r.Get("/{id}", h.GetUserByID)
 			r.Put("/password", h.UpdateUserPasswordByEmail)
 		})
@@ -255,6 +256,20 @@ func (h *UserHandler) UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.R
 	responseApi.WriteJson(w, r, http.StatusOK, "password changed")
 }
 
+// UpdateUserEmailById
+//
+// @Summary Update user email by ID
+// @Description Updates the user's email after validating the request
+// @ID updateUserEmailByID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param userEmail body map[string]string true "User's new email"
+// @Success 200 {object} map[string]string "Email changed successfully"
+// @Failure 400 {object} response.ResponseError "Invalid request or email validation failed"
+// @Failure 401 {object} response.ResponseError "User not logged in"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/email/change [put]
 func (h *UserHandler) UpdateUserEmailById(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.user.UpdateUserEmailByID"
 
@@ -398,6 +413,38 @@ func (h *UserHandler) GetUserPfp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pfpPath, err := h.Svc.GetUserPfp(context.Background(), userID)
+	if err != nil {
+		h.Log.Error("service failed to get user profile picture", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, pfpPath)
+}
+
+// GetUserPfpByUserID
+//
+// @Summary Get user profile picture by ID
+// @Description Retrieves the profile picture path for the specified user
+// @ID getUserPfpByUserID
+// @Tags users
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {string} string "Path to the user's profile picture"
+// @Failure 400 {object} response.ResponseError "Invalid user ID"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/profile/picture/{id} [get]
+func (h *UserHandler) GetUserPfpByUserID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.GetUserPfpByUserID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var id = chi.URLParam(r, "id")
+
+	pfpPath, err := h.Svc.GetUserPfp(context.Background(), id)
 	if err != nil {
 		h.Log.Error("service failed to get user profile picture", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))

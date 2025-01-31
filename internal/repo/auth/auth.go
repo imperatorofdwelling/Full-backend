@@ -92,6 +92,23 @@ func (r *Repository) EmailVerification(ctx context.Context, userId string) error
 	return nil
 }
 
+func (r *Repository) DeleteOTPFromEmailVerification(ctx context.Context, userID string) error {
+	const op = "repo.auth.DeleteOTPFromEmailVerification"
+
+	stmt, err := r.Db.PrepareContext(ctx, "DELETE FROM email_verifications WHERE user_id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare statement: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute statement: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repository) PasswordVerification(ctx context.Context, email string) error {
 	const op = "repo.auth.EmailVerification"
 

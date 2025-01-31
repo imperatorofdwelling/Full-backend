@@ -2600,6 +2600,45 @@ paths:
       summary: Update a user by ID
       tags:
       - users
+  /user/email/change:
+    put:
+      consumes:
+      - application/json
+      description: Updates the user's email after validating the request
+      operationId: updateUserEmailByID
+      parameters:
+      - description: User's new email
+        in: body
+        name: userEmail
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email changed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request or email validation failed
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Update user email by ID
+      tags:
+      - users
   /user/password:
     put:
       consumes:
@@ -2691,6 +2730,34 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Create user profile picture
+      tags:
+      - users
+  /user/profile/picture/{id}:
+    get:
+      description: Retrieves the profile picture path for the specified user
+      operationId: getUserPfpByUserID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Path to the user's profile picture
+          schema:
+            type: string
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get user profile picture by ID
       tags:
       - users
   /user/report/:

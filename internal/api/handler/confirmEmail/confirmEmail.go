@@ -114,7 +114,7 @@ func (h *Handler) CreateOTPPassword(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500		{object}	response.ResponseError	"Internal Server Error - failed to send OTP for email change"
 //	@Router			/email/change/otp [get]
 func (h *Handler) SendOtpForEmailChange(w http.ResponseWriter, r *http.Request) {
-	const op = "handler.user.SendOtpForEmailChange"
+	const op = "handler.confirmEmail.SendOtpForEmailChange"
 
 	h.Log = h.Log.With(
 		slog.String("op", op),

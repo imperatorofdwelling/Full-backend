@@ -107,6 +107,11 @@ func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 
+	err = s.AuthRepo.DeleteOTPFromEmailVerification(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
 	return nil
 }
 

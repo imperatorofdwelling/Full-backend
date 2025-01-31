@@ -16,6 +16,7 @@ type (
 		PasswordVerification(ctx context.Context, email string) error
 		CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error)
 		ConfirmEmailChangeOTP(ctx context.Context, userId string) error
+		DeleteOTPFromEmailVerification(ctx context.Context, userID string) error
 	}
 )
 

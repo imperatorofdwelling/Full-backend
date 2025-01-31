@@ -43,6 +43,7 @@ type (
 	UserHandler interface {
 		GetUserByID(w http.ResponseWriter, r *http.Request)
 		GetUserPfp(w http.ResponseWriter, r *http.Request)
+		GetUserPfpByUserID(w http.ResponseWriter, r *http.Request)
 		CreateUserPfp(w http.ResponseWriter, r *http.Request)
 		UpdateUserByID(w http.ResponseWriter, r *http.Request)
 		DeleteUserByID(w http.ResponseWriter, r *http.Request)

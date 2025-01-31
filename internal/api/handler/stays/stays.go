@@ -57,6 +57,15 @@ func (h *Handler) SearchStays(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	var searchValues model.Search
+
+	err := render.DecodeJSON(r.Body, &searchValues)
+	if err != nil {
+		h.Log.Error("failed to decode form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
 }
 
 // CreateStay godoc

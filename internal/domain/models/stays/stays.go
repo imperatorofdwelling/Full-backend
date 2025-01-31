@@ -97,8 +97,9 @@ type (
 	} // @name StayResponse
 
 	Search struct {
-		Type     StayType `json:"type" validate:"required"`
-		PriceMin float32  `json:"price_min" validate:"required"`
-		PriceMax float32  `json:"price_max" validate:"required"`
+		Type             StayType `json:"type" validate:"required"`
+		PriceMin         float32  `json:"price_min" validate:"required"`
+		PriceMax         float32  `json:"price_max" validate:"required"`
+		NumberOfBedrooms int      `json:"number_of_bedrooms" validate:"required"`
 	}
 )

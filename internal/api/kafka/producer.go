@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/IBM/sarama"
 )
@@ -33,13 +34,18 @@ func (p *Producer) Close() error {
 	return p.sync.Close()
 }
 
-func (p *Producer) SendMessage(topic string, key string, message []byte) error {
+func (p *Producer) SendMessage(topic string, key string, message interface{}) error {
+	messageBytes, err := json.Marshal(message)
+	if err != nil {
+		return fmt.Errorf("error marshalling message: %s", err.Error())
+	}
+
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
 		Key:   sarama.StringEncoder(key),
-		Value: sarama.ByteEncoder(message),
+		Value: sarama.ByteEncoder(messageBytes),
 	}
 
-	_, _, err := p.sync.SendMessage(msg)
+	_, _, err = p.sync.SendMessage(msg)
 	return err
 }

@@ -95,7 +95,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
-	paymentHandler := providers6.ProvidePaymentHandler(producer, log)
+	client := kafka.NewClient(producer, log)
+	paymentHandler := providers6.ProvidePaymentHandler(client, log)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler, paymentHandler)
 	return serverHTTP, nil
 }

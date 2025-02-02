@@ -20,7 +20,7 @@ var PaymentProviderSet wire.ProviderSet = wire.NewSet(
 	wire.Bind(new(interfaces.PaymentHandler), new(*pHdl.Handler)),
 )
 
-func ProvidePaymentHandler(kafka *kafka.Producer, log *slog.Logger) *pHdl.Handler {
+func ProvidePaymentHandler(kafka *kafka.Client, log *slog.Logger) *pHdl.Handler {
 	hdlOnce.Do(func() {
 		hdl = &pHdl.Handler{
 			Kafka: kafka,

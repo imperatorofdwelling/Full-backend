@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	PaymentTopic = "payment"
-	PayoutTopic  = "payout"
+	PaymentReqTopic = "payment"
+	PayoutReqTopic  = "payout"
 )
 
 var ServerAddr = []string{"kafka-1:9090", "kafka-2:9090", "kafka-3:9090"}
@@ -47,5 +47,6 @@ func (p *Producer) SendMessage(topic string, key string, message interface{}) er
 	}
 
 	_, _, err = p.sync.SendMessage(msg)
+
 	return err
 }

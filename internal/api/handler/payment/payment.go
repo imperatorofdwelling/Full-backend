@@ -13,7 +13,7 @@ import (
 )
 
 type Handler struct {
-	Kafka *kafka.Producer
+	Kafka *kafka.Client
 	Log   *slog.Logger
 }
 
@@ -49,7 +49,7 @@ func (h *Handler) MakePayment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Kafka.SendMessage(kafka.PaymentTopic, idempotenceKey, payment)
+	err = h.Kafka.Producer.SendMessage(kafka.PaymentReqTopic, idempotenceKey, payment)
 	if err != nil {
 		h.Log.Error("failed to send message", "error", err.Error())
 		responseApi.WriteError(w, r, http.StatusServiceUnavailable, err)

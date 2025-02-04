@@ -19,6 +19,7 @@ import (
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
 	paymentProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/payment"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/paymentconsumer"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	srchProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -52,6 +53,8 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		chatProvider.ChatProviderSet,
 		confirmEmailProvider.ProvideSet,
 		paymentProvider.PaymentProviderSet,
+
+		paymentconsumer.PaymentConsumerProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

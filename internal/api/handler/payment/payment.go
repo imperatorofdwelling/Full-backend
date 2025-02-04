@@ -20,7 +20,7 @@ type Handler struct {
 func (h *Handler) NewPaymentHandler(r chi.Router) {
 	r.Route("/payment", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
-			r.Get("/", h.MakePayment)
+			r.Post("/", h.MakePayment)
 		})
 	})
 }

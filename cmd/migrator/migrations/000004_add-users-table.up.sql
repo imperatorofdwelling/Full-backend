@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 CREATE TABLE IF NOT EXISTS users
 (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -14,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users
     "gender" varchar(255) DEFAULT '',
     "country" varchar(255) DEFAULT '',
     "city" varchar(255) DEFAULT '',
-    "role_id" INTEGER DEFAULT 1 UNIQUE REFERENCES role(id) ON DELETE CASCADE,
+    "role_id" INTEGER DEFAULT 1 REFERENCES role(id) ON DELETE CASCADE,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );

@@ -1,0 +1,1 @@
+DELETE FROM role WHERE id IN (1, 2);

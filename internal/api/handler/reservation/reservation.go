@@ -25,8 +25,8 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 	r.Route("/reservation", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateReservation)
-			r.Put("/update/{reservationID}", h.UpdateReservation)
+			r.Post("/", h.CreateReservation)
+			r.Put("/{reservationID}", h.UpdateReservation)
 			r.Delete("/{reservationID}", h.DeleteReservationByID)
 			r.Get("/{reservationID}", h.GetReservationByID)
 			r.Get("/user/userID", h.GetAllReservationsByUser)
@@ -45,7 +45,7 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 //		@Success		201	{object}		string	"created"
 //		@Failure		400		{object}	response.ResponseError			"Error"
 //		@Failure		default		{object}	response.ResponseError			"Error"
-//		@Router			/reservation/create [post]
+//		@Router			/reservation [post]
 func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.CreateReservation"
 
@@ -86,7 +86,7 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	response.ResponseError		"Invalid request"
 //	@Failure		404	{object}	response.ResponseError		"Reservation not found"
 //	@Failure		500	{object}	response.ResponseError		"Internal server error"
-//	@Router			/reservation/update/{reservationId} [put]
+//	@Router			/reservation/{reservationId} [put]
 func (h *Handler) UpdateReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.UpdateReservation"
 

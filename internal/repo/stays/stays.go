@@ -55,7 +55,7 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 	return &stay, nil
 }
 
-func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
+func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	const op = "repo.stays.getStays"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays")
@@ -72,17 +72,24 @@ func (r *Repo) GetStays(ctx context.Context) ([]*models.Stay, error) {
 
 	defer rows.Close()
 
-	var stays []*models.Stay
+	var stays []models.StayResponse
 
 	for rows.Next() {
-		var stay models.Stay
+		var stay models.StayResponse
 
 		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		stays = append(stays, &stay)
+		images, err := r.GetImagesByStayID(ctx, stay.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		stay.Images = images
+
+		stays = append(stays, stay)
 	}
 
 	return stays, nil

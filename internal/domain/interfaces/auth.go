@@ -11,10 +11,12 @@ import (
 type (
 	AuthRepository interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
-		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
+		Login(ctx context.Context, user auth.Login) (uuid.UUID, int, error)
 		EmailVerification(ctx context.Context, userId string) error
 		PasswordVerification(ctx context.Context, email string) error
 		CheckIfUserEmailValidated(ctx context.Context, userId string) (bool, error)
+		ConfirmEmailChangeOTP(ctx context.Context, userId string) error
+		DeleteOTPFromEmailVerification(ctx context.Context, userID string) error
 	}
 )
 
@@ -22,9 +24,11 @@ type (
 type (
 	AuthService interface {
 		Register(ctx context.Context, user auth.Registration) (uuid.UUID, error)
-		Login(ctx context.Context, user auth.Login) (uuid.UUID, error)
+		Login(ctx context.Context, user auth.Login) (uuid.UUID, int, error)
 		CheckEmailOTP(ctx context.Context, userID, otp string) error
 		CheckPasswordOTP(ctx context.Context, email, otp string) error
+		CheckEmailChangeOTP(ctx context.Context, userID, otp string) error
+
 	}
 )
 

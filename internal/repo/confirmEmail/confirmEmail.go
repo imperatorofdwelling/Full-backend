@@ -53,6 +53,26 @@ func (r *Repo) CreatePasswordOTP(ctx context.Context, email string) (string, err
 	return userOTP, nil
 }
 
+func (r *Repo) CreateEmailChangeOTP(ctx context.Context, userID string) (string, error) {
+	const op = "repo.confirmEmail.CreateEmailChangeOTP"
+
+	userOTP := otp.GenerateOTP()
+	expireAt := time.Now().UTC().Add(5 * time.Minute)
+
+	stmt, err := r.DB.PrepareContext(ctx, "INSERT INTO email_change_verifications(user_id, confirmation_code, expires_at) VALUES($1, $2, $3)")
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to prepare query for inserting OTP: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userID, userOTP, expireAt)
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to execute query for inserting OTP: %w", op, err)
+	}
+
+	return userOTP, nil
+}
+
 func (r *Repo) GetEmailOTP(ctx context.Context, userID string) (string, error) {
 	const op = "repo.confirmEmail.GetEmailOTP"
 
@@ -89,10 +109,49 @@ func (r *Repo) GetPasswordOTP(ctx context.Context, email string) (string, error)
 	return code, nil
 }
 
+func (r *Repo) GetEmailChangeOTP(ctx context.Context, userID string) (string, error) {
+	const op = "repo.confirmEmail.GetEmailChangeOTP"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT confirmation_code FROM email_change_verifications WHERE user_id = $1")
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to prepare query for getting OTP: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var code string
+	err = stmt.QueryRowContext(ctx, userID).Scan(&code)
+	if err != nil {
+		return "", fmt.Errorf("%s: failed to execute query for getting OTP: %w", op, err)
+	}
+
+	return code, nil
+}
+
 func (r *Repo) CheckEmailOTPExists(ctx context.Context, userID string) (bool, error) {
 	const op = "repo.confirmEmail.CheckOTPExists"
 
 	stmt, err := r.DB.PrepareContext(ctx, "SELECT id FROM email_verifications WHERE user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var userId string
+	err = stmt.QueryRowContext(ctx, userID).Scan(&userId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("%s: failed to execute query: %w", op, err)
+	}
+
+	return true, nil
+}
+
+func (r *Repo) CheckEmailChangeOTPExists(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPExists"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT id FROM email_change_verifications WHERE user_id = $1")
 	if err != nil {
 		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
 	}
@@ -129,6 +188,24 @@ func (r *Repo) CheckEmailOTPNotExpired(ctx context.Context, userID string) (bool
 	// fmt.Println(time.Now().UTC())
 	// fmt.Println(expiresAt.UTC())
 	// fmt.Println(time.Now().UTC().After(expiresAt.UTC()))
+
+	return time.Now().UTC().After(expiresAt.UTC()), nil
+}
+
+func (r *Repo) CheckEmailChangeOTPNotExpired(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPNotExpired"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM email_change_verifications where user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var expiresAt time.Time
+	err = stmt.QueryRowContext(ctx, userID).Scan(&expiresAt)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query expires_at: %w", op, err)
+	}
 
 	return time.Now().UTC().After(expiresAt.UTC()), nil
 }
@@ -190,6 +267,44 @@ func (r *Repo) CheckPasswordOTPVerified(ctx context.Context, email string) (bool
 	return verified, nil
 }
 
+func (r *Repo) CheckEmailChangeOTPVerified(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPVerified"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT is_verified FROM email_change_verifications where user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var verified bool
+	err = stmt.QueryRowContext(ctx, userID).Scan(&verified)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query verified: %w", op, err)
+	}
+
+	return verified, nil
+}
+
+func (r *Repo) CheckEmailChangeOTPVerifiedForTooLong(ctx context.Context, userID string) (bool, error) {
+	const op = "repo.confirmEmail.CheckEmailChangeOTPVerifiedForTooLong"
+
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT expires_at FROM email_change_verifications where user_id = $1")
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	var expiresAt time.Time
+	err = stmt.QueryRowContext(ctx, userID).Scan(&expiresAt)
+	if err != nil {
+		return false, fmt.Errorf("%s: failed to query expires_at: %w", op, err)
+	}
+
+	tenMinutesAgo := time.Now().UTC().Add(-1 * time.Minute)
+
+	return expiresAt.Before(tenMinutesAgo), nil
+}
+
 func (r *Repo) CheckPasswordOTPVerifiedForTooLong(ctx context.Context, email string) (bool, error) {
 	const op = "repo.confirmEmail.CheckPasswordOTPVerified"
 
@@ -217,6 +332,26 @@ func (r *Repo) UpdateEmailOTP(ctx context.Context, userID string) error {
 	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
 
 	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_verifications SET expires_at = $1, confirmation_code = $2 WHERE user_id = $3")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, userID)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) UpdateEmailChangeOTP(ctx context.Context, userID string) error {
+	const op = "repo.confirmEmail.UpdateEmailChangeOTP"
+
+	newOTP := otp.GenerateOTP()
+	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_change_verifications SET expires_at = $1, confirmation_code = $2 WHERE user_id = $3")
 	if err != nil {
 		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
 	}
@@ -267,6 +402,23 @@ func (r *Repo) UpdatePasswordOTPFalse(ctx context.Context, email string) error {
 	return nil
 }
 
+func (r *Repo) UpdateEmailChangeOTPFalse(ctx context.Context, userID string) error {
+	const op = "repo.confirmEmail.UpdatePasswordOTP"
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_change_verifications SET is_verified = false WHERE user_id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *Repo) ResetPasswordOTP(ctx context.Context, email string) error {
 	const op = "repo.confirmEmail.UpdatePasswordOTP"
 
@@ -280,6 +432,26 @@ func (r *Repo) ResetPasswordOTP(ctx context.Context, email string) error {
 	defer stmt.Close()
 
 	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, email)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) ResetEmailChangeOTP(ctx context.Context, userID string) error {
+	const op = "repo.confirmEmail.ResetEmailChangeOTP"
+
+	newOTP := otp.GenerateOTP()
+	newExpiresAt := time.Now().UTC().Add(5 * time.Minute)
+
+	stmt, err := r.DB.PrepareContext(ctx, "UPDATE email_change_verifications SET expires_at = $1, confirmation_code = $2, is_verified = false WHERE user_id = $3")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, newExpiresAt, newOTP, userID)
 	if err != nil {
 		return fmt.Errorf("%s: failed to execute update: %w", op, err)
 	}

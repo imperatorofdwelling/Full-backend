@@ -408,6 +408,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/confirm/email/change/otp/{otp}": {
+            "post": {
+                "description": "Verify the one-time password (OTP) provided by the user for email change confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm Email Change OTP",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "One-Time Password (OTP)",
+                        "name": "otp",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP confirmed successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/confirm/email/otp/{otp}": {
+            "post": {
+                "description": "Verify the one-time password (OTP) provided by the user for email confirmation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm One-Time Password (OTP)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "One-Time Password (OTP)",
+                        "name": "otp",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OTP confirmed successfully!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - invalid OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - user not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - could not verify OTP",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/confirm/password/otp": {
             "post": {
                 "description": "Verify the one-time password (OTP) provided by the user for password changing",
@@ -612,6 +712,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/email/change/otp": {
+            "get": {
+                "description": "Generate and send a one-time password (OTP) to the user's current email for changing their email address",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "emailConfirmation"
+                ],
+                "summary": "Send OTP for Email Change",
+                "responses": {
+                    "200": {
+                        "description": "otp for email change created!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - invalid user ID in context",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - failed to send OTP for email change",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/email/otp": {
             "get": {
                 "description": "Generate a one-time password (OTP) for email confirmation by user ID",
@@ -640,56 +775,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error - could not generate OTP",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/email/otp/{otp}": {
-            "get": {
-                "description": "Verify the one-time password (OTP) provided by the user for email confirmation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Confirm One-Time Password (OTP)",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "One-Time Password (OTP)",
-                        "name": "otp",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OTP confirmed successfully!",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - invalid OTP",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - user not logged in",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error - could not verify OTP",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
                         }
@@ -950,53 +1035,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/locations/match/{locationName}": {
-            "get": {
-                "description": "Find city by matching name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "locations"
-                ],
-                "summary": "Find city by name",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "location name match",
-                        "name": "locationName",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Location"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
         "/locations/{id}": {
             "get": {
                 "description": "Find location by id",
@@ -1092,9 +1130,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/locations/{locationName}": {
+            "get": {
+                "description": "Find city by matching name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Find city by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "location name match",
+                        "name": "locationName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Location"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
-                "description": "Authenticates an existing user and returns a JWT token",
+                "description": "Authenticates an existing user and returns a JWT token(claim USER_ID, ROLE_ID)",
                 "consumes": [
                     "application/json"
                 ],
@@ -1371,7 +1456,7 @@ const docTemplate = `{
         },
         "/registration": {
             "post": {
-                "description": "Creates a new user account",
+                "description": "Creates a new user account(DEFAULT ROLE_ID=TENANT)",
                 "consumes": [
                     "application/json"
                 ],
@@ -1415,274 +1500,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/report": {
-            "get": {
-                "description": "Retrieves all stay reports for the authenticated user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "staysReports"
-                ],
-                "summary": "Get all stay reports",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/StaysReportEntity"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "{\"error\": \"user not logged in\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"error\": \"message\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/report/create/{stayId}": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Creates a report for a specific stay, including an optional image and required details like title and description.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "staysReports"
-                ],
-                "summary": "Create a new stay report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of the stay being reported",
-                        "name": "stayId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Title of the report",
-                        "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Description of the report",
-                        "name": "description",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "image file (JPEG or PNG)",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Confirmation message",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error message for invalid input or unsupported image type",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Error message for unauthorized access",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Error message for internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/report/{reportId}": {
-            "delete": {
-                "description": "Deletes a specific stay report by report ID",
-                "tags": [
-                    "staysReports"
-                ],
-                "summary": "Delete a stay report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Report ID",
-                        "name": "reportId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "{\"message\": \"Stay report was deleted\"}",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "{\"error\": \"user not logged in\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"error\": \"message\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Updates specific fields of a stay report, such as title, description, or image",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "staysReports"
-                ],
-                "summary": "Partially update a stay report",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Report ID",
-                        "name": "reportId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Updated title",
-                        "name": "title",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Updated description",
-                        "name": "description",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "Image file (JPEG or PNG)",
-                        "name": "image",
-                        "in": "formData"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Updated stays report object",
-                        "schema": {
-                            "$ref": "#/definitions/StaysReportEntity"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/report/{stayId}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Fetches a specific stay report associated with the logged-in user.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "staysReports"
-                ],
-                "summary": "Retrieve stay report by user ID",
-                "responses": {
-                    "200": {
-                        "description": "Retrieved stay report object",
-                        "schema": {
-                            "$ref": "#/definitions/StayReport"
-                        }
-                    },
-                    "401": {
-                        "description": "{\"error\": \"user not logged in\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "404": {
-                        "description": "{\"error\": \"report not found\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "{\"error\": \"could not fetch report\"}",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/reservation/create": {
+        "/reservation": {
             "post": {
                 "description": "Create reservation (arrived and departure should be TIMESTAMP type)",
                 "consumes": [
@@ -1721,66 +1539,6 @@ const docTemplate = `{
                     },
                     "default": {
                         "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/reservation/update/{reservationId}": {
-            "put": {
-                "description": "Update an existing reservation by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reservations"
-                ],
-                "summary": "Update Reservation",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID of the reservation to update",
-                        "name": "reservationId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Details to update the reservation",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ReservationUpdateEntity"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully updated reservation",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "404": {
-                        "description": "Reservation not found",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
                         }
@@ -1921,6 +1679,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/reservation/{reservationId}": {
+            "put": {
+                "description": "Update an existing reservation by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Update Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the reservation to update",
+                        "name": "reservationId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Details to update the reservation",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ReservationUpdateEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated reservation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Reservation not found",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/stays": {
             "get": {
                 "description": "Get all stays",
@@ -1940,7 +1758,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Stay"
+                                "$ref": "#/definitions/StayResponse"
                             }
                         }
                     },
@@ -1957,9 +1775,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/stays/create": {
+            },
             "post": {
                 "description": "Create stay",
                 "consumes": [
@@ -2035,50 +1851,6 @@ const docTemplate = `{
                         "description": "stay id",
                         "name": "stay_id",
                         "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
-            }
-        },
-        "/stays/images/delete/{imageId}": {
-            "delete": {
-                "description": "Delete image by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stays"
-                ],
-                "summary": "Delete image by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "stay image id",
-                        "name": "imageId",
-                        "in": "path",
                         "required": true
                     }
                 ],
@@ -2199,6 +1971,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/stays/images/{imageId}": {
+            "delete": {
+                "description": "Delete image by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Delete image by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay image id",
+                        "name": "imageId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/stays/images/{stayId}": {
             "get": {
                 "description": "Get stays images by stay id",
@@ -2288,6 +2104,271 @@ const docTemplate = `{
                         "description": "Error",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/report": {
+            "get": {
+                "description": "Retrieves all stay reports for the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysReports"
+                ],
+                "summary": "Get all stay reports",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/StaysReportEntity"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/report/{reportId}": {
+            "delete": {
+                "description": "Deletes a specific stay report by report ID",
+                "tags": [
+                    "staysReports"
+                ],
+                "summary": "Delete a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"message\": \"Stay report was deleted\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"message\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Updates specific fields of a stay report, such as title, description, or image",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysReports"
+                ],
+                "summary": "Partially update a stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated title",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Updated description",
+                        "name": "description",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image file (JPEG or PNG)",
+                        "name": "image",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated stays report object",
+                        "schema": {
+                            "$ref": "#/definitions/StaysReportEntity"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/report/{stayId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Fetches a specific stay report associated with the logged-in user.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysReports"
+                ],
+                "summary": "Retrieve stay report by user ID",
+                "responses": {
+                    "200": {
+                        "description": "Retrieved stay report object",
+                        "schema": {
+                            "$ref": "#/definitions/StayReport"
+                        }
+                    },
+                    "401": {
+                        "description": "{\"error\": \"user not logged in\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "{\"error\": \"report not found\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "{\"error\": \"could not fetch report\"}",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a report for a specific stay, including an optional image and required details like title and description.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysReports"
+                ],
+                "summary": "Create a new stay report",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the stay being reported",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title of the report",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Description of the report",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "image file (JPEG or PNG)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Confirmation message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error message for invalid input or unsupported image type",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Error message for unauthorized access",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error message for internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -2470,7 +2551,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/staysadvantage/create": {
+        "/staysadvantage": {
             "post": {
                 "description": "Create staysAdvantage",
                 "consumes": [
@@ -2596,9 +2677,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/staysreviews/create": {
+            },
             "post": {
                 "description": "Create stays_review",
                 "consumes": [
@@ -2644,7 +2723,49 @@ const docTemplate = `{
                 }
             }
         },
-        "/staysreviews/update/{id}": {
+        "/staysreviews/{id}": {
+            "get": {
+                "description": "Get Stays review by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "staysReviews"
+                ],
+                "summary": "Get Stays review",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stays review id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/StaysReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update a stays review by its ID",
                 "consumes": [
@@ -2702,50 +2823,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/staysreviews/{id}": {
-            "get": {
-                "description": "Get Stays review by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "staysReviews"
-                ],
-                "summary": "Get Stays review",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "stays review id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "ok",
-                        "schema": {
-                            "$ref": "#/definitions/StaysReview"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "default": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    }
-                }
             },
             "delete": {
                 "description": "Delete Stays_review by id",
@@ -2783,6 +2860,65 @@ const docTemplate = `{
                     },
                     "default": {
                         "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/email/change": {
+            "put": {
+                "description": "Updates the user's email after validating the request",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user email by ID",
+                "operationId": "updateUserEmailByID",
+                "parameters": [
+                    {
+                        "description": "User's new email",
+                        "name": "userEmail",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Email changed successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or email validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
                         }
@@ -2830,6 +2966,133 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile/picture": {
+            "get": {
+                "description": "Retrieves the profile picture path for the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user profile picture",
+                "operationId": "getUserPfp",
+                "responses": {
+                    "200": {
+                        "description": "Path to the user's profile picture",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Uploads a new profile picture for the authenticated user",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create user profile picture",
+                "operationId": "createUserPfp",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "User's profile picture (JPEG or PNG)",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User pfp added successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or unsupported content type",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "User not logged in",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile/picture/{id}": {
+            "get": {
+                "description": "Retrieves the profile picture path for the specified user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user profile picture by ID",
+                "operationId": "getUserPfpByUserID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Path to the user's profile picture",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
                         "schema": {
                             "$ref": "#/definitions/ResponseError"
                         }
@@ -3930,6 +4193,77 @@ const docTemplate = `{
                 }
             }
         },
+        "StayResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "entrance": {
+                    "type": "string"
+                },
+                "floor": {
+                    "type": "string"
+                },
+                "guests": {
+                    "type": "integer"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StayImage"
+                    }
+                },
+                "is_smoking_prohibited": {
+                    "type": "boolean"
+                },
+                "location_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer"
+                },
+                "number_of_bedrooms": {
+                    "type": "integer"
+                },
+                "number_of_beds": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "room": {
+                    "type": "string"
+                },
+                "square": {
+                    "type": "number"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "StaysReportEntity": {
             "type": "object",
             "properties": {
@@ -4038,6 +4372,9 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "type": "string"

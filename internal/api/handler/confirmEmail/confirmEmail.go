@@ -24,6 +24,12 @@ func (h *Handler) NewConfirmEmailHandler(r chi.Router) {
 		r.Use(mw.WithAuth)
 		r.Get("/", h.CreateOTPEmail)
 	})
+
+	r.Route("/email/change/otp", func(r chi.Router) {
+		r.Use(mw.WithAuth)
+		r.Get("/", h.SendOtpForEmailChange)
+	})
+
 	r.Route("/password/otp", func(r chi.Router) {
 		r.Get("/{email}", h.CreateOTPPassword)
 	})
@@ -94,4 +100,39 @@ func (h *Handler) CreateOTPPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, "otp for password reset created!")
+}
+
+// SendOtpForEmailChange godoc
+//
+//	@Summary		Send OTP for Email Change
+//	@Description	Generate and send a one-time password (OTP) to the user's current email for changing their email address
+//	@Tags			emailConfirmation
+//	@Accept			json
+//	@Produce		json
+//	@Success		200		{string}	string	"otp for email change created!"
+//	@Failure		401		{object}	response.ResponseError	"Unauthorized - invalid user ID in context"
+//	@Failure		500		{object}	response.ResponseError	"Internal Server Error - failed to send OTP for email change"
+//	@Router			/email/change/otp [get]
+func (h *Handler) SendOtpForEmailChange(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.confirmEmail.SendOtpForEmailChange"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userId, ok := r.Context().Value("user_id").(string)
+	if !ok {
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
+		return
+	}
+
+	err := h.Svc.SendOtpForEmailChange(context.Background(), userId)
+	if err != nil {
+		h.Log.Error("failed to send otp for email change", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "otp for email change created!")
 }

@@ -18,8 +18,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"testing"
 	"time"
 )
@@ -879,5 +882,353 @@ func TestJWTMiddlewareUnexpectedSigningMethod(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, r.Code)
 		svc.AssertExpectations(t)
+	})
+}
+
+func TestUserHandler_GetUserPfp(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := new(mocks.UserService)
+
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+	testUserID, _ := uuid.NewV4()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID,
+	})
+	tokenString, _ := token.SignedString([]byte("your-secret-key"))
+
+	router := chi.NewRouter()
+	router.Use(JWTMiddleware("your-secret-key", log))
+	router.Get("/profile/picture", hdl.GetUserPfp)
+
+	t.Run("should return 200 OK", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/profile/picture", nil)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("GetUserPfp", mock.Anything, mock.Anything).Return(mock.Anything, nil).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should return 500 Internal Server Error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/profile/picture", nil)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("GetUserPfp", mock.Anything, mock.Anything).Return(mock.Anything, errors.New("error with GetUserPfp")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestUserHandler_CreateUserPfp_Errors(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := new(mocks.UserService)
+
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+	testUserID, _ := uuid.NewV4()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID,
+	})
+	tokenString, _ := token.SignedString([]byte("your-secret-key"))
+
+	router := chi.NewRouter()
+	router.Use(JWTMiddleware("your-secret-key", log))
+	router.Post("/profile/picture", hdl.CreateUserPfp)
+
+	t.Run("should return 400 Bad Request for invalid multipart body", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		req.Header.Set("Content-Type", "multipart/form-data")
+		req.Body = ioutil.NopCloser(bytes.NewReader([]byte("invalid content")))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return 400 Bad Request for missing file in multipart body", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return 400 Bad Request with the incorrect image type", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/svg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return 500 Internal Server Error with the blank image", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.svg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestUserHandler_CreateUserPfp_Svc(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := new(mocks.UserService)
+
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+	testUserID, _ := uuid.NewV4()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID,
+	})
+	tokenString, _ := token.SignedString([]byte("your-secret-key"))
+
+	router := chi.NewRouter()
+	router.Use(JWTMiddleware("your-secret-key", log))
+	router.Post("/profile/picture", hdl.CreateUserPfp)
+
+	t.Run("should return SVC error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("CreateUserPfp", mock.Anything, mock.Anything, mock.Anything).
+			Return(errors.New("error with CreateUserPfp")).Once()
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should return SVC success", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		boundary := writer.Boundary()
+
+		partHeader := make(textproto.MIMEHeader)
+		partHeader.Set("Content-Type", "image/jpeg")
+		partHeader.Set("Content-Disposition", `form-data; name="image"; filename="test.jpg"`)
+		part, err := writer.CreatePart(partHeader)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		jpegContent := []byte{
+			0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
+			0x01, 0x01, 0x00, 0x60, 0x00, 0x60, 0x00, 0x00, 0xFF, 0xD9,
+		}
+		part.Write(jpegContent)
+
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", body)
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		svc.On("CreateUserPfp", mock.Anything, mock.Anything, mock.Anything).
+			Return(nil, nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusCreated, r.Code)
+	})
+}
+
+func TestUserHandler_UserPfp_401(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := new(mocks.UserService)
+
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/profile/picture", hdl.GetUserPfp)
+	router.Post("/profile/picture", hdl.CreateUserPfp)
+
+	tokenfake := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+	tokenStringFake, _ := tokenfake.SignedString([]byte("your-secret-key"))
+
+	t.Run("should return 401 Not logger in - Get", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/profile/picture", nil)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenStringFake,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+
+	t.Run("should return 401 Not logger in - Post", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPost, "/profile/picture", nil)
+
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenStringFake,
+		}
+		req.AddCookie(cookie)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
 	})
 }

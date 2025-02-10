@@ -10,12 +10,15 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	fileSvc "github.com/imperatorofdwelling/Full-backend/internal/service/file"
+	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"github.com/imperatorofdwelling/Full-backend/pkg/sendMail"
 )
 
 type Service struct {
 	UserRepo         interfaces.UserRepository
 	ConfirmEmailRepo interfaces.ConfirmEmailRepository
+	FileSvc          interfaces.FileService
 }
 
 func (s *Service) GetUserByID(ctx context.Context, idStr string) (model.User, error) {
@@ -117,6 +120,31 @@ func (s *Service) UpdateUserPasswordByEmail(ctx context.Context, newPass newPass
 	return nil
 }
 
+func (s *Service) UpdateUserEmailByID(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.UpdateUserEmailByID"
+
+	user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, service.ErrNotFound)
+	}
+
+	if user.Email == newEmail {
+		return fmt.Errorf("%s: email is the same as new email", op)
+	}
+
+	err = s.UserRepo.UpdateUserEmailByID(ctx, uuid.FromStringOrNil(userID), newEmail)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.ConfirmEmailRepo.UpdateEmailChangeOTPFalse(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
 func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.NewPassword) error {
 	const op = "service.user.CheckUserPassword"
 
@@ -152,6 +180,94 @@ func (s *Service) CheckUserPassword(ctx context.Context, newPass newPassword.New
 	}
 
 	return nil
+}
+
+func (s *Service) CheckUserEmail(ctx context.Context, userID, newEmail string) error {
+	const op = "service.user.CheckUserEmail"
+
+	isVerified, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerified(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if !isVerified {
+		return fmt.Errorf("%s: attempt to change password without verifying email", op)
+	}
+
+	tooLong, err := s.ConfirmEmailRepo.CheckEmailChangeOTPVerifiedForTooLong(ctx, userID)
+	if tooLong {
+		err = s.ConfirmEmailRepo.ResetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		newOTP, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		user, err := s.UserRepo.FindUserByID(ctx, uuid.FromStringOrNil(userID))
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		fmt.Println("EMAIIIL: " + user.Email)
+
+		err = sendMail.SimpleEmailSend(user.Email, newOTP, "Email change")
+		if err != nil {
+			return fmt.Errorf("%s : failed to send email to user: %w", op, err)
+		}
+
+		return fmt.Errorf("%s: previous code expired, we sent you a new one, please approve it again", op)
+	}
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CreateUserPfp(ctx context.Context, userId string, image []byte) error {
+	const op = "service.user.CreateUserPfp"
+
+	imageType, err := checkers.DetectImageType(image)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	currentPfpPath, err := s.UserRepo.GetUserPfp(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to get current avatar: %w", op, err)
+	}
+
+	if currentPfpPath != "" {
+		err = s.FileSvc.RemoveFile(currentPfpPath)
+		if err != nil {
+			return fmt.Errorf("%s: failed to remove old avatar: %w", op, err)
+		}
+	}
+
+	fWithPath, err := s.FileSvc.UploadImage(image, imageType, fileSvc.FilePathUsersPFPImages)
+	if err != nil {
+		return err
+	}
+
+	err = s.UserRepo.CreateUserPfp(ctx, userId, fWithPath)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) GetUserPfp(ctx context.Context, userId string) (string, error) {
+	const op = "service.user.GetUserPfp"
+
+	imagePath, err := s.UserRepo.GetUserPfp(ctx, userId)
+	if err != nil {
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return imagePath, nil
 }
 
 func (s *Service) stringToUUID(id string) (uuid.UUID, error) {

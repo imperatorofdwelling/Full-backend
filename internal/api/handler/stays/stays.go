@@ -28,13 +28,13 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 	r.Route("/stays", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
-			r.Post("/create", h.CreateStay)
+			r.Post("/", h.CreateStay)
 
 			r.Delete("/{stayId}", h.DeleteStayByID)
 			r.Put("/{stayId}", h.UpdateStayByID)
 			r.Post("/images", h.CreateImages)
 			r.Post("/images/main", h.CreateMainImage)
-			r.Delete("/images/delete/{imageId}", h.DeleteStayImage)
+			r.Delete("/images/{imageId}", h.DeleteStayImage)
 		})
 
 		r.Group(func(r chi.Router) {
@@ -59,7 +59,7 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 //	@Success		201	{string}		string		"created"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
-//	@Router			/stays/create [post]
+//	@Router			/stays [post]
 func (h *Handler) CreateStay(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.CreateStay"
 
@@ -132,7 +132,7 @@ func (h *Handler) GetStayByID(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Success		200	{object}		[]model.Stay	"ok"
+//	@Success		200	{object}		[]model.StayResponse	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/stays [get]
@@ -467,7 +467,7 @@ func (h *Handler) CreateMainImage(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{object}		string	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
-//	@Router			/stays/images/delete/{imageId} [delete]
+//	@Router			/stays/images/{imageId} [delete]
 func (h *Handler) DeleteStayImage(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.stays.DeleteStayImage"
 

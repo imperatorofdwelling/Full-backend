@@ -49,23 +49,23 @@ func (s *Service) Register(ctx context.Context, user model.Registration) (uuid.U
 	return userFound.ID, nil
 }
 
-func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, error) {
+func (s *Service) Login(ctx context.Context, user model.Login) (uuid.UUID, int, error) {
 	const op = "service.auth.Login"
 	userExists, err := s.UserRepo.CheckUserExists(ctx, user.Email)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, -1, err
 	}
 
 	if !userExists {
-		return uuid.Nil, fmt.Errorf("%s: %w", op, service.ErrNotFound)
+		return uuid.Nil, -1, fmt.Errorf("%s: %w", op, service.ErrNotFound)
 	}
 
-	id, err := s.AuthRepo.Login(ctx, user)
+	id, roleID, err := s.AuthRepo.Login(ctx, user)
 	if err != nil {
-		return id, err
+		return id, -1, err
 	}
 
-	return id, err
+	return id, roleID, err
 }
 
 func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
@@ -107,6 +107,11 @@ func (s *Service) CheckEmailOTP(ctx context.Context, userID, otp string) error {
 		return fmt.Errorf("%s : %w", op, err)
 	}
 
+	err = s.AuthRepo.DeleteOTPFromEmailVerification(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
 	return nil
 }
 
@@ -137,6 +142,39 @@ func (s *Service) CheckPasswordOTP(ctx context.Context, email, otp string) error
 	}
 
 	err = s.AuthRepo.PasswordVerification(ctx, email)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckEmailChangeOTP(ctx context.Context, userID, otp string) error {
+	const op = "service.auth.CheckEmailChangeOTP"
+
+	exist, err := s.ConfirmEmailRepo.CheckEmailChangeOTPExists(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s : %w", op, err)
+	}
+	if exist {
+		expired, err := s.ConfirmEmailRepo.CheckEmailChangeOTPNotExpired(ctx, userID)
+		if err != nil {
+			return fmt.Errorf("%s : failed to check if OTP is expired: %w", op, err)
+		}
+		if expired {
+			return fmt.Errorf("OTP is expired")
+		}
+	}
+
+	otpFromDB, err := s.ConfirmEmailRepo.GetEmailChangeOTP(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	if otpFromDB != otp {
+		return fmt.Errorf("invalid OTP")
+	}
+
+	err = s.AuthRepo.ConfirmEmailChangeOTP(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("%s : %w", op, err)
 	}

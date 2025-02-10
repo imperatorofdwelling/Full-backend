@@ -21,6 +21,7 @@ type (
 		Gender    string       `json:"gender,omitempty"`
 		Country   string       `json:"country,omitempty"`
 		City      string       `json:"city,omitempty"`
+		RoleID    int64        `json:"role_id"`
 		CreatedAt time.Time    `json:"createdAt,omitempty"`
 		UpdatedAt time.Time    `json:"updatedAt,omitempty"`
 	} // @name UserEntity
@@ -38,6 +39,7 @@ type (
 		Gender    string       `json:"gender"`
 		Country   string       `json:"country"`
 		City      string       `json:"city"`
+		RoleID    int64        `json:"role_id"`
 		CreatedAt time.Time    `json:"createdAt"`
 		UpdatedAt time.Time    `json:"updatedAt"`
 	} // @name User
@@ -51,5 +53,7 @@ type (
 		BirthDate sql.NullTime `json:"birthDate"`
 		National  string       `json:"national"`
 		Gender    string       `json:"gender"`
+		RoleID    int64        `json:"role_id"`
 	} // @name UserInfo
+
 )

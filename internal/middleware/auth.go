@@ -11,6 +11,13 @@ import (
 	"os"
 )
 
+type contextKey string
+
+const (
+	userIDKey   contextKey = "user_id"
+	userRoleKey contextKey = "user_role"
+)
+
 func WithAuth(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := getTokenFromRequest(r)
@@ -28,8 +35,15 @@ func WithAuth(handler http.Handler) http.Handler {
 			permissionDenied(w, r, "unable to get user ID from token")
 		}
 
+		userRole, err := getUserRoleFromToken(token)
+		if err != nil {
+			permissionDenied(w, r, "unable to get user role from token")
+			return
+		}
+
 		// Store the user ID in the request context
-		ctx := context.WithValue(r.Context(), "user_id", userID)
+		ctx := context.WithValue(r.Context(), userIDKey, userID)
+		ctx = context.WithValue(r.Context(), userRoleKey, userRole)
 		r = r.WithContext(ctx)
 
 		handler.ServeHTTP(w, r)
@@ -73,4 +87,18 @@ func getUserIDFromToken(token *jwt.Token) (string, error) {
 	}
 
 	return userID, nil
+}
+
+func getUserRoleFromToken(token *jwt.Token) (float64, error) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, errors.New("invalid token claims")
+	}
+
+	userRole, ok := claims["role_id"].(float64) // Роль сохраняется при LOGIN
+	if !ok {
+		return 0, errors.New("invalid user role in token")
+	}
+
+	return userRole, nil
 }

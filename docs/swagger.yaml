@@ -443,6 +443,53 @@ definitions:
       user_id:
         type: string
     type: object
+  StayResponse:
+    properties:
+      created_at:
+        type: string
+      entrance:
+        type: string
+      floor:
+        type: string
+      guests:
+        type: integer
+      house:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          $ref: '#/definitions/StayImage'
+        type: array
+      is_smoking_prohibited:
+        type: boolean
+      location_id:
+        type: string
+      name:
+        type: string
+      number_of_bathrooms:
+        type: integer
+      number_of_bedrooms:
+        type: integer
+      number_of_beds:
+        type: integer
+      price:
+        type: number
+      rating:
+        type: number
+      room:
+        type: string
+      square:
+        type: number
+      street:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
   StaysReportEntity:
     properties:
       description:
@@ -515,6 +562,8 @@ definitions:
         type: string
       phone:
         type: string
+      role_id:
+        type: integer
       updatedAt:
         type: string
     type: object
@@ -804,6 +853,74 @@ paths:
       summary: Establishes a WebSocket connection for chat
       tags:
       - webSocket
+  /confirm/email/change/otp/{otp}:
+    post:
+      consumes:
+      - application/json
+      description: Verify the one-time password (OTP) provided by the user for email
+        change confirmation
+      parameters:
+      - description: One-Time Password (OTP)
+        in: path
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP confirmed successfully!
+          schema:
+            type: string
+        "400":
+          description: Bad Request - invalid OTP
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal Server Error - could not verify OTP
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Confirm Email Change OTP
+      tags:
+      - auth
+  /confirm/email/otp/{otp}:
+    post:
+      consumes:
+      - application/json
+      description: Verify the one-time password (OTP) provided by the user for email
+        confirmation
+      parameters:
+      - description: One-Time Password (OTP)
+        in: path
+        name: otp
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OTP confirmed successfully!
+          schema:
+            type: string
+        "400":
+          description: Bad Request - invalid OTP
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized - user not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal Server Error - could not verify OTP
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Confirm One-Time Password (OTP)
+      tags:
+      - auth
   /confirm/password/otp:
     post:
       consumes:
@@ -940,6 +1057,30 @@ paths:
       summary: Update an Existing Contract
       tags:
       - contracts
+  /email/change/otp:
+    get:
+      consumes:
+      - application/json
+      description: Generate and send a one-time password (OTP) to the user's current
+        email for changing their email address
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: otp for email change created!
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - invalid user ID in context
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal Server Error - failed to send OTP for email change
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Send OTP for Email Change
+      tags:
+      - emailConfirmation
   /email/otp:
     get:
       consumes:
@@ -964,40 +1105,6 @@ paths:
       summary: Create One-Time Password (OTP)
       tags:
       - emailConfirmation
-  /email/otp/{otp}:
-    get:
-      consumes:
-      - application/json
-      description: Verify the one-time password (OTP) provided by the user for email
-        confirmation
-      parameters:
-      - description: One-Time Password (OTP)
-        in: path
-        name: otp
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OTP confirmed successfully!
-          schema:
-            type: string
-        "400":
-          description: Bad Request - invalid OTP
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "401":
-          description: Unauthorized - user not logged in
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: Internal Server Error - could not verify OTP
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Confirm One-Time Password (OTP)
-      tags:
-      - auth
   /favourites:
     get:
       consumes:
@@ -1231,7 +1338,7 @@ paths:
       summary: Find location by id
       tags:
       - locations
-  /locations/match/{locationName}:
+  /locations/{locationName}:
     get:
       consumes:
       - application/json
@@ -1266,7 +1373,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticates an existing user and returns a JWT token
+      description: Authenticates an existing user and returns a JWT token(claim USER_ID,
+        ROLE_ID)
       parameters:
       - description: Login
         in: body
@@ -1450,7 +1558,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new user account
+      description: Creates a new user account(DEFAULT ROLE_ID=TENANT)
       parameters:
       - description: Registration
         in: body
@@ -1476,183 +1584,36 @@ paths:
       summary: Register a new user
       tags:
       - auth
-  /report:
-    get:
-      description: Retrieves all stay reports for the authenticated user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/StaysReportEntity'
-            type: array
-        "401":
-          description: '{"error": "user not logged in"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: '{"error": "message"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Get all stay reports
-      tags:
-      - staysReports
-  /report/{reportId}:
-    delete:
-      description: Deletes a specific stay report by report ID
-      parameters:
-      - description: Report ID
-        in: path
-        name: reportId
-        required: true
-        type: string
-      responses:
-        "200":
-          description: '{"message": "Stay report was deleted"}'
-          schema:
-            type: string
-        "401":
-          description: '{"error": "user not logged in"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: '{"error": "message"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Delete a stay report
-      tags:
-      - staysReports
-    patch:
-      consumes:
-      - multipart/form-data
-      description: Updates specific fields of a stay report, such as title, description,
-        or image
-      parameters:
-      - description: Report ID
-        in: path
-        name: reportId
-        required: true
-        type: string
-      - description: Updated title
-        in: formData
-        name: title
-        type: string
-      - description: Updated description
-        in: formData
-        name: description
-        type: string
-      - description: Image file (JPEG or PNG)
-        in: formData
-        name: image
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Updated stays report object
-          schema:
-            $ref: '#/definitions/StaysReportEntity'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Partially update a stay report
-      tags:
-      - staysReports
-  /report/{stayId}:
-    get:
-      description: Fetches a specific stay report associated with the logged-in user.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Retrieved stay report object
-          schema:
-            $ref: '#/definitions/StayReport'
-        "401":
-          description: '{"error": "user not logged in"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "404":
-          description: '{"error": "report not found"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: '{"error": "could not fetch report"}'
-          schema:
-            $ref: '#/definitions/ResponseError'
-      security:
-      - ApiKeyAuth: []
-      summary: Retrieve stay report by user ID
-      tags:
-      - staysReports
-  /report/create/{stayId}:
+  /reservation:
     post:
       consumes:
-      - multipart/form-data
-      description: Creates a report for a specific stay, including an optional image
-        and required details like title and description.
+      - application/json
+      description: Create reservation (arrived and departure should be TIMESTAMP type)
       parameters:
-      - description: ID of the stay being reported
-        in: path
-        name: stayId
+      - description: Create reservation request
+        in: body
+        name: request
         required: true
-        type: string
-      - description: Title of the report
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: Description of the report
-        in: formData
-        name: description
-        required: true
-        type: string
-      - description: image file (JPEG or PNG)
-        in: formData
-        name: image
-        required: true
-        type: file
+        schema:
+          $ref: '#/definitions/ReservationEntity'
       produces:
       - application/json
       responses:
         "201":
-          description: Confirmation message
+          description: created
           schema:
             type: string
         "400":
-          description: Error message for invalid input or unsupported image type
+          description: Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "401":
-          description: Error message for unauthorized access
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Error message for internal server error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - ApiKeyAuth: []
-      summary: Create a new stay report
+            $ref: '#/definitions/ResponseError'
+      summary: Create Reservation
       tags:
-      - staysReports
+      - reservations
   /reservation/{reservationID}:
     delete:
       consumes:
@@ -1710,37 +1671,7 @@ paths:
       summary: Get Reservation
       tags:
       - reservations
-  /reservation/create:
-    post:
-      consumes:
-      - application/json
-      description: Create reservation (arrived and departure should be TIMESTAMP type)
-      parameters:
-      - description: Create reservation request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ReservationEntity'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Create Reservation
-      tags:
-      - reservations
-  /reservation/update/{reservationId}:
+  /reservation/{reservationId}:
     put:
       consumes:
       - application/json
@@ -1823,7 +1754,7 @@ paths:
           description: ok
           schema:
             items:
-              $ref: '#/definitions/Stay'
+              $ref: '#/definitions/StayResponse'
             type: array
         "400":
           description: Error
@@ -1834,6 +1765,35 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Get all stays
+      tags:
+      - stays
+    post:
+      consumes:
+      - application/json
+      description: Create stay
+      parameters:
+      - description: request stay data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/StayEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Create Stay
       tags:
       - stays
   /stays/{stayId}:
@@ -1922,36 +1882,6 @@ paths:
       summary: Update Stay
       tags:
       - stays
-  /stays/create:
-    post:
-      consumes:
-      - application/json
-      description: Create stay
-      parameters:
-      - description: request stay data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/StayEntity'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Create Stay
-      tags:
-      - stays
   /stays/images:
     post:
       consumes:
@@ -1990,6 +1920,35 @@ paths:
       summary: Create images
       tags:
       - stays
+  /stays/images/{imageId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete image by id
+      parameters:
+      - description: stay image id
+        in: path
+        name: imageId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Delete image by id
+      tags:
+      - stays
   /stays/images/{stayId}:
     get:
       consumes:
@@ -2019,35 +1978,6 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Get all stays images by stay id
-      tags:
-      - stays
-  /stays/images/delete/{imageId}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete image by id
-      parameters:
-      - description: stay image id
-        in: path
-        name: imageId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Delete image by id
       tags:
       - stays
   /stays/images/main:
@@ -2149,6 +2079,182 @@ paths:
       summary: Get Stays by location id
       tags:
       - stays
+  /stays/report:
+    get:
+      description: Retrieves all stay reports for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/StaysReportEntity'
+            type: array
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get all stay reports
+      tags:
+      - staysReports
+  /stays/report/{reportId}:
+    delete:
+      description: Deletes a specific stay report by report ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"message": "Stay report was deleted"}'
+          schema:
+            type: string
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: '{"error": "message"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Delete a stay report
+      tags:
+      - staysReports
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Updates specific fields of a stay report, such as title, description,
+        or image
+      parameters:
+      - description: Report ID
+        in: path
+        name: reportId
+        required: true
+        type: string
+      - description: Updated title
+        in: formData
+        name: title
+        type: string
+      - description: Updated description
+        in: formData
+        name: description
+        type: string
+      - description: Image file (JPEG or PNG)
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated stays report object
+          schema:
+            $ref: '#/definitions/StaysReportEntity'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Partially update a stay report
+      tags:
+      - staysReports
+  /stays/report/{stayId}:
+    get:
+      description: Fetches a specific stay report associated with the logged-in user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Retrieved stay report object
+          schema:
+            $ref: '#/definitions/StayReport'
+        "401":
+          description: '{"error": "user not logged in"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "404":
+          description: '{"error": "report not found"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: '{"error": "could not fetch report"}'
+          schema:
+            $ref: '#/definitions/ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Retrieve stay report by user ID
+      tags:
+      - staysReports
+    post:
+      consumes:
+      - multipart/form-data
+      description: Creates a report for a specific stay, including an optional image
+        and required details like title and description.
+      parameters:
+      - description: ID of the stay being reported
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Title of the report
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description of the report
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: image file (JPEG or PNG)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Confirmation message
+          schema:
+            type: string
+        "400":
+          description: Error message for invalid input or unsupported image type
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Error message for unauthorized access
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Error message for internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new stay report
+      tags:
+      - staysReports
   /stays/user/{userId}:
     get:
       consumes:
@@ -2180,36 +2286,7 @@ paths:
       summary: Get all stays by user id
       tags:
       - stays
-  /staysadvantage/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Create staysAdvantage
-      parameters:
-      - description: stay advantage id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: no content
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Create StaysAdvantage
-      tags:
-      - staysAdvantage
-  /staysadvantage/create:
+  /staysadvantage:
     post:
       consumes:
       - application/json
@@ -2226,6 +2303,35 @@ paths:
       responses:
         "201":
           description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Create StaysAdvantage
+      tags:
+      - staysAdvantage
+  /staysadvantage/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Create staysAdvantage
+      parameters:
+      - description: stay advantage id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: no content
           schema:
             type: string
         "400":
@@ -2262,6 +2368,35 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Get all Stays review
+      tags:
+      - staysReviews
+    post:
+      consumes:
+      - application/json
+      description: Create stays_review
+      parameters:
+      - description: stays review request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/StaysReviewEntity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Create Stays_review
       tags:
       - staysReviews
   /staysreviews/{id}:
@@ -2321,37 +2456,6 @@ paths:
       summary: Get Stays review
       tags:
       - staysReviews
-  /staysreviews/create:
-    post:
-      consumes:
-      - application/json
-      description: Create stays_review
-      parameters:
-      - description: stays review request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/StaysReviewEntity'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Create Stays_review
-      tags:
-      - staysReviews
-  /staysreviews/update/{id}:
     put:
       consumes:
       - application/json
@@ -2499,6 +2603,45 @@ paths:
       summary: Update a user by ID
       tags:
       - users
+  /user/email/change:
+    put:
+      consumes:
+      - application/json
+      description: Updates the user's email after validating the request
+      operationId: updateUserEmailByID
+      parameters:
+      - description: User's new email
+        in: body
+        name: userEmail
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Email changed successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request or email validation failed
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Update user email by ID
+      tags:
+      - users
   /user/password:
     put:
       consumes:
@@ -2533,6 +2676,91 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Update user password by email
+      tags:
+      - users
+  /user/profile/picture:
+    get:
+      description: Retrieves the profile picture path for the authenticated user
+      operationId: getUserPfp
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Path to the user's profile picture
+          schema:
+            type: string
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get user profile picture
+      tags:
+      - users
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a new profile picture for the authenticated user
+      operationId: createUserPfp
+      parameters:
+      - description: User's profile picture (JPEG or PNG)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User pfp added successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request or unsupported content type
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: User not logged in
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Create user profile picture
+      tags:
+      - users
+  /user/profile/picture/{id}:
+    get:
+      description: Retrieves the profile picture path for the specified user
+      operationId: getUserPfpByUserID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Path to the user's profile picture
+          schema:
+            type: string
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get user profile picture by ID
       tags:
       - users
   /user/report/:

@@ -89,15 +89,15 @@ func getUserIDFromToken(token *jwt.Token) (string, error) {
 	return userID, nil
 }
 
-func getUserRoleFromToken(token *jwt.Token) (string, error) {
+func getUserRoleFromToken(token *jwt.Token) (float64, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", errors.New("invalid token claims")
+		return 0, errors.New("invalid token claims")
 	}
 
-	userRole, ok := claims["role_id"].(string) // Роль сохраняется при LOGIN
+	userRole, ok := claims["role_id"].(float64) // Роль сохраняется при LOGIN
 	if !ok {
-		return "", errors.New("invalid user role in token")
+		return 0, errors.New("invalid user role in token")
 	}
 
 	return userRole, nil

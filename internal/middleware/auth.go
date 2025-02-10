@@ -14,7 +14,7 @@ import (
 type contextKey string
 
 const (
-	userIDKey   contextKey = "user_id"
+	UserIdKey   contextKey = "user_id"
 	userRoleKey contextKey = "user_role"
 )
 
@@ -42,8 +42,8 @@ func WithAuth(handler http.Handler) http.Handler {
 		}
 
 		// Store the user ID in the request context
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
-		ctx = context.WithValue(r.Context(), userRoleKey, userRole)
+		ctx := context.WithValue(r.Context(), UserIdKey, userID)
+		ctx = context.WithValue(ctx, userRoleKey, userRole)
 		r = r.WithContext(ctx)
 
 		handler.ServeHTTP(w, r)

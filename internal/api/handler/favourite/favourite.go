@@ -130,7 +130,7 @@ func (h *FavHandler) GetAllFavourites(w http.ResponseWriter, r *http.Request) {
 	)
 
 	// Getting userID from ctx
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
 		return

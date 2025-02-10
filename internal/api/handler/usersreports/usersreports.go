@@ -60,7 +60,7 @@ func (h *Handler) CreateUsersReports(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -139,7 +139,7 @@ func (h *Handler) GetAllUsersReports(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -177,7 +177,7 @@ func (h *Handler) GetUsersReportById(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -219,7 +219,7 @@ func (h *Handler) UpdateUsersReports(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -295,7 +295,7 @@ func (h *Handler) DeleteUsersReports(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))

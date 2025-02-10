@@ -115,7 +115,7 @@ func (h *UserHandler) UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
-	_, ok := r.Context().Value("user_id").(string)
+	_, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
 		return
@@ -182,7 +182,7 @@ func (h *UserHandler) DeleteUserByID(w http.ResponseWriter, r *http.Request) {
 		slog.String("op", op),
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
-	_, ok := r.Context().Value("user_id").(string)
+	_, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
 		return
@@ -278,7 +278,7 @@ func (h *UserHandler) UpdateUserEmailById(w http.ResponseWriter, r *http.Request
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -338,7 +338,7 @@ func (h *UserHandler) CreateUserPfp(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))
@@ -405,7 +405,7 @@ func (h *UserHandler) GetUserPfp(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user not logged in", slogError.Err(errors.New("user not logged in")))
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))

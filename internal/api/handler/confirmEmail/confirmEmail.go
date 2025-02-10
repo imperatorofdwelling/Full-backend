@@ -54,7 +54,7 @@ func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user ID not found in context")
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logged in")))
@@ -121,7 +121,7 @@ func (h *Handler) SendOtpForEmailChange(w http.ResponseWriter, r *http.Request) 
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userId, ok := r.Context().Value("user_id").(string)
+	userId, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("invalid user ID in context")))
 		return

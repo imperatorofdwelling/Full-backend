@@ -53,7 +53,7 @@ func (h *Handler) GetMessagesByUserID(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user ID not found in context")
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("user not logged in")))

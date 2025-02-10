@@ -204,7 +204,7 @@ func (h *AuthHandler) ConfirmEmailOTP(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user id not found in context")
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logger in")))
@@ -287,7 +287,7 @@ func (h *AuthHandler) ConfirmEmailChangeOTP(w http.ResponseWriter, r *http.Reque
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
-	userID, ok := r.Context().Value("user_id").(string)
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
 	if !ok {
 		h.Log.Error("user id not found in context")
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logger in")))

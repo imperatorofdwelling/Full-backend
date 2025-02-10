@@ -2289,6 +2289,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/stays/search": {
+            "get": {
+                "description": "Search stay by filtration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Search",
+                "parameters": [
+                    {
+                        "description": "request search data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/stays/user/{userId}": {
             "get": {
                 "description": "Get stays by user id",
@@ -3370,20 +3416,6 @@ const docTemplate = `{
                 }
             }
         },
-        "Amenity": {
-            "type": "object",
-            "required": [
-                "name"
-            ],
-            "properties": {
-                "available": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "Chat": {
             "type": "object",
             "properties": {
@@ -3752,7 +3784,16 @@ const docTemplate = `{
         },
         "Stay": {
             "type": "object",
+            "required": [
+                "amenities"
+            ],
             "properties": {
+                "amenities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -3845,9 +3886,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "amenities": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Amenity"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
                     }
                 },
                 "entrance": {
@@ -3904,6 +3945,7 @@ const docTemplate = `{
         "StayEntityFav": {
             "type": "object",
             "required": [
+                "amenities",
                 "city",
                 "guests",
                 "house",
@@ -3919,6 +3961,12 @@ const docTemplate = `{
                 "user_id"
             ],
             "properties": {
+                "amenities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
                 "city": {
                     "type": "string"
                 },
@@ -4030,7 +4078,16 @@ const docTemplate = `{
         },
         "StayResponse": {
             "type": "object",
+            "required": [
+                "amenities"
+            ],
             "properties": {
+                "amenities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -4229,6 +4286,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search": {
+            "type": "object",
+            "required": [
+                "number_of_bedrooms",
+                "price_max",
+                "price_min",
+                "type"
+            ],
+            "properties": {
+                "amenities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "number_of_bedrooms": {
+                    "type": "integer"
+                },
+                "price_max": {
+                    "type": "number"
+                },
+                "price_min": {
+                    "type": "number"
+                },
+                "type": {
                     "type": "string"
                 }
             }

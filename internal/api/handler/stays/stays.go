@@ -49,6 +49,18 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 	})
 }
 
+// Search
+//
+//	@Summary		Search
+//	@Description	Search stay by filtration
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param	request body model.Search	true	"request search data"
+//	@Success		201	{string}		[]model.stay		"created"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		500		{object}	response.ResponseError			"Error"
+//	@Router			/stays/search [get]
 func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 	const op = "h.stays.SearchStays"
 
@@ -72,7 +84,7 @@ func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
-	responseApi.WriteJson(w, r, 200, result)
+	responseApi.WriteJson(w, r, 201, result)
 }
 
 // CreateStay godoc

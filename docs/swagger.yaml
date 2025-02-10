@@ -12,15 +12,6 @@ definitions:
       updated_at:
         type: string
     type: object
-  Amenity:
-    properties:
-      available:
-        type: boolean
-      name:
-        type: string
-    required:
-    - name
-    type: object
   Chat:
     properties:
       chat_id:
@@ -267,6 +258,10 @@ definitions:
     type: object
   Stay:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       created_at:
         type: string
       entrance:
@@ -307,6 +302,8 @@ definitions:
         type: string
       user_id:
         type: string
+    required:
+    - amenities
     type: object
   StayAdvantageCreateReq:
     properties:
@@ -318,9 +315,9 @@ definitions:
   StayEntity:
     properties:
       amenities:
-        items:
-          $ref: '#/definitions/Amenity'
-        type: array
+        additionalProperties:
+          type: boolean
+        type: object
       entrance:
         type: string
       floor:
@@ -371,6 +368,10 @@ definitions:
     type: object
   StayEntityFav:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       city:
         type: string
       entrance:
@@ -409,6 +410,7 @@ definitions:
       user_id:
         type: string
     required:
+    - amenities
     - city
     - guests
     - house
@@ -459,6 +461,10 @@ definitions:
     type: object
   StayResponse:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       created_at:
         type: string
       entrance:
@@ -503,6 +509,8 @@ definitions:
         type: string
       user_id:
         type: string
+    required:
+    - amenities
     type: object
   StaysReportEntity:
     properties:
@@ -591,6 +599,26 @@ definitions:
         type: string
       user_name:
         type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search:
+    properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
+      number_of_bedrooms:
+        type: integer
+      price_max:
+        type: number
+      price_min:
+        type: number
+      type:
+        type: string
+    required:
+    - number_of_bedrooms
+    - price_max
+    - price_min
+    - type
     type: object
   sql.NullTime:
     properties:
@@ -2208,6 +2236,36 @@ paths:
       summary: Create a new stay report
       tags:
       - staysReports
+  /stays/search:
+    get:
+      consumes:
+      - application/json
+      description: Search stay by filtration
+      parameters:
+      - description: request search data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Search
+      tags:
+      - stays
   /stays/user/{userId}:
     get:
       consumes:

@@ -3,6 +3,7 @@ package stays
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
@@ -48,8 +49,14 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Amenities, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+	var amenitiesData []byte // Переменная для хранения JSONB данных
+
+	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	// Десериализуем JSONB данные в []Amenity
+	if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -59,7 +66,10 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	const op = "repo.stays.getStays"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays")
+	stmt, err := r.Db.PrepareContext(ctx, `
+		SELECT *
+		FROM stays
+	`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -78,8 +88,15 @@ func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	for rows.Next() {
 		var stay models.StayResponse
 
-		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Amenities, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		var amenitiesData []byte // Переменная для хранения JSONB данных
+
+		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
@@ -188,7 +205,7 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 	defer rows.Close()
 
 	var stays []*models.Stay
-
+	var amenitiesData []byte // Переменная для хранения JSONB данных
 	for rows.Next() {
 		var stay models.Stay
 
@@ -202,8 +219,8 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.NumberOfBeds,
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
-			&stay.Amenities,
 			&stay.Rating,
+			&amenitiesData,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
 			&stay.Street,
@@ -216,6 +233,10 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.UpdatedAt,
 		)
 		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
@@ -355,7 +376,7 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	}
 
 	var stays []models.Stay
-
+	var amenitiesData []byte // Переменная для хранения JSONB данных
 	for rows.Next() {
 		var stay models.Stay
 
@@ -369,8 +390,8 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 			&stay.NumberOfBeds,
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
-			&stay.Amenities,
 			&stay.Rating,
+			&amenitiesData,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
 			&stay.Street,
@@ -383,6 +404,11 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 			&stay.UpdatedAt,
 		)
 		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
@@ -410,16 +436,16 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 	}
 
 	if len(search.Amenities) > 0 {
-		// Создаем временный массив для условий
+		//Создаем временный массив для условий
 		var conditions []string
-		for _, amenity := range search.Amenities {
+		for key, value := range search.Amenities {
 			// Используем индекс для параметров
-			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", amenity.Name, len(args)+1))
-			args = append(args, fmt.Sprintf("%t", amenity.Available))
+			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", key, len(args)+1))
+			args = append(args, fmt.Sprintf("%t", value))
 		}
-		// TODO Может тут вместо OR AND сделать - надо проверить
+		// TODO Может тут вместо OR AND 2 сделать - надо проверить
 		// Объединяем условия с помощью OR
-		query += " AND (" + strings.Join(conditions, " OR ") + ")"
+		query += " AND (" + strings.Join(conditions, " AND ") + ")"
 	}
 
 	stmt, err := this.Db.PrepareContext(ctx, query)
@@ -435,6 +461,8 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 	}
 	defer rows.Close()
 
+	var amenitiesData []byte // Переменная для хранения JSONB данных
+
 	// Обработка результатов
 	var stays []models.Stay
 	for rows.Next() {
@@ -449,8 +477,8 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 			&stay.NumberOfBeds,
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
-			&stay.Amenities,
 			&stay.Rating,
+			&amenitiesData,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
 			&stay.Street,
@@ -464,6 +492,12 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 		); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
+
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
 		stays = append(stays, stay)
 	}
 

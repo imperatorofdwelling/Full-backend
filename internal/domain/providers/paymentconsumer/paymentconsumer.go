@@ -8,20 +8,26 @@ import (
 )
 
 var (
-	con     *consumer.PaymentConsumer
+	con     *consumer.PaymentConsumerHdl
 	conOnce sync.Once
 )
 
 var PaymentConsumerProviderSet wire.ProviderSet = wire.NewSet(
+	ProvideWaitPaymentForResponseChan,
 	ProvidePaymentConsumer,
 )
 
-func ProvidePaymentConsumer(log *slog.Logger) *consumer.PaymentConsumer {
+func ProvidePaymentConsumer(log *slog.Logger, waitForResponse map[string]chan consumer.PaymentResponse) *consumer.PaymentConsumerHdl {
 	conOnce.Do(func() {
-		con = &consumer.PaymentConsumer{
-			Log: log,
+		con = &consumer.PaymentConsumerHdl{
+			Log:             log,
+			WaitForResponse: waitForResponse,
 		}
 	})
 
 	return con
+}
+
+func ProvideWaitPaymentForResponseChan() map[string]chan consumer.PaymentResponse {
+	return make(map[string]chan consumer.PaymentResponse)
 }

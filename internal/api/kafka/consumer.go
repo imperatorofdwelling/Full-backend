@@ -16,10 +16,10 @@ type Consumer struct {
 	Group sarama.ConsumerGroup
 }
 
-func NewKafkaConsumer(paymentConsumer *consumer.PaymentConsumer) *Consumer {
+func NewKafkaConsumer(paymentConsumer *consumer.PaymentConsumerHdl) *Consumer {
 	config := sarama.NewConfig()
 
-	paymentConsumerHdl := paymentConsumer.NewPaymentConsumer()
+	paymentConsumerHdl := paymentConsumer.NewPaymentConsumerHdl()
 
 	consumerGroup, err := sarama.NewConsumerGroup(ServerAddr, ConsumerGroup, config)
 	if err != nil {
@@ -49,34 +49,3 @@ func (c *Consumer) Setup(ctx context.Context, group sarama.ConsumerGroup, hdl sa
 		}
 	}
 }
-
-//func (c *Consumer) SubscribeToResponse(key string, responseChan chan<- yoomodel.Payment) {
-//	c.Group
-//	partitionConsumer, err := p.Consumer.ConsumePartition(ResponseTopic, 0, sarama.OffsetNewest)
-//	if err != nil {
-//		p.Log.Error("failed to subscribe to response topic", "error", err.Error())
-//		return
-//	}
-//	defer partitionConsumer.Close()
-//
-//	for {
-//		select {
-//		case msg := <-partitionConsumer.Messages():
-//			var response Response
-//			err := json.Unmarshal(msg.Value, &response)
-//			if err != nil {
-//				p.Log.Error("error unmarshalling response", "error", err.Error())
-//				continue
-//			}
-//
-//			// Проверяем, что ответ соответствует нашему запросу
-//			if string(msg.Key) == key {
-//				responseChan <- response
-//				return // Завершаем подписку после получения ответа
-//			}
-//		case err := <-partitionConsumer.Errors():
-//			p.Log.Error("error consuming response", "error", err.Error())
-//			return
-//		}
-//	}
-//}

@@ -96,10 +96,11 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	fileHandler := providers3.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
-	paymentConsumer := paymentconsumer.ProvidePaymentConsumer(log)
-	consumer := kafka.NewKafkaConsumer(paymentConsumer)
+	v := paymentconsumer.ProvideWaitPaymentForResponseChan()
+	paymentConsumerHdl := paymentconsumer.ProvidePaymentConsumer(log, v)
+	consumer := kafka.NewKafkaConsumer(paymentConsumerHdl)
 	client := kafka.NewClient(producer, consumer, log)
-	paymentHandler := providers6.ProvidePaymentHandler(client, log)
+	paymentHandler := providers6.ProvidePaymentHandler(client, log, v)
 	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler, paymentHandler)
 	return serverHTTP, nil
 }

@@ -1,7 +1,10 @@
 package consumer
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/IBM/sarama"
+	yoomodel "github.com/eclipsemode/go-yookassa-sdk/yookassa/model"
 	"log/slog"
 )
 
@@ -20,15 +23,25 @@ func (*PaymentConsumerHdl) Cleanup(sarama.ConsumerGroupSession) error { return n
 
 func (c *PaymentConsumerHdl) ConsumeClaim(
 	sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+	const op = "kafka.consumer.paymentresponse.ConsumeClaim"
 	for msg := range claim.Messages() {
 
 		requestID := string(msg.Key)
-		value := string(msg.Value)
+
+		var payment yoomodel.Payment
+
+		if err := json.Unmarshal(msg.Value, &payment); err != nil {
+			return fmt.Errorf("%s: %s", op, err.Error())
+		}
+
+		if payment.Status == "" {
+			return fmt.Errorf("%s: %s", op, "internal status error")
+		}
 
 		if responseChan, ok := c.WaitForResponse[requestID]; ok {
 			responseChan <- PaymentResponse{
 				RequestID: requestID,
-				Result:    value,
+				Result:    payment,
 			}
 		}
 

@@ -33,6 +33,11 @@ test:
 mock:
 	go generate ./internal/domain/interfaces
 
+### KAFKA ###
+docker-kafka-local:
+	docker compose --env-file ./.env.local -f ./docker/local/local-kafka.docker-compose.yml -p iod-kafka up --build -d
+
+
 ### MIGRATIONS ###
 migrate-down-docker-local:
 	@docker compose --env-file ./.env.local -f ./local.docker-compose.yml -p iod run --rm migrate-down-mock

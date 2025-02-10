@@ -11,7 +11,7 @@ build:
 swag:
 	swag init --exclude docker,nginx,assets,pkg --md ./docs --parseInternal --parseDependency --parseDepth 2 -g cmd/app/main.go
 wire:
-	wire ./internal/di
+	google-wire ./internal/di
 migration-create:
 	migrate create -ext sql -dir .\cmd\migrator\migrations -seq $(filter-out $@,$(MAKECMDGOALS))
 migrate-up:

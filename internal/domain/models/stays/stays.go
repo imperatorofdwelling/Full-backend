@@ -12,8 +12,7 @@ var (
 )
 
 type (
-	StayType string
-
+	StayType   string
 	StayEntity struct {
 		UserID              uuid.UUID `json:"user_id" validate:"required,uuid"`
 		LocationID          uuid.UUID `json:"location_id" validate:"required,uuid"`
@@ -23,6 +22,7 @@ type (
 		NumberOfBeds        int       `json:"number_of_beds" validate:"required"`
 		NumberOfBathrooms   int       `json:"number_of_bathrooms" validate:"required"`
 		Guests              int       `json:"guests" validate:"required"`
+		Amenities           []Amenity `json:"amenities" validate:"required"`
 		IsSmokingProhibited bool      `json:"is_smoking_prohibited,omitempty" default:"false"`
 		Square              float32   `json:"square" validate:"required"`
 		Street              string    `json:"street" validate:"required"`
@@ -32,6 +32,11 @@ type (
 		Room                string    `json:"room,omitempty"`
 		Price               float32   `json:"price" validate:"required"`
 	} // @name StayEntity
+
+	Amenity struct {
+		Name      string `json:"name" validate:"required"`
+		Available bool   `json:"available" validate:"omitempty"`
+	} // @name Amenity
 
 	StayEntityFav struct {
 		ID                  uuid.UUID `json:"id"`
@@ -43,6 +48,7 @@ type (
 		NumberOfBeds        int       `json:"number_of_beds" validate:"required"`
 		NumberOfBathrooms   int       `json:"number_of_bathrooms" validate:"required"`
 		Guests              int       `json:"guests" validate:"required"`
+		Amenities           []Amenity `json:"amenities" validate:"required"`
 		IsSmokingProhibited bool      `json:"is_smoking_prohibited,omitempty" default:"false"`
 		Square              float32   `json:"square" validate:"required"`
 		Street              string    `json:"street" validate:"required"`
@@ -64,6 +70,7 @@ type (
 		NumberOfBeds        int       `json:"number_of_beds"`
 		NumberOfBathrooms   int       `json:"number_of_bathrooms"`
 		Guests              int       `json:"guests"`
+		Amenities           []Amenity `json:"amenities" validate:"required"`
 		Rating              float32   `json:"rating"`
 		IsSmokingProhibited bool      `json:"is_smoking_prohibited"`
 		Square              float32   `json:"square"`
@@ -97,9 +104,10 @@ type (
 	} // @name StayResponse
 
 	Search struct {
-		Type             StayType `json:"type" validate:"required"`
-		PriceMin         float32  `json:"price_min" validate:"required"`
-		PriceMax         float32  `json:"price_max" validate:"required"`
-		NumberOfBedrooms int      `json:"number_of_bedrooms" validate:"required"`
+		Type             StayType  `json:"type" validate:"required"`
+		PriceMin         float32   `json:"price_min" validate:"required"`
+		PriceMax         float32   `json:"price_max" validate:"required"`
+		NumberOfBedrooms int       `json:"number_of_bedrooms" validate:"required"`
+		Amenities        []Amenity `json:"amenities" validate:"omitempty"`
 	}
 )

@@ -319,3 +319,12 @@ func (s *Service) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]st
 
 	return foundStays, nil
 }
+
+func (this *Service) Search(ctx context.Context, search stays.Search) ([]stays.Stay, error) {
+	const op = "service.stays.Search"
+	result, err := this.Repo.Search(ctx, search)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return result, nil
+}

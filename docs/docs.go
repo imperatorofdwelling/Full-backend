@@ -3370,6 +3370,20 @@ const docTemplate = `{
                 }
             }
         },
+        "Amenity": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "Chat": {
             "type": "object",
             "properties": {
@@ -3815,6 +3829,7 @@ const docTemplate = `{
         "StayEntity": {
             "type": "object",
             "required": [
+                "amenities",
                 "guests",
                 "house",
                 "location_id",
@@ -3829,6 +3844,12 @@ const docTemplate = `{
                 "user_id"
             ],
             "properties": {
+                "amenities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Amenity"
+                    }
+                },
                 "entrance": {
                     "type": "string"
                 },

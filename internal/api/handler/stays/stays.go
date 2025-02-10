@@ -44,12 +44,12 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 			r.Get("/location/{locationId}", h.GetStaysByLocationID)
-			r.Get("/", h.SearchStays)
+			r.Get("/search", h.Search)
 		})
 	})
 }
 
-func (h *Handler) SearchStays(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
 	const op = "h.stays.SearchStays"
 
 	h.Log = h.Log.With(
@@ -66,6 +66,13 @@ func (h *Handler) SearchStays(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	result, err := h.Svc.Search(r.Context(), searchValues)
+	if err != nil {
+		h.Log.Error("failed to search", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+	responseApi.WriteJson(w, r, 200, result)
 }
 
 // CreateStay godoc

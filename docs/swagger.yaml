@@ -12,6 +12,15 @@ definitions:
       updated_at:
         type: string
     type: object
+  Amenity:
+    properties:
+      available:
+        type: boolean
+      name:
+        type: string
+    required:
+    - name
+    type: object
   Chat:
     properties:
       chat_id:
@@ -308,6 +317,10 @@ definitions:
     type: object
   StayEntity:
     properties:
+      amenities:
+        items:
+          $ref: '#/definitions/Amenity'
+        type: array
       entrance:
         type: string
       floor:
@@ -342,6 +355,7 @@ definitions:
       user_id:
         type: string
     required:
+    - amenities
     - guests
     - house
     - location_id

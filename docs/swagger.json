@@ -3359,6 +3359,20 @@
                 }
             }
         },
+        "Amenity": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "Chat": {
             "type": "object",
             "properties": {
@@ -3804,6 +3818,7 @@
         "StayEntity": {
             "type": "object",
             "required": [
+                "amenities",
                 "guests",
                 "house",
                 "location_id",
@@ -3818,6 +3833,12 @@
                 "user_id"
             ],
             "properties": {
+                "amenities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Amenity"
+                    }
+                },
                 "entrance": {
                     "type": "string"
                 },

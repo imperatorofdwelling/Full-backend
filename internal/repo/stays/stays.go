@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"strings"
 	"time"
 )
 
@@ -47,7 +48,7 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Amenities, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -77,7 +78,7 @@ func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	for rows.Next() {
 		var stay models.StayResponse
 
-		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Amenities, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -201,6 +202,7 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.NumberOfBeds,
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
+			&stay.Amenities,
 			&stay.Rating,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
@@ -367,6 +369,7 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 			&stay.NumberOfBeds,
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
+			&stay.Amenities,
 			&stay.Rating,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
@@ -387,4 +390,86 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	}
 
 	return &stays, nil
+}
+
+func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.Stay, error) {
+	const op = "repo.stays.Search"
+
+	query := `
+		SELECT * FROM stays
+		WHERE type = $1 
+		AND price BETWEEN $2 AND $3
+		AND number_of_bedrooms = $4
+	`
+
+	args := []interface{}{
+		search.Type,
+		search.PriceMin,
+		search.PriceMax,
+		search.NumberOfBedrooms,
+	}
+
+	if len(search.Amenities) > 0 {
+		// Создаем временный массив для условий
+		var conditions []string
+		for _, amenity := range search.Amenities {
+			// Используем индекс для параметров
+			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", amenity.Name, len(args)+1))
+			args = append(args, fmt.Sprintf("%t", amenity.Available))
+		}
+		// TODO Может тут вместо OR AND сделать - надо проверить
+		// Объединяем условия с помощью OR
+		query += " AND (" + strings.Join(conditions, " OR ") + ")"
+	}
+
+	stmt, err := this.Db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	// Выполняем запрос
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	// Обработка результатов
+	var stays []models.Stay
+	for rows.Next() {
+		var stay models.Stay
+		if err = rows.Scan(
+			&stay.ID,
+			&stay.LocationID,
+			&stay.UserID,
+			&stay.Name,
+			&stay.Type,
+			&stay.NumberOfBedrooms,
+			&stay.NumberOfBeds,
+			&stay.NumberOfBathrooms,
+			&stay.Guests,
+			&stay.Amenities,
+			&stay.Rating,
+			&stay.IsSmokingProhibited,
+			&stay.Square,
+			&stay.Street,
+			&stay.House,
+			&stay.Entrance,
+			&stay.Floor,
+			&stay.Room,
+			&stay.Price,
+			&stay.CreatedAt,
+			&stay.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		stays = append(stays, stay)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return stays, nil
 }

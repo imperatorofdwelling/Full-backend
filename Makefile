@@ -35,7 +35,9 @@ mock:
 
 ### KAFKA ###
 docker-kafka-local:
-	docker compose --env-file ./.env.local -f ./docker/local/local-kafka.docker-compose.yml -p iod-kafka up --build -d
+	docker compose --env-file ./.env.local -f ./docker/local/local.kafka.docker-compose.yml -p iod-kafka up --build -d
+docker-kafka-dev:
+	docker compose --env-file ./.env.dev -f ./docker/dev/dev.kafka.docker-compose.yml -p iod-kafka up --build -d
 
 
 ### MIGRATIONS ###

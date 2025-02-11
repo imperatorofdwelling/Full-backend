@@ -8,6 +8,7 @@ package di
 
 import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api"
+	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/db"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
@@ -20,6 +21,8 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
 	providers2 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
+	providers6 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/payment"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/paymentconsumer"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	providers4 "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -51,7 +54,11 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	handler := providers2.ProvideLocationHandler(locationService, log)
 	advantageRepo := providers3.ProvideAdvantageRepository(sqlDB)
 	advantageService := providers3.ProvideAdvantageService(advantageRepo, fileService)
-	advantageHandler := providers3.ProvideAdvantageHandler(advantageService, log)
+	producer, err := kafka.NewKafkaProducer()
+	if err != nil {
+		return nil, err
+	}
+	advantageHandler := providers3.ProvideAdvantageHandler(advantageService, log, producer)
 	staysRepo := providers4.ProvideStaysRepo(sqlDB)
 	staysService := providers4.ProvideStaysService(staysRepo, locationService, fileService, userService)
 	staysHandler := providers4.ProvideStaysHandler(staysService, log)
@@ -89,6 +96,11 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 	fileHandler := providers.ProvideFileHandler(fileService, log)
 	confirmEmailService := confirmEmail.ProvideConfirmEmailService(repo, userRepository)
 	confirmEmailHandler := confirmEmail.ProvideConfirmEmailHandler(confirmEmailService, log)
-	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler)
+	v := paymentconsumer.ProvideWaitPaymentForResponseChan()
+	paymentConsumerHdl := paymentconsumer.ProvidePaymentConsumer(log, v)
+	consumer := kafka.NewKafkaConsumer(paymentConsumerHdl)
+	client := kafka.NewClient(producer, consumer, log)
+	paymentHandler := providers6.ProvidePaymentHandler(client, log, v)
+	serverHTTP := api.NewServerHTTP(cfg, authHandler, userHandler, handler, advantageHandler, staysHandler, staysadvantageHandler, reservationHandler, staysreviewsHandler, favHandler, searchhistoryHandler, contractsHandler, staysreportsHandler, usersreportsHandler, messageHandler, chatHandler, fileHandler, confirmEmailHandler, paymentHandler)
 	return serverHTTP, nil
 }

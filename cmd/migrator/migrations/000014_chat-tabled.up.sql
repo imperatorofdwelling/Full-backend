@@ -1,4 +1,4 @@
-CREATE TABLE chat (
+CREATE TABLE IF NOT EXISTS chat (
     chat_id UUID NOT NULL,
     stay_owner_id UUID NOT NULL,
     stay_user_id UUID NOT NULL,

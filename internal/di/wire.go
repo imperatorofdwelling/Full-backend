@@ -15,8 +15,11 @@ import (
 	ctrctProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/contracts"
 	fvrtProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/favourite"
 	flProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/file"
+	kafkaProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/kafka"
 	locProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/location"
 	msgProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/message"
+	paymentProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/payment"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/providers/paymentconsumer"
 	resProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/reservation"
 	srchProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/searchhistory"
 	staysProvider "github.com/imperatorofdwelling/Full-backend/internal/domain/providers/stays"
@@ -31,6 +34,7 @@ import (
 
 func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error) {
 	panic(wire.Build(
+		kafkaProvider.KafkaProviderSet,
 		usrProvider.ProviderSet,
 		locProvider.LocationProviderSet,
 		authProvider.ProviderSet,
@@ -48,6 +52,9 @@ func InitializeAPI(cfg *config.Config, log *slog.Logger) (*api.ServerHTTP, error
 		msgProvider.MessageProviderSet,
 		chatProvider.ChatProviderSet,
 		confirmEmailProvider.ProvideSet,
+		paymentProvider.PaymentProviderSet,
+
+		paymentconsumer.PaymentConsumerProviderSet,
 
 		db.ConnectToBD,
 		api.NewServerHTTP,

@@ -1,4 +1,4 @@
-CREATE TABLE message (
+CREATE TABLE IF NOT EXISTS message (
     id UUID PRIMARY KEY,
     chat_id UUID NOT NULL,
     user_id UUID NOT NULL,

@@ -1,4 +1,4 @@
-CREATE TABLE adm_object
+CREATE TABLE IF NOT EXISTS adm_object
 (
     id     SERIAL PRIMARY KEY,
     route  TEXT   NOT NULL,

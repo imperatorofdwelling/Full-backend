@@ -13,7 +13,6 @@ import (
 	fileHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/file"
 	locHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/location"
 	msgHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/message"
-	paymentHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/payment"
 	reservationHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/reservation"
 	srchRevHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/searchhistory"
 	staysHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/stays"
@@ -53,7 +52,7 @@ func NewServerHTTP(
 	chatHandler *chatHdl.Handler,
 	fileHandler *fileHdl.Handler,
 	confirmEmailHandler *confirmEmailHdl.Handler,
-	paymentHandler *paymentHdl.Handler,
+	// paymentHandler *paymentHdl.Handler,
 ) *ServerHTTP {
 	r := chi.NewRouter()
 
@@ -80,7 +79,7 @@ func NewServerHTTP(
 		chatHandler.NewChatHandler(r)
 		fileHandler.NewFileHandler(r)
 		confirmEmailHandler.NewConfirmEmailHandler(r)
-		paymentHandler.NewPaymentHandler(r)
+		//paymentHandler.NewPaymentHandler(r)
 
 		r.Get("/swagger/*", httpSwagger.Handler(
 			httpSwagger.URL(fmt.Sprintf("http://%s/api/v1/swagger/doc.json", cfg.Server.Host)),

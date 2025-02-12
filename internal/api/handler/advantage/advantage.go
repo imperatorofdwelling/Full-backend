@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
-	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/advantage"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
@@ -25,9 +24,8 @@ const (
 )
 
 type Handler struct {
-	Svc   interfaces.AdvantageService
-	Log   *slog.Logger
-	Kafka *kafka.Producer
+	Svc interfaces.AdvantageService
+	Log *slog.Logger
 }
 
 func (h *Handler) NewAdvantageHandler(r chi.Router) {

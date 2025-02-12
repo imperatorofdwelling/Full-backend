@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"github.com/google/wire"
 	advHdl "github.com/imperatorofdwelling/Full-backend/internal/api/handler/advantage"
-	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	advRepo "github.com/imperatorofdwelling/Full-backend/internal/repo/advantage"
 	advSvc "github.com/imperatorofdwelling/Full-backend/internal/service/advantage"
@@ -33,12 +32,11 @@ var AdvantageProviderSet wire.ProviderSet = wire.NewSet(
 	wire.Bind(new(interfaces.AdvantageRepo), new(*advRepo.Repo)),
 )
 
-func ProvideAdvantageHandler(svc interfaces.AdvantageService, log *slog.Logger, kafka *kafka.Producer) *advHdl.Handler {
+func ProvideAdvantageHandler(svc interfaces.AdvantageService, log *slog.Logger) *advHdl.Handler {
 	hdlOnce.Do(func() {
 		hdl = &advHdl.Handler{
-			Svc:   svc,
-			Log:   log,
-			Kafka: kafka,
+			Svc: svc,
+			Log: log,
 		}
 	})
 	return hdl

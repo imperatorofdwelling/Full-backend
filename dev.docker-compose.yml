@@ -3,8 +3,8 @@ volumes:
   local_static_data:
 
 networks:
-  iod-net:
-    driver: bridge
+  iod-kafka_iod-net:
+    external: true
 
 services:
   db:
@@ -23,7 +23,7 @@ services:
       start_period: 30s
       timeout: 10s
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   server:
     container_name: server
     restart: always
@@ -39,7 +39,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   migrate:
     image: migrate/migrate
     env_file: .env.dev
@@ -51,7 +51,7 @@ services:
         condition: service_healthy
     profiles: [migrate-up]
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   migrate-cities-json:
     build:
       context: .
@@ -63,7 +63,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   migrate-mock:
     image: migrate/migrate
     env_file: .env.dev
@@ -75,7 +75,7 @@ services:
       db:
         condition: service_healthy
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   migrate-down-mock:
     image: migrate/migrate
     env_file: .env.dev
@@ -87,7 +87,7 @@ services:
         condition: service_healthy
     profiles: [migrate-down]
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   migrate-down:
     image: migrate/migrate
     env_file: .env.dev
@@ -99,7 +99,7 @@ services:
         condition: service_healthy
     profiles: [migrate-down]
     networks:
-      - iod-net
+      - iod-kafka_iod-net
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -116,4 +116,4 @@ services:
       - server
       - db
     networks:
-      - iod-net
+      - iod-kafka_iod-net

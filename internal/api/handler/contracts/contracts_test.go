@@ -7,10 +7,12 @@ import (
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -98,6 +100,9 @@ func TestContracts_ContractGetAllContractsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("GetAllContracts", mock.Anything, testUserID.String()).Return(nil, errors.New("could not fetch contracts"))
 
 		router.ServeHTTP(r, req)
@@ -136,6 +141,9 @@ func TestContracts_ContractGetAllContractsSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("GetAllContracts", mock.Anything, testUserID.String()).Return(nil, nil)
 
@@ -225,6 +233,9 @@ func TestContracts_ContractAddContractMapError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -239,6 +250,9 @@ func TestContracts_ContractAddContractMapError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -279,6 +293,9 @@ func TestContracts_ContractAddContractMissingFields(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -294,6 +311,9 @@ func TestContracts_ContractAddContractMissingFields(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -334,6 +354,9 @@ func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -349,6 +372,9 @@ func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -366,6 +392,9 @@ func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -381,6 +410,9 @@ func TestContracts_ContractAddContractInvalidDateFormat(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -421,6 +453,9 @@ func TestContracts_AddContract_Error(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("AddContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(errors.New("could not add contract"))
 
@@ -439,6 +474,9 @@ func TestContracts_AddContract_Error(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("UpdateContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, errors.New("could not add contract"))
@@ -482,6 +520,9 @@ func TestContracts_AddContract_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("AddContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil)
 
@@ -500,6 +541,9 @@ func TestContracts_AddContract_Success(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("UpdateContract", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, nil)

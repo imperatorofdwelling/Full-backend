@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -91,7 +92,7 @@ func TestHandler_ConfirmEmail_CreateOTPEmail_SVC_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
 		svc.On("CreateOTPEmail", mock.Anything, mock.Anything).Return(nil)
@@ -200,7 +201,7 @@ func TestHandler_ConfirmEmail_CreateOTPEmail_SVC_Error(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
 		svc.On("CreateOTPEmail", mock.Anything, mock.Anything).Return(errors.New("error creating otp"))
@@ -209,4 +210,117 @@ func TestHandler_ConfirmEmail_CreateOTPEmail_SVC_Error(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
+}
+
+func TestHandler_ConfirmEmail_SendOtpForEmailChange_UserID_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.ConfirmEmailService{}
+
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.SendOtpForEmailChange)
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+}
+
+func TestHandler_ConfirmEmail_SendOtpForEmailChange_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	svc := mocks.ConfirmEmailService{}
+
+	log := logger.New()
+
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.SendOtpForEmailChange)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should handle service error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		svc.On("SendOtpForEmailChange", mock.Anything, mock.Anything).Return(errors.New("test error"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+}
+
+func TestHandler_ConfirmEmail_SendOtpForEmailChange_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	svc := mocks.ConfirmEmailService{}
+
+	log := logger.New()
+
+	hdl := Handler{
+		Svc: &svc,
+		Log: log,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.SendOtpForEmailChange)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should handle service error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		svc.On("SendOtpForEmailChange", mock.Anything, mock.Anything).Return(nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
 }

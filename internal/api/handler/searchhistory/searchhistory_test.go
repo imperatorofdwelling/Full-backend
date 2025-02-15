@@ -7,10 +7,12 @@ import (
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -98,6 +100,9 @@ func TestSearchHistory_GetAllHistoryByUserIdError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("GetAllHistoryByUserId", mock.Anything, testUserID.String()).Return(nil, errors.New("could not fetch history"))
 
 		router.ServeHTTP(r, req)
@@ -137,6 +142,9 @@ func TestSearchHistory_GetAllHistoryByUserIdSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("GetAllHistoryByUserId", mock.Anything, testUserID.String()).Return(nil, nil)
 
@@ -210,6 +218,10 @@ func TestSearchHistory_AddHistoryBodyEmpty(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -248,6 +260,10 @@ func TestSearchHistory_AddHistoryBodyNameNotFound(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -287,6 +303,10 @@ func TestSearchHistory_AddHistoryBodyNameFoundButError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
@@ -326,6 +346,10 @@ func TestSearchHistory_AddHistoryBodyNameSuccessr(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusCreated, r.Code)

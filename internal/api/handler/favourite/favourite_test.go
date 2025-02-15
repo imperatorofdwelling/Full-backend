@@ -8,9 +8,11 @@ import (
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -106,6 +108,9 @@ func TestFavHandler_AddFavouriteSuccess(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
@@ -145,6 +150,9 @@ func TestFavHandler_AddFavouriteStayId(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
@@ -218,6 +226,9 @@ func TestFavHandler_GetAllFavourites(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("GetAllFavourites", mock.Anything, testUserID.String()).Return(nil, errors.New("service error"))
 
 		router.ServeHTTP(r, req)
@@ -256,6 +267,9 @@ func TestFavHandler_GetAllFavouritesSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("GetAllFavourites", mock.Anything, testUserID.String()).Return(nil, nil)
 
@@ -338,6 +352,9 @@ func TestFavHandler_RemoveFavouriteStayId(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
@@ -378,6 +395,9 @@ func TestFavHandler_RemoveFavouriteSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 		assert.Equal(t, http.StatusOK, r.Code)

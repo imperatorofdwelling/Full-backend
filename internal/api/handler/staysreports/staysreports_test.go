@@ -10,9 +10,11 @@ import (
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -167,6 +169,9 @@ func TestStaysReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("DeleteStaysReports", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed to delete stay report"))
 
 		router.ServeHTTP(r, req)
@@ -182,6 +187,9 @@ func TestStaysReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("GetAllStaysReports", mock.Anything, mock.Anything).Return(nil, errors.New("failed to fetch reports"))
 
@@ -227,6 +235,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		req.Header.Set("Content-Type", "multipart/form-data")
 		req.Body = ioutil.NopCloser(bytes.NewReader([]byte("invalid content")))
 
@@ -244,6 +255,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		req.Header.Set("Content-Type", "multipart/form-data")
 		req.Body = ioutil.NopCloser(bytes.NewReader([]byte("invalid content")))
@@ -271,6 +285,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		req.Header.Set("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
 
 		router.ServeHTTP(r, req)
@@ -295,6 +312,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -333,6 +353,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -369,6 +392,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -407,6 +433,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -444,6 +473,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -478,6 +510,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -518,6 +553,9 @@ func TestStaysReportsHandler_Create_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("CreateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(errors.New("svc error"))
@@ -588,6 +626,9 @@ func TestStaysReportsHandler_Create_ParamsError_Patch(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("UpdateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, errors.New("svc error")) // Возвращаем пустой объект и nil (если это нужно)
 
@@ -634,6 +675,9 @@ func TestStaysReportsHandler_GetStaysById_ErrNoRows(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusNotFound, r.Code)
@@ -676,6 +720,9 @@ func TestStaysReportsHandler_GetStaysById_Error(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -746,6 +793,9 @@ func TestStaysReportsHandler_Create_ParamsError_Patch_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("UpdateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, nil)
 
@@ -790,6 +840,9 @@ func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("DeleteStaysReports", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		router.ServeHTTP(r, req)
@@ -805,6 +858,9 @@ func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("GetAllStaysReports", mock.Anything, mock.Anything).Return(nil, nil)
 
@@ -822,6 +878,9 @@ func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("GetStaysReportById", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 
@@ -841,6 +900,9 @@ func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("UpdateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 
@@ -883,6 +945,9 @@ func TestStaysReportsHandler_ReportCreateSuccess(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("CreateStaysReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil)

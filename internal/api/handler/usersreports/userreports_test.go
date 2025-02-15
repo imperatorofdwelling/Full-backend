@@ -8,10 +8,12 @@ import (
 	handler "github.com/imperatorofdwelling/Full-backend/internal/api/handler/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -169,6 +171,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("CreateUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("failed to fetch reports"))
 
 		router.ServeHTTP(r, req)
@@ -185,6 +190,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("UpdateUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("failed to fetch reports"))
 
 		router.ServeHTTP(r, req)
@@ -200,6 +208,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("DeleteUsersReports", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("failed to fetch reports"))
 
@@ -224,6 +235,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		req.Header.Set("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
 
@@ -264,6 +278,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -300,6 +317,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -338,6 +358,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -375,6 +398,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -409,6 +435,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -449,6 +478,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(errors.New("svc error"))
@@ -493,6 +525,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, errors.New("svc error"))
 
@@ -510,6 +545,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("GetAllUsersReports", mock.Anything, mock.Anything).Return(nil, errors.New("error while getting all of the info"))
 
 		router.ServeHTTP(r, req)
@@ -525,6 +563,9 @@ func TestUsersReportsHandler_ParamsError(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("GetUsersReportById", mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("error while getting all of the info"))
 
@@ -597,6 +638,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("CreateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil)
 
@@ -640,6 +684,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("UpdateUsersReports", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, nil)
 
@@ -657,6 +704,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("DeleteUsersReports", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		router.ServeHTTP(r, req)
@@ -673,6 +723,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
 		svc.On("GetAllUsersReports", mock.Anything, mock.Anything).Return(nil, nil)
 
 		router.ServeHTTP(r, req)
@@ -688,6 +741,9 @@ func TestUsersReportsHandler_Success(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
 
 		svc.On("GetUsersReportById", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 

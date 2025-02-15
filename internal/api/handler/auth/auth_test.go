@@ -8,6 +8,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/auth"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/pkg/errors"
@@ -209,6 +210,8 @@ func TestAuthHandler_LoginUser_Success(t *testing.T) {
 		Svc: svc,
 	}
 
+	id, _ := uuid.NewV4()
+
 	router := chi.NewRouter()
 	router.Post("/login", hdl.LoginUser)
 
@@ -218,7 +221,7 @@ func TestAuthHandler_LoginUser_Success(t *testing.T) {
 		payload := `{"email": "testuser@example.com", "password": "password123"}`
 		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, nil)
+		svc.On("Login", mock.Anything, mock.Anything).Return(id, 1, nil)
 
 		router.ServeHTTP(r, req)
 
@@ -316,8 +319,7 @@ func TestAuthHandler_LoginUser_ErrorHandling(t *testing.T) {
 		payload := `{"email": "testuser@example.com", "password": "password123"}`
 		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
-		// Мокаем ошибку ErrNotFound
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrNotFound)
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, 0, service.ErrNotFound)
 
 		router.ServeHTTP(r, req)
 
@@ -345,7 +347,7 @@ func TestAuthHandler_LoginUser_ErrorHandling_Request_Error(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
 		// Мокаем ошибку ErrValid
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, service.ErrValid)
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, 0, service.ErrValid)
 
 		router.ServeHTTP(r, req)
 
@@ -372,8 +374,7 @@ func TestAuthHandler_LoginUser_ErrorHandling_Internal_Error(t *testing.T) {
 		payload := `{"email": "testuser@example.com", "password": "password123"}`
 		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(payload))
 
-		// Мокаем общую ошибку
-		svc.On("Login", mock.Anything, mock.Anything).Return(nil, errors.New("unexpected error"))
+		svc.On("Login", mock.Anything, mock.Anything).Return(nil, 0, errors.New("unexpected error"))
 
 		router.ServeHTTP(r, req)
 
@@ -515,14 +516,12 @@ func TestAuthHandler_ConfirmPasswordOTP_CheckPasswordOTP_SVC_error(t *testing.T)
 
 func TestAuthHandler_ConfirmEmailOTP_SVC_Success(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
-
 	log := logger.New()
 	svc := &mocks.AuthService{}
 	hdl := AuthHandler{
 		Log: log,
 		Svc: svc,
 	}
-
 	router := chi.NewRouter()
 	router.Get("/otp", hdl.ConfirmEmailOTP)
 
@@ -533,30 +532,63 @@ func TestAuthHandler_ConfirmEmailOTP_SVC_Success(t *testing.T) {
 	})
 	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
 
-	t.Run("should be user id error", func(t *testing.T) {
+	t.Run("should confirm OTP successfully", func(t *testing.T) {
 		r := httptest.NewRecorder()
-
-		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		req := httptest.NewRequest(http.MethodGet, "/otp?otp=123456", nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
-
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
-		svc.On("CheckEmailOTP", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		svc.On("CheckEmailOTP", mock.Anything, testUserID.String(), "").Return(nil)
 
 		router.ServeHTTP(r, req)
-
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
-
 }
 
 func TestAuthHandler_ConfirmEmailOTP_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+	router := chi.NewRouter()
+	router.Get("/otp", hdl.ConfirmEmailOTP)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should confirm OTP successfully", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/otp?otp=123456", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		svc.On("CheckEmailOTP", mock.Anything, testUserID.String(), "").Return(errors.New("test error"))
+
+		router.ServeHTTP(r, req)
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestAuthHandler_ConfirmEmailChangeOTP_UserID_Error(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -567,7 +599,32 @@ func TestAuthHandler_ConfirmEmailOTP_SVC_Error(t *testing.T) {
 	}
 
 	router := chi.NewRouter()
-	router.Get("/otp", hdl.ConfirmEmailOTP)
+	router.Get("/otp", hdl.ConfirmEmailChangeOTP)
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmEmailChangeOTP_SVC_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp/{otp}", hdl.ConfirmEmailChangeOTP)
 
 	testUserID, _ := uuid.NewV4()
 	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -579,22 +636,63 @@ func TestAuthHandler_ConfirmEmailOTP_SVC_Error(t *testing.T) {
 	t.Run("should be user id error", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		req := httptest.NewRequest(http.MethodGet, "/otp", nil)
+		req := httptest.NewRequest(http.MethodGet, "/otp/123", nil)
 		cookie := &http.Cookie{
 			Name:  "jwt-token",
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
-
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
-		svc.On("CheckEmailOTP", mock.Anything, testUserID.String(), mock.Anything).Return(errors.New("unexpected error"))
+		svc.On("CheckEmailChangeOTP", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("test error"))
 
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+}
+
+func TestAuthHandler_ConfirmEmailChangeOTP_SVC_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := &mocks.AuthService{}
+	hdl := AuthHandler{
+		Log: log,
+		Svc: svc,
+	}
+
+	router := chi.NewRouter()
+	router.Get("/otp/{otp}", hdl.ConfirmEmailChangeOTP)
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, _ := testToken.SignedString([]byte("your-secret-key"))
+
+	t.Run("should be user id error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodGet, "/otp/123", nil)
+		cookie := &http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		}
+		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		svc.On("CheckEmailChangeOTP", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
 	})
 
 }

@@ -12,10 +12,9 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
+	"github.com/imperatorofdwelling/Full-backend/pkg/testhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"image"
-	"image/color"
 	"image/png"
 	"mime/multipart"
 	"net/http"
@@ -715,7 +714,7 @@ func TestStaysHandler_CreateImages(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", mockUUID.String())
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -754,7 +753,7 @@ func TestStaysHandler_CreateImages(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", mockUUID.String())
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -791,7 +790,7 @@ func TestStaysHandler_CreateImages(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", invalidUUID)
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -914,7 +913,7 @@ func TestStaysHandler_CreateMainImage(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", mockUUID.String())
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -953,7 +952,7 @@ func TestStaysHandler_CreateMainImage(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", invalidUUID)
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -990,7 +989,7 @@ func TestStaysHandler_CreateMainImage(t *testing.T) {
 
 		_ = writer.WriteField("stay_id", mockUUID.String())
 
-		mockImg := createMockPng()
+		mockImg := testhelper.CreateMockPng()
 
 		part, err := writer.CreateFormFile("images", "test")
 		if err != nil {
@@ -1122,30 +1121,4 @@ func TestStaysHandler_GetStaysByLocationID(t *testing.T) {
 
 		assert.Contains(t, actual.Error, errMessage)
 	})
-}
-
-func createMockPng() *image.RGBA {
-	width := 200
-	height := 100
-
-	upLeft := image.Point{0, 0}
-	lowRight := image.Point{width, height}
-
-	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
-
-	cyan := color.RGBA{100, 200, 200, 0xff}
-
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			switch {
-			case x < width/2 && y < height/2:
-				img.Set(x, y, cyan)
-			case x >= width/2 && y >= height/2:
-				img.Set(x, y, color.White)
-			default:
-			}
-		}
-	}
-
-	return img
 }

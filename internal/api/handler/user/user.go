@@ -36,19 +36,113 @@ func (h *UserHandler) NewUserHandler(r chi.Router) {
 			r.Delete("/{id}", h.DeleteUserByID)
 			r.Post("/profile/picture", h.CreateUserPfp)
 			r.Get("/profile/picture", h.GetUserPfp)
+			r.Put("/email/change", h.UpdateUserEmailById)
 		})
 
 		r.Group(func(r chi.Router) {
 			r.Get("/profile/picture/{id}", h.GetUserPfpByUserID)
 			r.Get("/{id}", h.GetUserByID)
 			r.Put("/password", h.UpdateUserPasswordByEmail)
-		})
-
-		r.Group(func(r chi.Router) {
-			r.Use(mw.WithAuth)
-			r.Put("/email/change", h.UpdateUserEmailById)
+			r.Patch("/profile/picture/{id}", h.UpdateUserPfp)
+			r.Delete("/profile/picture/{id}", h.DeleteUserPfp)
 		})
 	})
+}
+
+// UpdateUserPfp
+//
+// @Summary Change user avatar
+// @Description Change user avatar by id
+// @ID changeUserPfp
+// @Tags users
+// @Accept multipart/form-data
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param   id   path     string     true  "User  ID"
+// @Param image formData file true "User's profile picture (JPEG or PNG)"
+// @Success 200 {object} string "Successfully updated"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 404 {object} response.ResponseError "User  not found"
+// @Router /user/profile/picture/{id} [patch]
+func (h *UserHandler) UpdateUserPfp(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.UpdateUserPfp"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID := chi.URLParam(r, "id")
+
+	uuidID, err := uuid.FromString(userID)
+	if err != nil {
+		h.Log.Error("failed to parse user id: ", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, "failed to parse user id")
+		return
+	}
+
+	err = r.ParseMultipartForm(file.MaxImageMemorySize)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	formFiles := r.MultipartForm.File
+
+	image := formFiles["image"][0]
+
+	err = h.Svc.ChangeUserPfp(r.Context(), uuidID, image)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "successfully updated")
+}
+
+// DeleteUserPfp
+//
+// @Summary Delete user avatar
+// @Description Delete user avatar by user id
+// @ID deleteUserPfp
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Security ApiKeyAuth
+// @Success 200 {object} "ok"
+// @Failure 400 {object} response.ResponseError "Invalid request"
+// @Failure 401 {object} response.ResponseError "Unauthorized"
+// @Failure 404 {object} response.ResponseError "User not found"
+// @Failure 500 {object} response.ResponseError "Internal server error"
+// @Router /user/profile/picture/{id} [delete]
+func (h *UserHandler) DeleteUserPfp(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.user.DeleteUserPfp"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID := chi.URLParam(r, "id")
+
+	uuidID, err := uuid.FromString(userID)
+	if err != nil {
+		h.Log.Error("failed to parse user id: ", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, "failed to parse user id")
+		return
+	}
+
+	err = h.Svc.DeleteUserPfp(r.Context(), uuidID)
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusNoContent, "successfully deleted")
 }
 
 // GetUserByID

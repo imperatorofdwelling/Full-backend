@@ -61,6 +61,63 @@ func TestUserHandler_NewPublicUserHandler(t *testing.T) {
 	})
 }
 
+func TestUserHandler_DeleteUserPfp(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	t.Run("should be no error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusNoContent, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+invalidUUID, nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error deleting image", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(errors.New("fail")).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
 func TestUserHandler_GetUserByID(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 

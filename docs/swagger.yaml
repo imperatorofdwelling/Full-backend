@@ -2736,6 +2736,43 @@ paths:
       tags:
       - users
   /user/profile/picture/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user avatar by user id
+      operationId: deleteUserPfp
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User avatar successfully deleted
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete user avatar
+      tags:
+      - users
     get:
       description: Retrieves the profile picture path for the specified user
       operationId: getUserPfpByUserID
@@ -2761,6 +2798,42 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Get user profile picture by ID
+      tags:
+      - users
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Change user avatar by id
+      operationId: changeUserPfp
+      parameters:
+      - description: User  ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User's profile picture (JPEG or PNG)
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "404":
+          description: User  not found
+          schema:
+            $ref: '#/definitions/ResponseError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change user avatar
       tags:
       - users
   /user/report/:

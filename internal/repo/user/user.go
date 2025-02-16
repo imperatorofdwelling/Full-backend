@@ -246,3 +246,38 @@ func (r *Repository) GetUserPfp(ctx context.Context, userId string) (string, err
 
 	return avatarPath.String, nil
 }
+
+func (r *Repository) DeleteUserPfp(ctx context.Context, userId uuid.UUID) error {
+	const op = "repo.user.DeleteUserPfp"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET avatar = NULL WHERE id = $1")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repository) UpdateUserPfp(ctx context.Context, userId uuid.UUID, imagePath string) error {
+	const op = "repo.user.UpdateUserPfp"
+
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE users SET avatar = $1 WHERE id = $2")
+	if err != nil {
+		return fmt.Errorf("%s: failed to prepare query: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.ExecContext(ctx, imagePath, userId)
+	if err != nil {
+		return fmt.Errorf("%s: failed to execute update query: %w", op, err)
+	}
+	return nil
+}

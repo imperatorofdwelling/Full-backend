@@ -13,6 +13,7 @@ import (
 	fileSvc "github.com/imperatorofdwelling/Full-backend/internal/service/file"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"github.com/imperatorofdwelling/Full-backend/pkg/sendMail"
+	"mime/multipart"
 )
 
 type Service struct {
@@ -252,6 +253,82 @@ func (s *Service) CreateUserPfp(ctx context.Context, userId string, image []byte
 	}
 
 	err = s.UserRepo.CreateUserPfp(ctx, userId, fWithPath)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) ChangeUserPfp(ctx context.Context, userId uuid.UUID, imageHeader *multipart.FileHeader) error {
+	const op = "service.user.ChangeUserPfp"
+
+	user, err := s.UserRepo.FindUserByID(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if user.ID == uuid.Nil {
+		return fmt.Errorf("%s: user not found", op)
+	}
+
+	img, err := imageHeader.Open()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer img.Close()
+
+	buf := make([]byte, imageHeader.Size)
+
+	n, err := img.Read(buf)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	imageType, err := checkers.DetectImageType(buf)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	uploadedFile, err := s.FileSvc.UploadImage(buf[:n], imageType, fileSvc.FilePathUsersPFPImages)
+	if err != nil {
+		return err
+	}
+
+	err = s.UserRepo.UpdateUserPfp(ctx, userId, uploadedFile)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) DeleteUserPfp(ctx context.Context, userId uuid.UUID) error {
+	const op = "service.user.DeleteUserPfp"
+
+	user, err := s.UserRepo.FindUserByID(ctx, userId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if user.ID == uuid.Nil {
+		return fmt.Errorf("%s: user not found", op)
+	}
+
+	userAvatarWithPath, err := s.UserRepo.GetUserPfp(ctx, userId.String())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if userAvatarWithPath != "" {
+		err = s.FileSvc.RemoveFile(userAvatarWithPath)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
+	err = s.UserRepo.DeleteUserPfp(ctx, userId)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}

@@ -15,9 +15,11 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
+	"github.com/imperatorofdwelling/Full-backend/pkg/testhelper"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"image/png"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -58,6 +60,195 @@ func TestUserHandler_NewPublicUserHandler(t *testing.T) {
 
 	t.Run("should be no error", func(t *testing.T) {
 		hdl.NewUserHandler(router)
+	})
+}
+
+func TestUserHandler_UpdateUserPfp(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	t.Run("should be no error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		mockImg := testhelper.CreateMockPng()
+
+		part, err := writer.CreateFormFile("image", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		svc.On("ChangeUserPfp", mock.Anything, fakeUUID, mock.Anything).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		mockImg := testhelper.CreateMockPng()
+
+		part, err := writer.CreateFormFile("image", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+invalidUUID, &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error updating avatar", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		mockImg := testhelper.CreateMockPng()
+
+		part, err := writer.CreateFormFile("image", "test")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = png.Encode(part, mockImg)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = writer.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		svc.On("ChangeUserPfp", mock.Anything, fakeUUID, mock.Anything).Return(errors.New("fail")).Once()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), &buf)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+
+	t.Run("should be error parsing multipart form data", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), bytes.NewReader([]byte{}))
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+}
+
+func TestUserHandler_DeleteUserPfp(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	router := chi.NewRouter()
+
+	fakeUUID, _ := uuid.NewV4()
+
+	t.Run("should be no error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(nil).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusNoContent, r.Code)
+	})
+
+	t.Run("should be parsing uuid error", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		invalidUUID := "invalid"
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+invalidUUID, nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should be error deleting image", func(t *testing.T) {
+		r := httptest.NewRecorder()
+
+		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(errors.New("fail")).Once()
+
+		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
+
+		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
 

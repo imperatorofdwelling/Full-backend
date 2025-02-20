@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -21,6 +22,8 @@ type (
 		DeleteUserByID(ctx context.Context, id uuid.UUID) error
 		GetUserPfp(ctx context.Context, userId string) (string, error)
 		CreateUserPfp(ctx context.Context, userId, imagePath string) error
+		DeleteUserPfp(ctx context.Context, userId uuid.UUID) error
+		UpdateUserPfp(ctx context.Context, userId uuid.UUID, imagePath string) error
 	}
 )
 
@@ -36,6 +39,8 @@ type (
 		CheckUserEmail(ctx context.Context, userID, newEmail string) error
 		DeleteUserByID(ctx context.Context, idStr string) error
 		CreateUserPfp(ctx context.Context, userId string, image []byte) error
+		ChangeUserPfp(ctx context.Context, userId uuid.UUID, newImage *multipart.FileHeader) error
+		DeleteUserPfp(ctx context.Context, userId uuid.UUID) error
 	}
 )
 
@@ -49,5 +54,7 @@ type (
 		DeleteUserByID(w http.ResponseWriter, r *http.Request)
 		UpdateUserPasswordByEmail(w http.ResponseWriter, r *http.Request)
 		UpdateUserEmailById(w http.ResponseWriter, r *http.Request)
+		UpdateUserPfp(w http.ResponseWriter, r *http.Request)
+		DeleteUserPfp(w http.ResponseWriter, r *http.Request)
 	}
 )

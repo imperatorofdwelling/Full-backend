@@ -10,6 +10,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/connectionmanager"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -91,7 +92,7 @@ func TestChatHandler_GetChatsByUserID_Svc_Error(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 		svc.On("GetChatsByUserID", mock.Anything, testUserID.String()).Return(nil, errors.New("service error"))
 
@@ -131,7 +132,7 @@ func TestChatHandler_GetChatsByUserID_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 		svc.On("GetChatsByUserID", mock.Anything, testUserID.String()).Return(nil, nil)
 
@@ -167,7 +168,7 @@ func TestChatHandler_GetMessagesByChatID_ChatID_Error(t *testing.T) {
 	})
 }
 
-func TestChatHandler_GetMessagesByChatID_Succcess(t *testing.T) {
+func TestChatHandler_GetMessagesByChatID_Success(t *testing.T) {
 	config.GlobalEnv = config.LocalEnv
 
 	log := logger.New()
@@ -234,7 +235,7 @@ func TestChatHandler_SendMessage_Decode_Error(t *testing.T) {
 		invalidJSON := "invalid-json-format"
 		req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(invalidJSON))
 
-		ctx := context.WithValue(req.Context(), "user_id", "some-valid-user-id")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
 		req = req.WithContext(ctx)
 
 		r := httptest.NewRecorder()
@@ -263,7 +264,7 @@ func TestChatHandler_SendMessage_Svc_Error(t *testing.T) {
 
 		req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(payload))
 
-		ctx := context.WithValue(req.Context(), "user_id", "some-valid-user-id")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
 		req = req.WithContext(ctx)
 
 		svc.On("SendMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(errors.New("internal server error"))
@@ -294,7 +295,7 @@ func TestChatHandler_SendMessage_Success(t *testing.T) {
 
 		req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(payload))
 
-		ctx := context.WithValue(req.Context(), "user_id", "some-valid-user-id")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
 		req = req.WithContext(ctx)
 
 		svc.On("SendMessage", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)

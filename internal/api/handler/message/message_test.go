@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/message"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -115,7 +116,7 @@ func TestMessageHandler_GetMessagesByUserID_SvcError(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
 		svc.On("GetMessagesByUserID", mock.Anything, testUserID.String()).Return(nil, errors.New("service error"))
@@ -156,7 +157,7 @@ func TestMessageHandler_GetMessagesByUserID_Success(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
-		ctx := context.WithValue(req.Context(), "user_id", testUserID.String())
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
 		req = req.WithContext(ctx)
 
 		svc.On("GetMessagesByUserID", mock.Anything, testUserID.String()).Return(nil, nil)

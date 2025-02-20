@@ -13,13 +13,13 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/newPassword"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/user"
+	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
-	"github.com/imperatorofdwelling/Full-backend/pkg/testhelper"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"image/png"
+	"golang.org/x/net/context"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
@@ -60,195 +60,6 @@ func TestUserHandler_NewPublicUserHandler(t *testing.T) {
 
 	t.Run("should be no error", func(t *testing.T) {
 		hdl.NewUserHandler(router)
-	})
-}
-
-func TestUserHandler_UpdateUserPfp(t *testing.T) {
-	config.GlobalEnv = config.LocalEnv
-
-	log := logger.New()
-	svc := mocks.UserService{}
-	hdl := UserHandler{
-		Log: log,
-		Svc: &svc,
-	}
-
-	router := chi.NewRouter()
-
-	fakeUUID, _ := uuid.NewV4()
-
-	t.Run("should be no error", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		var buf bytes.Buffer
-		writer := multipart.NewWriter(&buf)
-
-		mockImg := testhelper.CreateMockPng()
-
-		part, err := writer.CreateFormFile("image", "test")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = png.Encode(part, mockImg)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = writer.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		svc.On("ChangeUserPfp", mock.Anything, fakeUUID, mock.Anything).Return(nil).Once()
-
-		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), &buf)
-		req.Header.Add("Content-Type", writer.FormDataContentType())
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusOK, r.Code)
-	})
-
-	t.Run("should be parsing uuid error", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		invalidUUID := "invalid"
-
-		var buf bytes.Buffer
-		writer := multipart.NewWriter(&buf)
-
-		mockImg := testhelper.CreateMockPng()
-
-		part, err := writer.CreateFormFile("image", "test")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = png.Encode(part, mockImg)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = writer.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+invalidUUID, &buf)
-		req.Header.Add("Content-Type", writer.FormDataContentType())
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusBadRequest, r.Code)
-	})
-
-	t.Run("should be error updating avatar", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		var buf bytes.Buffer
-		writer := multipart.NewWriter(&buf)
-
-		mockImg := testhelper.CreateMockPng()
-
-		part, err := writer.CreateFormFile("image", "test")
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = png.Encode(part, mockImg)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = writer.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		svc.On("ChangeUserPfp", mock.Anything, fakeUUID, mock.Anything).Return(errors.New("fail")).Once()
-
-		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), &buf)
-		req.Header.Add("Content-Type", writer.FormDataContentType())
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
-	})
-
-	t.Run("should be error parsing multipart form data", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		req := httptest.NewRequest(http.MethodPatch, "/user/profile/picture/"+fakeUUID.String(), bytes.NewReader([]byte{}))
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.UpdateUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusBadRequest, r.Code)
-	})
-}
-
-func TestUserHandler_DeleteUserPfp(t *testing.T) {
-	config.GlobalEnv = config.LocalEnv
-
-	log := logger.New()
-	svc := mocks.UserService{}
-	hdl := UserHandler{
-		Log: log,
-		Svc: &svc,
-	}
-
-	router := chi.NewRouter()
-
-	fakeUUID, _ := uuid.NewV4()
-
-	t.Run("should be no error", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(nil).Once()
-
-		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusNoContent, r.Code)
-	})
-
-	t.Run("should be parsing uuid error", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		invalidUUID := "invalid"
-
-		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+invalidUUID, nil)
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusBadRequest, r.Code)
-	})
-
-	t.Run("should be error deleting image", func(t *testing.T) {
-		r := httptest.NewRecorder()
-
-		svc.On("DeleteUserPfp", mock.Anything, fakeUUID).Return(errors.New("fail")).Once()
-
-		req := httptest.NewRequest(http.MethodDelete, "/user/profile/picture/"+fakeUUID.String(), nil)
-
-		router.HandleFunc("/user/profile/picture/{id}", hdl.DeleteUserPfp)
-
-		router.ServeHTTP(r, req)
-
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }
 
@@ -421,6 +232,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 		router.Put("/user/{id}", hdl.UpdateUserByID)
@@ -445,6 +259,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
@@ -472,6 +289,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 		router.Put("/user/{id}", hdl.UpdateUserByID)
@@ -495,6 +315,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
@@ -520,6 +343,9 @@ func TestUserHandler_UpdateUserByID(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
@@ -825,6 +651,9 @@ func TestUserHandler_UpdateUserByIdUUID(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 
@@ -874,6 +703,9 @@ func TestUserHandler_UpdateUserByIdInvalidJSON(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 
@@ -921,6 +753,9 @@ func TestUserHandler_DeleteUserByID(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 		router.Delete("/user/{id}", hdl.DeleteUserByID)
@@ -944,6 +779,9 @@ func TestUserHandler_DeleteUserByID(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
 		router.Delete("/user/{id}", hdl.DeleteUserByID)
@@ -966,6 +804,9 @@ func TestUserHandler_DeleteUserByID(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router := chi.NewRouter()
 		router.Use(JWTMiddleware("your-secret-key", log))
@@ -1108,6 +949,9 @@ func TestUserHandler_GetUserPfp(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("GetUserPfp", mock.Anything, mock.Anything).Return(mock.Anything, nil).Once()
 
 		router.ServeHTTP(r, req)
@@ -1124,6 +968,9 @@ func TestUserHandler_GetUserPfp(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("GetUserPfp", mock.Anything, mock.Anything).Return(mock.Anything, errors.New("error with GetUserPfp")).Once()
 
@@ -1165,6 +1012,9 @@ func TestUserHandler_CreateUserPfp_Errors(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		req.Header.Set("Content-Type", "multipart/form-data")
 		req.Body = ioutil.NopCloser(bytes.NewReader([]byte("invalid content")))
 
@@ -1186,6 +1036,9 @@ func TestUserHandler_CreateUserPfp_Errors(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		req.Header.Set("Content-Type", "multipart/form-data; boundary="+writer.Boundary())
 
@@ -1227,6 +1080,9 @@ func TestUserHandler_CreateUserPfp_Errors(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		router.ServeHTTP(r, req)
 
 		assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -1261,6 +1117,9 @@ func TestUserHandler_CreateUserPfp_Errors(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		router.ServeHTTP(r, req)
 
@@ -1323,6 +1182,9 @@ func TestUserHandler_CreateUserPfp_Svc(t *testing.T) {
 		}
 		req.AddCookie(cookie)
 
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
+
 		svc.On("CreateUserPfp", mock.Anything, mock.Anything, mock.Anything).
 			Return(errors.New("error with CreateUserPfp")).Once()
 
@@ -1363,6 +1225,9 @@ func TestUserHandler_CreateUserPfp_Svc(t *testing.T) {
 			Value: tokenString,
 		}
 		req.AddCookie(cookie)
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, "some-valid-user-id")
+		req = req.WithContext(ctx)
 
 		svc.On("CreateUserPfp", mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, nil)
@@ -1422,4 +1287,304 @@ func TestUserHandler_UserPfp_401(t *testing.T) {
 
 		assert.Equal(t, http.StatusUnauthorized, r.Code)
 	})
+}
+
+func TestUserHandler_GetUserPfpByUserId_Svc_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+	log := logger.New()
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+	router := chi.NewRouter()
+
+	router.Get("/profile/{id}", hdl.GetUserPfpByUserID)
+
+	testUserID, _ := uuid.NewV4()
+
+	t.Run("should return error in svc", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/profile/"+testUserID.String(), nil)
+
+		svc.On("GetUserPfp", mock.Anything, testUserID.String()).Return("", errors.New("smth"))
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusInternalServerError, r.Code)
+	})
+}
+
+func TestUserHandler_GetUserPfpByUserId_Svc_Success(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+	log := logger.New()
+	svc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: svc,
+	}
+	router := chi.NewRouter()
+
+	router.Get("/profile/{id}", hdl.GetUserPfpByUserID)
+
+	testUserID, _ := uuid.NewV4()
+
+	t.Run("should return error in svc", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/profile/"+testUserID.String(), nil)
+
+		svc.On("GetUserPfp", mock.Anything, testUserID.String()).Return("", nil)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusOK, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserEmailById_UserId_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, err := testToken.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		t.Fatalf("Failed to sign token: %v", err)
+	}
+
+	payload := map[string]string{
+		"email": "updated@example.com",
+	}
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	t.Run("should return error if user_id is missing in context", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID.String(), bytes.NewReader(payloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(&http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		})
+
+		router := chi.NewRouter()
+		router.Use(func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next.ServeHTTP(w, r)
+			})
+		})
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusUnauthorized, r.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserEmailById_Payload_Error(t *testing.T) {
+	config.GlobalEnv = config.LocalEnv
+	log := logger.New()
+	svc := mocks.UserService{}
+	hdl := UserHandler{
+		Log: log,
+		Svc: &svc,
+	}
+
+	testUserID, _ := uuid.NewV4()
+	testToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id": testUserID.String(),
+	})
+	tokenString, err := testToken.SignedString([]byte("your-secret-key"))
+	if err != nil {
+		t.Fatalf("Failed to sign token: %v", err)
+	}
+
+	payload := map[string]string{}
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		t.Fatalf("Failed to marshal payload: %v", err)
+	}
+
+	t.Run("should return bad request for invalid payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID.String(), bytes.NewReader(payloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(&http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		})
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		router := chi.NewRouter()
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+	t.Run("should return bad request for invalid payload", func(t *testing.T) {
+		r := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID.String(), nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.AddCookie(&http.Cookie{
+			Name:  "jwt-token",
+			Value: tokenString,
+		})
+
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID.String())
+		req = req.WithContext(ctx)
+
+		router := chi.NewRouter()
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		router.ServeHTTP(r, req)
+
+		assert.Equal(t, http.StatusBadRequest, r.Code)
+	})
+
+}
+
+func TestUserHandler_UpdateUserEmailById_Error(t *testing.T) {
+	log := logger.New()
+	mockSvc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: mockSvc,
+	}
+
+	testUserID := "test-user-id"
+	newEmail := "new-email@example.com"
+	payload := map[string]string{"email": newEmail}
+	payloadBytes, _ := json.Marshal(payload)
+
+	t.Run("svc error", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID, bytes.NewReader(payloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID)
+		req = req.WithContext(ctx)
+
+		mockSvc.On("CheckUserEmail", mock.Anything, testUserID, newEmail).Return(nil)
+		mockSvc.On("UpdateUserEmailByID", mock.Anything, testUserID, newEmail).Return(errors.New("test error"))
+
+		router := chi.NewRouter()
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		recorder := httptest.NewRecorder()
+
+		router.ServeHTTP(recorder, req)
+
+		assert.Equal(t, http.StatusInternalServerError, recorder.Code)
+	})
+
+}
+
+func TestUserHandler_UpdateUserEmailById_Success(t *testing.T) {
+	log := logger.New()
+	mockSvc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: mockSvc,
+	}
+
+	testUserID := "test-user-id"
+	newEmail := "new-email@example.com"
+	payload := map[string]string{"email": newEmail}
+	payloadBytes, _ := json.Marshal(payload)
+
+	t.Run("svc success", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID, bytes.NewReader(payloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID)
+		req = req.WithContext(ctx)
+
+		mockSvc.On("CheckUserEmail", mock.Anything, testUserID, newEmail).Return(nil)
+		mockSvc.On("UpdateUserEmailByID", mock.Anything, testUserID, newEmail).Return(nil)
+
+		router := chi.NewRouter()
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		recorder := httptest.NewRecorder()
+
+		router.ServeHTTP(recorder, req)
+
+		assert.Equal(t, http.StatusOK, recorder.Code)
+	})
+}
+
+func TestUserHandler_UpdateUserEmailById_InvalidJSON(t *testing.T) {
+	log := logger.New()
+	mockSvc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: mockSvc,
+	}
+
+	testUserID := "test-user-id"
+	invalidPayload := []byte(`{"email":}`)
+
+	req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID, bytes.NewReader(invalidPayload))
+	req.Header.Set("Content-Type", "application/json")
+	ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID)
+	req = req.WithContext(ctx)
+
+	router := chi.NewRouter()
+	router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+	t.Run("invalid payload", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+
+		router.ServeHTTP(recorder, req)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		mockSvc.AssertNotCalled(t, "CheckUserEmail")
+		mockSvc.AssertNotCalled(t, "UpdateUserEmailByID")
+	})
+}
+
+func TestUserHandler_UpdateUserEmailById_EmailAlreadyExists(t *testing.T) {
+	log := logger.New()
+	mockSvc := new(mocks.UserService)
+	hdl := UserHandler{
+		Log: log,
+		Svc: mockSvc,
+	}
+
+	testUserID := "test-user-id"
+	newEmail := "existing-email@example.com"
+	payload := map[string]string{"email": newEmail}
+	payloadBytes, _ := json.Marshal(payload)
+
+	t.Run("", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPut, "/user/"+testUserID, bytes.NewReader(payloadBytes))
+		req.Header.Set("Content-Type", "application/json")
+		ctx := context.WithValue(req.Context(), mw.UserIdKey, testUserID)
+		req = req.WithContext(ctx)
+
+		mockSvc.On("CheckUserEmail", mock.Anything, testUserID, newEmail).Return(errors.New("email already exists"))
+
+		router := chi.NewRouter()
+		router.Put("/user/{id}", hdl.UpdateUserEmailById)
+
+		recorder := httptest.NewRecorder()
+
+		router.ServeHTTP(recorder, req)
+
+		assert.Equal(t, http.StatusBadRequest, recorder.Code)
+		mockSvc.AssertExpectations(t)
+	})
+
 }

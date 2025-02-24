@@ -112,7 +112,7 @@ func (h *UserHandler) UpdateUserPfp(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param id path string true "User ID"
 // @Security ApiKeyAuth
-// @Success 200 {object} "ok"
+// @Success 204 {object} string "no content"
 // @Failure 400 {object} response.ResponseError "Invalid request"
 // @Failure 401 {object} response.ResponseError "Unauthorized"
 // @Failure 404 {object} response.ResponseError "User not found"

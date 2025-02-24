@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/api/handler"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka"
 	"github.com/imperatorofdwelling/Full-backend/internal/api/kafka/consumer"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"log/slog"
 	"net/http"
@@ -29,6 +30,19 @@ func (h *Handler) NewPaymentHandler(r chi.Router) {
 	})
 }
 
+// MakePayment godoc
+//
+//	@Summary		Create payment
+//	@Description	Create payment (with yookassa model)
+//	@Tags			payment
+//	@Accept			application/json
+//	@Produce		json
+//	@Param	Idempotence-Key header string	true	"Idempotence-Key"
+//	@Param	_ body yoomodel.Payment	true	"request yookassa payment"
+//	@Success		200	{object}		yoomodel.PaymentRes	"ok"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		default		{object}	response.ResponseError			"Error"
+//	@Router			/payment [post]
 func (h *Handler) MakePayment(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.payment.MakePayment"
 
@@ -66,7 +80,7 @@ func (h *Handler) MakePayment(w http.ResponseWriter, r *http.Request) {
 
 	select {
 	case response := <-responseChan:
-		responseApi.WriteJson(w, r, http.StatusOK, response)
+		responseApi.WriteJson(w, r, http.StatusOK, response.Result)
 	case <-time.After(10 * time.Second):
 		h.Log.Error("timed out waiting for response")
 		responseApi.WriteError(w, r, http.StatusGatewayTimeout, errors.New("timed out waiting for response"))

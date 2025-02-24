@@ -588,6 +588,584 @@ definitions:
         description: Valid is true if Time is not NULL
         type: boolean
     type: object
+  yoomodel.Amount:
+    properties:
+      currency:
+        $ref: '#/definitions/yoomodel.Currency'
+      value:
+        type: string
+    required:
+    - currency
+    - value
+    type: object
+  yoomodel.AuthorizationDetails:
+    properties:
+      auth_code:
+        type: string
+      rrn:
+        type: string
+      three_d_secure:
+        $ref: '#/definitions/yoomodel.ThreeDSecure'
+    required:
+    - three_d_secure
+    type: object
+  yoomodel.BankCard:
+    properties:
+      cardholder:
+        maxLength: 26
+        type: string
+      csc:
+        maxLength: 4
+        minLength: 3
+        type: string
+      expiry_month:
+        maxLength: 2
+        type: string
+      expiry_year:
+        maxLength: 4
+        type: string
+      number:
+        type: string
+    required:
+    - expiry_month
+    - expiry_year
+    - number
+    type: object
+  yoomodel.BankCardData:
+    properties:
+      card_product:
+        $ref: '#/definitions/yoomodel.CardProduct'
+      card_type:
+        enum:
+        - MasterCard
+        - Visa
+        - Mir
+        - UnionPay
+        - JCB
+        - AmericanExpress
+        - DinersClub
+        - DiscoverCard
+        - InstaPayment
+        - InstaPaymentTM
+        - Laser
+        - Dankort
+        - Solo
+        - Switch
+        - Unknown
+        type: string
+      expiry_month:
+        maxLength: 2
+        type: string
+      expiry_year:
+        type: string
+      first6:
+        type: string
+      issuer_country:
+        type: string
+      last4:
+        type: string
+      source:
+        enum:
+        - mir_pay
+        - apple_pay
+        - google_pay
+        type: string
+    required:
+    - card_type
+    - expiry_month
+    - expiry_year
+    - last4
+    type: object
+  yoomodel.CancellationDetails:
+    properties:
+      party:
+        type: string
+      reason:
+        type: string
+    type: object
+  yoomodel.CardProduct:
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    type: object
+  yoomodel.Confirmation:
+    properties:
+      confirmation_token:
+        type: string
+      confirmation_url:
+        type: string
+      enforce:
+        type: boolean
+      locale:
+        enum:
+        - ru_RU
+        - en_US
+        type: string
+      return_url:
+        type: string
+      type:
+        $ref: '#/definitions/yoomodel.ConfirmationType'
+    required:
+    - type
+    type: object
+  yoomodel.ConfirmationType:
+    enum:
+    - embedded
+    - external
+    - mobile_application
+    - qr
+    - redirect
+    type: string
+    x-enum-varnames:
+    - Embedded
+    - External
+    - MobileApplication
+    - QR
+    - Redirect
+  yoomodel.Currency:
+    enum:
+    - RUB
+    - USD
+    type: string
+    x-enum-varnames:
+    - RUB
+    - USD
+  yoomodel.Customer:
+    properties:
+      email:
+        type: string
+      full_name:
+        maxLength: 256
+        type: string
+      inn:
+        type: string
+      phone:
+        description: TODO check phone format e164 with + before numbers
+        type: string
+    type: object
+  yoomodel.Deal:
+    properties:
+      id:
+        type: string
+      settlements:
+        items:
+          $ref: '#/definitions/yoomodel.DealSettlement'
+        type: array
+    required:
+    - id
+    - settlements
+    type: object
+  yoomodel.DealSettlement:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      type:
+        type: string
+    required:
+    - amount
+    - type
+    type: object
+  yoomodel.ElectronicCertificate:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      basket_id:
+        type: string
+    required:
+    - amount
+    - basket_id
+    type: object
+  yoomodel.MarkQuantity:
+    properties:
+      denominator:
+        minimum: 1
+        type: integer
+      numerator:
+        minimum: 1
+        type: integer
+    required:
+    - denominator
+    - numerator
+    type: object
+  yoomodel.PayerBankDetails:
+    properties:
+      account:
+        type: string
+      address:
+        maxLength: 500
+        type: string
+      bank_bik:
+        type: string
+      bank_branch:
+        maxLength: 140
+        minLength: 1
+        type: string
+      bank_id:
+        maxLength: 12
+        type: string
+      bank_name:
+        maxLength: 350
+        minLength: 1
+        type: string
+      bic:
+        type: string
+      full_name:
+        maxLength: 800
+        type: string
+      inn:
+        type: string
+      kpp:
+        type: string
+      short_name:
+        maxLength: 160
+        type: string
+    required:
+    - bic
+    type: object
+  yoomodel.Payment:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      authorization_details:
+        $ref: '#/definitions/yoomodel.AuthorizationDetails'
+      cancellation_details:
+        $ref: '#/definitions/yoomodel.CancellationDetails'
+      capture:
+        type: boolean
+      captured_at:
+        type: string
+      confirmation:
+        $ref: '#/definitions/yoomodel.Confirmation'
+      created_at:
+        type: string
+      deal:
+        $ref: '#/definitions/yoomodel.Deal'
+      description:
+        maxLength: 128
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      income_amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      merchant_customer_id:
+        maxLength: 200
+        type: string
+      metadata: {}
+      paid:
+        type: boolean
+      payment_method:
+        $ref: '#/definitions/yoomodel.PaymentMethodData'
+      receipt:
+        $ref: '#/definitions/yoomodel.Receipt'
+      receipt_registration:
+        $ref: '#/definitions/yoomodel.TransactionStatus'
+      recipient:
+        $ref: '#/definitions/yoomodel.Recipient'
+      refundable:
+        type: boolean
+      refunded_amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      status:
+        allOf:
+        - $ref: '#/definitions/yoomodel.TransactionStatus'
+        enum:
+        - pending
+        - waiting_for_capture
+        - succeeded
+        - canceled
+      test:
+        type: boolean
+      transfers:
+        $ref: '#/definitions/yoomodel.Transfers'
+    type: object
+  yoomodel.PaymentMethod:
+    properties:
+      card:
+        $ref: '#/definitions/yoomodel.BankCardData'
+      discount_amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      id:
+        type: string
+      loan_option:
+        type: string
+      login:
+        type: string
+      payer_bank_details:
+        $ref: '#/definitions/yoomodel.PayerBankDetails'
+      saved:
+        type: boolean
+      sbp_operation_id:
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/yoomodel.PaymentMethodType'
+    required:
+    - id
+    - saved
+    - type
+    type: object
+  yoomodel.PaymentMethodData:
+    properties:
+      articles:
+        description: TODO Create Articles struct
+        items: {}
+        type: array
+      card:
+        $ref: '#/definitions/yoomodel.BankCard'
+      electronic_certificate:
+        $ref: '#/definitions/yoomodel.ElectronicCertificate'
+      payment_purpose:
+        maxLength: 210
+        type: string
+      phone:
+        type: string
+      type:
+        $ref: '#/definitions/yoomodel.PaymentMethodType'
+      vat_data:
+        $ref: '#/definitions/yoomodel.VatData'
+    required:
+    - type
+    type: object
+  yoomodel.PaymentMethodType:
+    enum:
+    - sber_loan
+    - mobile_balance
+    - bank_card
+    - cash
+    - sbp
+    - b2b_sberbank
+    - electronic_certificate
+    - yoo_money
+    - sberbank
+    - tinkoff_bank
+    - alfabank
+    - installments
+    - apple_pay
+    - google_pay
+    - qiwi
+    - wechat
+    - webmoney
+    type: string
+    x-enum-varnames:
+    - SberLoanType
+    - MobileBalanceType
+    - BankCardType
+    - CashType
+    - SBPType
+    - B2BSberType
+    - ElectronicCertType
+    - YooMoneyType
+    - SberPayType
+    - TinkoffBankType
+    - AlfabankType
+    - InstallmentsType
+    - ApplePayType
+    - GooglePayType
+    - QiwiType
+    - WechatType
+    - WebmoneyType
+  yoomodel.PaymentRes:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      authorization_details:
+        $ref: '#/definitions/yoomodel.AuthorizationDetails'
+      confirmation:
+        $ref: '#/definitions/yoomodel.Confirmation'
+      created_at:
+        type: string
+      description:
+        maxLength: 128
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      income_amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      metadata: {}
+      paid:
+        type: boolean
+      payment_method:
+        $ref: '#/definitions/yoomodel.PaymentMethod'
+      recipient:
+        $ref: '#/definitions/yoomodel.Recipient'
+      refundable:
+        type: boolean
+      status:
+        $ref: '#/definitions/yoomodel.TransactionStatus'
+      test:
+        type: boolean
+    required:
+    - amount
+    - created_at
+    - id
+    - paid
+    - recipient
+    - refundable
+    - status
+    - test
+    type: object
+  yoomodel.Receipt:
+    properties:
+      customer:
+        $ref: '#/definitions/yoomodel.Customer'
+      items:
+        items:
+          $ref: '#/definitions/yoomodel.ReceiptItem'
+        type: array
+      receipt_industry_details:
+        items:
+          $ref: '#/definitions/yoomodel.ReceiptIndustryDetail'
+        type: array
+      receipt_operational_details:
+        $ref: '#/definitions/yoomodel.ReceiptOperationalDetails'
+      tax_system_code:
+        maximum: 6
+        minimum: 1
+        type: integer
+    required:
+    - items
+    type: object
+  yoomodel.ReceiptIndustryDetail:
+    properties:
+      document_date:
+        type: string
+      document_number:
+        maxLength: 32
+        type: string
+      federal_id:
+        type: string
+      value:
+        maxLength: 256
+        type: string
+    required:
+    - document_date
+    - document_number
+    - federal_id
+    - value
+    type: object
+  yoomodel.ReceiptItem:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      country_of_origin_code:
+        type: string
+      customs_declaration_number:
+        maxLength: 32
+        minLength: 1
+        type: string
+      description:
+        maxLength: 128
+        type: string
+      excise:
+        type: string
+      mark_code_info:
+        description: TODO create MarcCodeInfo struct
+      mark_mode:
+        type: string
+      mark_quantity:
+        $ref: '#/definitions/yoomodel.MarkQuantity'
+      measure:
+        type: string
+      payment_mode:
+        type: string
+      payment_subject:
+        type: string
+      payment_subject_industry_details:
+        $ref: '#/definitions/yoomodel.ReceiptIndustryDetail'
+      product_code:
+        type: string
+      quantity:
+        type: integer
+      vat_code:
+        maxLength: 6
+        minLength: 1
+        type: string
+    required:
+    - amount
+    - description
+    - quantity
+    - vat_code
+    type: object
+  yoomodel.ReceiptOperationalDetails:
+    properties:
+      created_at:
+        type: string
+      operation_id:
+        maximum: 255
+        minimum: 0
+        type: integer
+      value:
+        maxLength: 64
+        type: string
+    required:
+    - created_at
+    - operation_id
+    - value
+    type: object
+  yoomodel.Recipient:
+    properties:
+      account_id:
+        type: string
+      gateway_id:
+        type: string
+    required:
+    - gateway_id
+    type: object
+  yoomodel.ThreeDSecure:
+    properties:
+      applied:
+        type: boolean
+    required:
+    - applied
+    type: object
+  yoomodel.TransactionStatus:
+    enum:
+    - pending
+    - waiting_for_capture
+    - succeeded
+    - canceled
+    type: string
+    x-enum-varnames:
+    - Pending
+    - WaitingForCapture
+    - Succeeded
+    - Canceled
+  yoomodel.Transfers:
+    properties:
+      account_id:
+        type: string
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      description:
+        maxLength: 128
+        type: string
+      metadata: {}
+      platform_fee_amount:
+        $ref: '#/definitions/yoomodel.Amount'
+    required:
+    - account_id
+    - amount
+    type: object
+  yoomodel.VatData:
+    properties:
+      amount:
+        $ref: '#/definitions/yoomodel.Amount'
+      rate:
+        type: string
+      type:
+        type: string
+    required:
+    - type
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -1554,6 +2132,41 @@ paths:
       summary: Create One-Time Password (OTP) for Password Reset
       tags:
       - emailConfirmation
+  /payment:
+    post:
+      consumes:
+      - application/json
+      description: Create payment (with yookassa model)
+      parameters:
+      - description: Idempotence-Key
+        in: header
+        name: Idempotence-Key
+        required: true
+        type: string
+      - description: request yookassa payment
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/yoomodel.Payment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/yoomodel.PaymentRes'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Create payment
+      tags:
+      - payment
   /registration:
     post:
       consumes:
@@ -2751,7 +3364,9 @@ paths:
       - application/json
       responses:
         "204":
-          description: User avatar successfully deleted
+          description: no content
+          schema:
+            type: string
         "400":
           description: Invalid request
           schema:

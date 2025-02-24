@@ -1454,6 +1454,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/payment": {
+            "post": {
+                "description": "Create payment (with yookassa model)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Create payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Idempotence-Key",
+                        "name": "Idempotence-Key",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "request yookassa payment",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/yoomodel.Payment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/yoomodel.PaymentRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/registration": {
             "post": {
                 "description": "Creates a new user account(DEFAULT ROLE_ID=TENANT)",
@@ -3134,7 +3187,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "User avatar successfully deleted"
+                        "description": "no content",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "400": {
                         "description": "Invalid request",
@@ -4522,6 +4578,820 @@ const docTemplate = `{
                 "valid": {
                     "description": "Valid is true if Time is not NULL",
                     "type": "boolean"
+                }
+            }
+        },
+        "yoomodel.Amount": {
+            "type": "object",
+            "required": [
+                "currency",
+                "value"
+            ],
+            "properties": {
+                "currency": {
+                    "$ref": "#/definitions/yoomodel.Currency"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.AuthorizationDetails": {
+            "type": "object",
+            "required": [
+                "three_d_secure"
+            ],
+            "properties": {
+                "auth_code": {
+                    "type": "string"
+                },
+                "rrn": {
+                    "type": "string"
+                },
+                "three_d_secure": {
+                    "$ref": "#/definitions/yoomodel.ThreeDSecure"
+                }
+            }
+        },
+        "yoomodel.BankCard": {
+            "type": "object",
+            "required": [
+                "expiry_month",
+                "expiry_year",
+                "number"
+            ],
+            "properties": {
+                "cardholder": {
+                    "type": "string",
+                    "maxLength": 26
+                },
+                "csc": {
+                    "type": "string",
+                    "maxLength": 4,
+                    "minLength": 3
+                },
+                "expiry_month": {
+                    "type": "string",
+                    "maxLength": 2
+                },
+                "expiry_year": {
+                    "type": "string",
+                    "maxLength": 4
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.BankCardData": {
+            "type": "object",
+            "required": [
+                "card_type",
+                "expiry_month",
+                "expiry_year",
+                "last4"
+            ],
+            "properties": {
+                "card_product": {
+                    "$ref": "#/definitions/yoomodel.CardProduct"
+                },
+                "card_type": {
+                    "type": "string",
+                    "enum": [
+                        "MasterCard",
+                        "Visa",
+                        "Mir",
+                        "UnionPay",
+                        "JCB",
+                        "AmericanExpress",
+                        "DinersClub",
+                        "DiscoverCard",
+                        "InstaPayment",
+                        "InstaPaymentTM",
+                        "Laser",
+                        "Dankort",
+                        "Solo",
+                        "Switch",
+                        "Unknown"
+                    ]
+                },
+                "expiry_month": {
+                    "type": "string",
+                    "maxLength": 2
+                },
+                "expiry_year": {
+                    "type": "string"
+                },
+                "first6": {
+                    "type": "string"
+                },
+                "issuer_country": {
+                    "type": "string"
+                },
+                "last4": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string",
+                    "enum": [
+                        "mir_pay",
+                        "apple_pay",
+                        "google_pay"
+                    ]
+                }
+            }
+        },
+        "yoomodel.CancellationDetails": {
+            "type": "object",
+            "properties": {
+                "party": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.CardProduct": {
+            "type": "object",
+            "required": [
+                "code"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.Confirmation": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "confirmation_token": {
+                    "type": "string"
+                },
+                "confirmation_url": {
+                    "type": "string"
+                },
+                "enforce": {
+                    "type": "boolean"
+                },
+                "locale": {
+                    "type": "string",
+                    "enum": [
+                        "ru_RU",
+                        "en_US"
+                    ]
+                },
+                "return_url": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/yoomodel.ConfirmationType"
+                }
+            }
+        },
+        "yoomodel.ConfirmationType": {
+            "type": "string",
+            "enum": [
+                "embedded",
+                "external",
+                "mobile_application",
+                "qr",
+                "redirect"
+            ],
+            "x-enum-varnames": [
+                "Embedded",
+                "External",
+                "MobileApplication",
+                "QR",
+                "Redirect"
+            ]
+        },
+        "yoomodel.Currency": {
+            "type": "string",
+            "enum": [
+                "RUB",
+                "USD"
+            ],
+            "x-enum-varnames": [
+                "RUB",
+                "USD"
+            ]
+        },
+        "yoomodel.Customer": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string",
+                    "maxLength": 256
+                },
+                "inn": {
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "TODO check phone format e164 with + before numbers",
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.Deal": {
+            "type": "object",
+            "required": [
+                "id",
+                "settlements"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "settlements": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/yoomodel.DealSettlement"
+                    }
+                }
+            }
+        },
+        "yoomodel.DealSettlement": {
+            "type": "object",
+            "required": [
+                "amount",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.ElectronicCertificate": {
+            "type": "object",
+            "required": [
+                "amount",
+                "basket_id"
+            ],
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "basket_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.MarkQuantity": {
+            "type": "object",
+            "required": [
+                "denominator",
+                "numerator"
+            ],
+            "properties": {
+                "denominator": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "numerator": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "yoomodel.PayerBankDetails": {
+            "type": "object",
+            "required": [
+                "bic"
+            ],
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "address": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "bank_bik": {
+                    "type": "string"
+                },
+                "bank_branch": {
+                    "type": "string",
+                    "maxLength": 140,
+                    "minLength": 1
+                },
+                "bank_id": {
+                    "type": "string",
+                    "maxLength": 12
+                },
+                "bank_name": {
+                    "type": "string",
+                    "maxLength": 350,
+                    "minLength": 1
+                },
+                "bic": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string",
+                    "maxLength": 800
+                },
+                "inn": {
+                    "type": "string"
+                },
+                "kpp": {
+                    "type": "string"
+                },
+                "short_name": {
+                    "type": "string",
+                    "maxLength": 160
+                }
+            }
+        },
+        "yoomodel.Payment": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "authorization_details": {
+                    "$ref": "#/definitions/yoomodel.AuthorizationDetails"
+                },
+                "cancellation_details": {
+                    "$ref": "#/definitions/yoomodel.CancellationDetails"
+                },
+                "capture": {
+                    "type": "boolean"
+                },
+                "captured_at": {
+                    "type": "string"
+                },
+                "confirmation": {
+                    "$ref": "#/definitions/yoomodel.Confirmation"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deal": {
+                    "$ref": "#/definitions/yoomodel.Deal"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "income_amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "merchant_customer_id": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "metadata": {},
+                "paid": {
+                    "type": "boolean"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/yoomodel.PaymentMethodData"
+                },
+                "receipt": {
+                    "$ref": "#/definitions/yoomodel.Receipt"
+                },
+                "receipt_registration": {
+                    "$ref": "#/definitions/yoomodel.TransactionStatus"
+                },
+                "recipient": {
+                    "$ref": "#/definitions/yoomodel.Recipient"
+                },
+                "refundable": {
+                    "type": "boolean"
+                },
+                "refunded_amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "status": {
+                    "enum": [
+                        "pending",
+                        "waiting_for_capture",
+                        "succeeded",
+                        "canceled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/yoomodel.TransactionStatus"
+                        }
+                    ]
+                },
+                "test": {
+                    "type": "boolean"
+                },
+                "transfers": {
+                    "$ref": "#/definitions/yoomodel.Transfers"
+                }
+            }
+        },
+        "yoomodel.PaymentMethod": {
+            "type": "object",
+            "required": [
+                "id",
+                "saved",
+                "type"
+            ],
+            "properties": {
+                "card": {
+                    "$ref": "#/definitions/yoomodel.BankCardData"
+                },
+                "discount_amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "loan_option": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "payer_bank_details": {
+                    "$ref": "#/definitions/yoomodel.PayerBankDetails"
+                },
+                "saved": {
+                    "type": "boolean"
+                },
+                "sbp_operation_id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/yoomodel.PaymentMethodType"
+                }
+            }
+        },
+        "yoomodel.PaymentMethodData": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "articles": {
+                    "description": "TODO Create Articles struct",
+                    "type": "array",
+                    "items": {}
+                },
+                "card": {
+                    "$ref": "#/definitions/yoomodel.BankCard"
+                },
+                "electronic_certificate": {
+                    "$ref": "#/definitions/yoomodel.ElectronicCertificate"
+                },
+                "payment_purpose": {
+                    "type": "string",
+                    "maxLength": 210
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/yoomodel.PaymentMethodType"
+                },
+                "vat_data": {
+                    "$ref": "#/definitions/yoomodel.VatData"
+                }
+            }
+        },
+        "yoomodel.PaymentMethodType": {
+            "type": "string",
+            "enum": [
+                "sber_loan",
+                "mobile_balance",
+                "bank_card",
+                "cash",
+                "sbp",
+                "b2b_sberbank",
+                "electronic_certificate",
+                "yoo_money",
+                "sberbank",
+                "tinkoff_bank",
+                "alfabank",
+                "installments",
+                "apple_pay",
+                "google_pay",
+                "qiwi",
+                "wechat",
+                "webmoney"
+            ],
+            "x-enum-varnames": [
+                "SberLoanType",
+                "MobileBalanceType",
+                "BankCardType",
+                "CashType",
+                "SBPType",
+                "B2BSberType",
+                "ElectronicCertType",
+                "YooMoneyType",
+                "SberPayType",
+                "TinkoffBankType",
+                "AlfabankType",
+                "InstallmentsType",
+                "ApplePayType",
+                "GooglePayType",
+                "QiwiType",
+                "WechatType",
+                "WebmoneyType"
+            ]
+        },
+        "yoomodel.PaymentRes": {
+            "type": "object",
+            "required": [
+                "amount",
+                "created_at",
+                "id",
+                "paid",
+                "recipient",
+                "refundable",
+                "status",
+                "test"
+            ],
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "authorization_details": {
+                    "$ref": "#/definitions/yoomodel.AuthorizationDetails"
+                },
+                "confirmation": {
+                    "$ref": "#/definitions/yoomodel.Confirmation"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "income_amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "metadata": {},
+                "paid": {
+                    "type": "boolean"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/yoomodel.PaymentMethod"
+                },
+                "recipient": {
+                    "$ref": "#/definitions/yoomodel.Recipient"
+                },
+                "refundable": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "$ref": "#/definitions/yoomodel.TransactionStatus"
+                },
+                "test": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "yoomodel.Receipt": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "customer": {
+                    "$ref": "#/definitions/yoomodel.Customer"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/yoomodel.ReceiptItem"
+                    }
+                },
+                "receipt_industry_details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/yoomodel.ReceiptIndustryDetail"
+                    }
+                },
+                "receipt_operational_details": {
+                    "$ref": "#/definitions/yoomodel.ReceiptOperationalDetails"
+                },
+                "tax_system_code": {
+                    "type": "integer",
+                    "maximum": 6,
+                    "minimum": 1
+                }
+            }
+        },
+        "yoomodel.ReceiptIndustryDetail": {
+            "type": "object",
+            "required": [
+                "document_date",
+                "document_number",
+                "federal_id",
+                "value"
+            ],
+            "properties": {
+                "document_date": {
+                    "type": "string"
+                },
+                "document_number": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "federal_id": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 256
+                }
+            }
+        },
+        "yoomodel.ReceiptItem": {
+            "type": "object",
+            "required": [
+                "amount",
+                "description",
+                "quantity",
+                "vat_code"
+            ],
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "country_of_origin_code": {
+                    "type": "string"
+                },
+                "customs_declaration_number": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 1
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "excise": {
+                    "type": "string"
+                },
+                "mark_code_info": {
+                    "description": "TODO create MarcCodeInfo struct"
+                },
+                "mark_mode": {
+                    "type": "string"
+                },
+                "mark_quantity": {
+                    "$ref": "#/definitions/yoomodel.MarkQuantity"
+                },
+                "measure": {
+                    "type": "string"
+                },
+                "payment_mode": {
+                    "type": "string"
+                },
+                "payment_subject": {
+                    "type": "string"
+                },
+                "payment_subject_industry_details": {
+                    "$ref": "#/definitions/yoomodel.ReceiptIndustryDetail"
+                },
+                "product_code": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "vat_code": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 1
+                }
+            }
+        },
+        "yoomodel.ReceiptOperationalDetails": {
+            "type": "object",
+            "required": [
+                "created_at",
+                "operation_id",
+                "value"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "operation_id": {
+                    "type": "integer",
+                    "maximum": 255,
+                    "minimum": 0
+                },
+                "value": {
+                    "type": "string",
+                    "maxLength": 64
+                }
+            }
+        },
+        "yoomodel.Recipient": {
+            "type": "object",
+            "required": [
+                "gateway_id"
+            ],
+            "properties": {
+                "account_id": {
+                    "type": "string"
+                },
+                "gateway_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "yoomodel.ThreeDSecure": {
+            "type": "object",
+            "required": [
+                "applied"
+            ],
+            "properties": {
+                "applied": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "yoomodel.TransactionStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "waiting_for_capture",
+                "succeeded",
+                "canceled"
+            ],
+            "x-enum-varnames": [
+                "Pending",
+                "WaitingForCapture",
+                "Succeeded",
+                "Canceled"
+            ]
+        },
+        "yoomodel.Transfers": {
+            "type": "object",
+            "required": [
+                "account_id",
+                "amount"
+            ],
+            "properties": {
+                "account_id": {
+                    "type": "string"
+                },
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "metadata": {},
+                "platform_fee_amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                }
+            }
+        },
+        "yoomodel.VatData": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "$ref": "#/definitions/yoomodel.Amount"
+                },
+                "rate": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }

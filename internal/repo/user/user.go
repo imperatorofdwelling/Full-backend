@@ -139,7 +139,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 		user.Gender,
 		user.Country,
 		user.City,
-		currentTime,
+		currentTime.Format(time.RFC1123Z),
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

@@ -109,7 +109,7 @@ func (r *Repository) FindUserByID(ctx context.Context, id uuid.UUID) (model.User
 
 func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user model.User) error {
 	const op = "repo.user.UpdateUser"
-	// Here
+
 	stmt, err := r.Db.PrepareContext(ctx, `
 		UPDATE users 
 		SET 
@@ -139,8 +139,7 @@ func (r *Repository) UpdateUserByID(ctx context.Context, id uuid.UUID, user mode
 		user.Gender,
 		user.Country,
 		user.City,
-		user.RoleID,
-		currentTime.Format(time.RFC1123Z),
+		currentTime,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

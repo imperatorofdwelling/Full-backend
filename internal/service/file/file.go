@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -65,7 +66,8 @@ func (s *Service) RemoveFile(fileName string) error {
 
 	if _, err := os.Stat(fullPath); err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("%s: file does not exist at path %s", op, fullPath)
+			log.Printf("%s: file does not exist at path %s, skipping deletion", op, fullPath)
+			return nil
 		}
 		return fmt.Errorf("%s: %w", op, err)
 	}

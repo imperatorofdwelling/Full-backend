@@ -107,7 +107,8 @@ type (
 		Type             StayType        `json:"type" validate:"required"`
 		PriceMin         float32         `json:"price_min" validate:"required"`
 		PriceMax         float32         `json:"price_max" validate:"required"`
-		NumberOfBedrooms int             `json:"number_of_bedrooms" validate:"required"`
+		NumberOfBedrooms []int32         `json:"number_of_bedrooms" validate:"required"`
 		Amenities        map[string]bool `json:"amenities" validate:"omitempty"`
+		Rating           []int32         `json:"rating" validate:"required"`
 	}
 )

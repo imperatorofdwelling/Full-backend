@@ -607,17 +607,24 @@ definitions:
           type: boolean
         type: object
       number_of_bedrooms:
-        type: integer
+        items:
+          type: integer
+        type: array
       price_max:
         type: number
       price_min:
         type: number
+      rating:
+        items:
+          type: integer
+        type: array
       type:
         type: string
     required:
     - number_of_bedrooms
     - price_max
     - price_min
+    - rating
     - type
     type: object
   sql.NullTime:

@@ -1,2 +1,5 @@
 .idea
 bin
+.env.local
+local.docker-compose.yml
+Makefile

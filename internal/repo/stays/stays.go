@@ -421,11 +421,33 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.Stay, error) {
 	const op = "repo.stays.Search"
 
+	// Создаем временный срез для хранения значений рейтинга в float64
+	var ratingsFloat64 []float64
+	for _, r := range search.Rating {
+		ratingsFloat64 = append(ratingsFloat64, float64(r))
+	}
+
+	// Находим минимальный и максимальный рейтинг
+	var minRating, maxRating float64
+	if len(ratingsFloat64) > 0 {
+		minRating = ratingsFloat64[0]
+		maxRating = ratingsFloat64[0]
+		for _, r := range ratingsFloat64 {
+			if r < minRating {
+				minRating = r
+			}
+			if r > maxRating {
+				maxRating = r
+			}
+		}
+	}
+
 	query := `
 		SELECT * FROM stays
 		WHERE type = $1 
 		AND price BETWEEN $2 AND $3
-		AND number_of_bedrooms = $4
+		AND number_of_bedrooms = ANY($4)
+		AND rating BETWEEN $5 AND $6
 	`
 
 	args := []interface{}{
@@ -433,6 +455,8 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 		search.PriceMin,
 		search.PriceMax,
 		search.NumberOfBedrooms,
+		minRating,
+		maxRating,
 	}
 
 	if len(search.Amenities) > 0 {
@@ -443,8 +467,7 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", key, len(args)+1))
 			args = append(args, fmt.Sprintf("%t", value))
 		}
-		// TODO Может тут вместо OR AND 2 сделать - надо проверить
-		// Объединяем условия с помощью OR
+		// Объединяем условия с помощью AND
 		query += " AND (" + strings.Join(conditions, " AND ") + ")"
 	}
 

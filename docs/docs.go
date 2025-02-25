@@ -4296,6 +4296,7 @@ const docTemplate = `{
                 "number_of_bedrooms",
                 "price_max",
                 "price_min",
+                "rating",
                 "type"
             ],
             "properties": {
@@ -4306,13 +4307,22 @@ const docTemplate = `{
                     }
                 },
                 "number_of_bedrooms": {
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "price_max": {
                     "type": "number"
                 },
                 "price_min": {
                     "type": "number"
+                },
+                "rating": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "type": {
                     "type": "string"

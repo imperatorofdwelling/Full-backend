@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"github.com/lib/pq"
 	"strings"
 	"time"
 )
@@ -449,12 +450,13 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 		AND number_of_bedrooms = ANY($4)
 		AND rating BETWEEN $5 AND $6
 	`
+	numberOfBedroomsArray := pq.Array(search.NumberOfBedrooms)
 
 	args := []interface{}{
 		search.Type,
 		search.PriceMin,
 		search.PriceMax,
-		search.NumberOfBedrooms,
+		numberOfBedroomsArray,
 		minRating,
 		maxRating,
 	}

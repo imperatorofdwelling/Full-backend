@@ -187,7 +187,7 @@ func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 //	@Success		200	{object}		location.Location	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
-//	@Router			/locations/{id} [delete]
+//	@Router			/locations/{id} [put]
 func (h *Handler) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.location.UpdateByID"
 

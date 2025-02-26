@@ -1067,7 +1067,7 @@
                     }
                 }
             },
-            "delete": {
+            "put": {
                 "description": "Update location by id",
                 "consumes": [
                     "application/json"
@@ -1095,6 +1095,48 @@
                         "schema": {
                             "$ref": "#/definitions/LocationEntity"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "$ref": "#/definitions/Location"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "default": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete location by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "locations"
+                ],
+                "summary": "Delete location by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "location id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

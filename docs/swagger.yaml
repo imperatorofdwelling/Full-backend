@@ -1906,6 +1906,62 @@ paths:
     delete:
       consumes:
       - application/json
+      description: Delete location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Delete location by id
+      tags:
+      - locations
+    get:
+      consumes:
+      - application/json
+      description: Find location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Find location by id
+      tags:
+      - locations
+    put:
+      consumes:
+      - application/json
       description: Update location by id
       parameters:
       - description: location id
@@ -1935,34 +1991,6 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Update location by id
-      tags:
-      - locations
-    get:
-      consumes:
-      - application/json
-      description: Find location by id
-      parameters:
-      - description: location id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            $ref: '#/definitions/Location'
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Find location by id
       tags:
       - locations
   /locations/{locationName}:

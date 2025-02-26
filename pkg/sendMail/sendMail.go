@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/smtp"
 	"os"
-	"strings"
 )
 
 func SimpleEmailSend(userMail, userOTP, title string) error {
 	smtpUser := os.Getenv("SMTP_USER")
 	smtpPassword := os.Getenv("SMTP_PASSWORD")
-
 	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := os.Getenv("SMTP_PORT")
 
@@ -25,22 +23,20 @@ func SimpleEmailSend(userMail, userOTP, title string) error {
 		smtpHost,
 	)
 
-	subject := "Subject: " + title
-	to := []string{userMail}
-	body := fmt.Sprintf("Your code: %s", userOTP)
-
-	message := []byte(subject + "\r\n" +
-		"To: " + strings.Join(to, ",") + "\r\n" +
-		"From: " + "Someone Of Dwellers" + "\r\n" +
-		"Content-Type: text/plain; charset=UTF-8\r\n" +
-		"\r\n" +
-		body)
+	// Создаем сообщение с правильным порядком заголовков
+	message := []byte(fmt.Sprintf("From: %s <%s>\r\n"+
+		"To: %s\r\n"+
+		"Subject: %s\r\n"+
+		"MIME-Version: 1.0\r\n"+
+		"Content-Type: text/plain; charset=UTF-8\r\n"+
+		"\r\n"+
+		"Your code: %s", "Someone Of Dwellers", smtpUser, userMail, title, userOTP))
 
 	err := smtp.SendMail(
 		fmt.Sprintf("%s:%s", smtpHost, smtpPort),
 		auth,
 		smtpUser,
-		to,
+		[]string{userMail},
 		message,
 	)
 

@@ -2,6 +2,7 @@ package confirmEmail
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
@@ -60,6 +61,9 @@ func (h *Handler) CreateOTPEmail(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logged in")))
 		return
 	}
+
+	h.Log.Info(userID)
+	fmt.Println(userID)
 
 	err := h.Svc.CreateOTPEmail(context.Background(), userID)
 	if err != nil {

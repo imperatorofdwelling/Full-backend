@@ -3,9 +3,12 @@ package stays
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"github.com/lib/pq"
+	"strings"
 	"time"
 )
 
@@ -47,8 +50,14 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+	var amenitiesData []byte // Переменная для хранения JSONB данных
+
+	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	// Десериализуем JSONB данные в []Amenity
+	if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
@@ -58,7 +67,10 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	const op = "repo.stays.getStays"
 
-	stmt, err := r.Db.PrepareContext(ctx, "SELECT * FROM stays")
+	stmt, err := r.Db.PrepareContext(ctx, `
+		SELECT *
+		FROM stays
+	`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -77,8 +89,15 @@ func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	for rows.Next() {
 		var stay models.StayResponse
 
-		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		var amenitiesData []byte // Переменная для хранения JSONB данных
+
+		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
 		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
@@ -187,7 +206,7 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 	defer rows.Close()
 
 	var stays []*models.Stay
-
+	var amenitiesData []byte // Переменная для хранения JSONB данных
 	for rows.Next() {
 		var stay models.Stay
 
@@ -202,6 +221,7 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
 			&stay.Rating,
+			&amenitiesData,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
 			&stay.Street,
@@ -214,6 +234,10 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 			&stay.UpdatedAt,
 		)
 		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
@@ -353,7 +377,7 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	}
 
 	var stays []models.Stay
-
+	var amenitiesData []byte // Переменная для хранения JSONB данных
 	for rows.Next() {
 		var stay models.Stay
 
@@ -368,6 +392,7 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 			&stay.NumberOfBathrooms,
 			&stay.Guests,
 			&stay.Rating,
+			&amenitiesData,
 			&stay.IsSmokingProhibited,
 			&stay.Square,
 			&stay.Street,
@@ -383,8 +408,127 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
 		stays = append(stays, stay)
 	}
 
 	return &stays, nil
+}
+
+func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.Stay, error) {
+	const op = "repo.stays.Search"
+
+	// Создаем временный срез для хранения значений рейтинга в float64
+	var ratingsFloat64 []float64
+	for _, r := range search.Rating {
+		ratingsFloat64 = append(ratingsFloat64, float64(r))
+	}
+
+	// Находим минимальный и максимальный рейтинг
+	var minRating, maxRating float64
+	if len(ratingsFloat64) > 0 {
+		minRating = ratingsFloat64[0]
+		maxRating = ratingsFloat64[0]
+		for _, r := range ratingsFloat64 {
+			if r < minRating {
+				minRating = r
+			}
+			if r > maxRating {
+				maxRating = r
+			}
+		}
+	}
+
+	query := `
+		SELECT * FROM stays
+		WHERE type = $1 
+		AND price BETWEEN $2 AND $3
+		AND number_of_bedrooms = ANY($4)
+		AND rating BETWEEN $5 AND $6
+	`
+	numberOfBedroomsArray := pq.Array(search.NumberOfBedrooms)
+
+	args := []interface{}{
+		search.Type,
+		search.PriceMin,
+		search.PriceMax,
+		numberOfBedroomsArray,
+		minRating,
+		maxRating,
+	}
+
+	if len(search.Amenities) > 0 {
+		//Создаем временный массив для условий
+		var conditions []string
+		for key, value := range search.Amenities {
+			// Используем индекс для параметров
+			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", key, len(args)+1))
+			args = append(args, fmt.Sprintf("%t", value))
+		}
+		// Объединяем условия с помощью AND
+		query += " AND (" + strings.Join(conditions, " AND ") + ")"
+	}
+
+	stmt, err := this.Db.PrepareContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer stmt.Close()
+
+	// Выполняем запрос
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	var amenitiesData []byte // Переменная для хранения JSONB данных
+
+	// Обработка результатов
+	var stays []models.Stay
+	for rows.Next() {
+		var stay models.Stay
+		if err = rows.Scan(
+			&stay.ID,
+			&stay.LocationID,
+			&stay.UserID,
+			&stay.Name,
+			&stay.Type,
+			&stay.NumberOfBedrooms,
+			&stay.NumberOfBeds,
+			&stay.NumberOfBathrooms,
+			&stay.Guests,
+			&stay.Rating,
+			&amenitiesData,
+			&stay.IsSmokingProhibited,
+			&stay.Square,
+			&stay.Street,
+			&stay.House,
+			&stay.Entrance,
+			&stay.Floor,
+			&stay.Room,
+			&stay.Price,
+			&stay.CreatedAt,
+			&stay.UpdatedAt,
+		); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		// Десериализуем JSONB данные в []Amenity
+		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		stays = append(stays, stay)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return stays, nil
 }

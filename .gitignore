@@ -1,3 +1,6 @@
 .idea
 bin
 kafka_data
+.env.local
+local.docker-compose.yml
+Makefile

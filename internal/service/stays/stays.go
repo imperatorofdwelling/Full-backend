@@ -3,6 +3,7 @@ package stays
 import (
 	"context"
 	"fmt"
+	_ "github.com/ekomobile/dadata"
 	"github.com/gofrs/uuid"
 	staysInterface "github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
@@ -318,4 +319,13 @@ func (s *Service) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]st
 	}
 
 	return foundStays, nil
+}
+
+func (this *Service) Search(ctx context.Context, search stays.Search) ([]stays.Stay, error) {
+	const op = "service.stays.Search"
+	stays, err := this.Repo.Search(ctx, search)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return stays, nil
 }

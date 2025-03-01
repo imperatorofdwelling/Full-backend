@@ -1,6 +1,7 @@
 package stays
 
 import (
+	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -44,8 +45,52 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 			r.Get("/location/{locationId}", h.GetStaysByLocationID)
+			r.Get("/search", h.Search)
 		})
 	})
+}
+
+// Search
+//
+//	@Summary		Search
+//	@Description	Search stay by filtration
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param	request body model.Search	true	"request search data"
+//	@Success		201	{string}		[]model.stay		"created"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		500		{object}	response.ResponseError			"Error"
+//	@Router			/stays/search [get]
+func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
+	const op = "h.stays.SearchStays"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var searchValues model.Search
+
+	err := render.DecodeJSON(r.Body, &searchValues)
+	if err != nil {
+		h.Log.Error("failed to decode form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+	if len(searchValues.Rating) < 2 {
+		h.Log.Error("rating must be greater than 2")
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("rating must be greater than 2")))
+		return
+	}
+
+	result, err := h.Svc.Search(r.Context(), searchValues)
+	if err != nil {
+		h.Log.Error("failed to search", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+	responseApi.WriteJson(w, r, 201, result)
 }
 
 // CreateStay godoc

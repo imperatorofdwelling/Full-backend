@@ -258,6 +258,10 @@ definitions:
     type: object
   Stay:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       created_at:
         type: string
       entrance:
@@ -298,6 +302,8 @@ definitions:
         type: string
       user_id:
         type: string
+    required:
+    - amenities
     type: object
   StayAdvantageCreateReq:
     properties:
@@ -308,6 +314,10 @@ definitions:
     type: object
   StayEntity:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       entrance:
         type: string
       floor:
@@ -342,6 +352,7 @@ definitions:
       user_id:
         type: string
     required:
+    - amenities
     - guests
     - house
     - location_id
@@ -357,6 +368,10 @@ definitions:
     type: object
   StayEntityFav:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       city:
         type: string
       entrance:
@@ -395,6 +410,7 @@ definitions:
       user_id:
         type: string
     required:
+    - amenities
     - city
     - guests
     - house
@@ -445,6 +461,10 @@ definitions:
     type: object
   StayResponse:
     properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
       created_at:
         type: string
       entrance:
@@ -489,6 +509,8 @@ definitions:
         type: string
       user_id:
         type: string
+    required:
+    - amenities
     type: object
   StaysReportEntity:
     properties:
@@ -579,6 +601,33 @@ definitions:
         type: string
       user_name:
         type: string
+    type: object
+  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search:
+    properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
+      number_of_bedrooms:
+        items:
+          type: integer
+        type: array
+      price_max:
+        type: number
+      price_min:
+        type: number
+      rating:
+        items:
+          type: integer
+        type: array
+      type:
+        type: string
+    required:
+    - number_of_bedrooms
+    - price_max
+    - price_min
+    - rating
+    - type
     type: object
   sql.NullTime:
     properties:
@@ -1857,6 +1906,62 @@ paths:
     delete:
       consumes:
       - application/json
+      description: Delete location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Delete location by id
+      tags:
+      - locations
+    get:
+      consumes:
+      - application/json
+      description: Find location by id
+      parameters:
+      - description: location id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/Location'
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Find location by id
+      tags:
+      - locations
+    put:
+      consumes:
+      - application/json
       description: Update location by id
       parameters:
       - description: location id
@@ -1886,34 +1991,6 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Update location by id
-      tags:
-      - locations
-    get:
-      consumes:
-      - application/json
-      description: Find location by id
-      parameters:
-      - description: location id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ok
-          schema:
-            $ref: '#/definitions/Location'
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Find location by id
       tags:
       - locations
   /locations/{locationName}:
@@ -2868,6 +2945,36 @@ paths:
       summary: Create a new stay report
       tags:
       - staysReports
+  /stays/search:
+    get:
+      consumes:
+      - application/json
+      description: Search stay by filtration
+      parameters:
+      - description: request search data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Search
+      tags:
+      - stays
   /stays/user/{userId}:
     get:
       consumes:

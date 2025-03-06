@@ -12,6 +12,7 @@ import (
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"github.com/pkg/errors"
 	"log/slog"
 	"net/http"
 )
@@ -26,9 +27,14 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(mw.WithAuth)
 			r.Post("/", h.CreateReservation)
+
+			r.Post("/checkin/{stayId}", h.ConfirmCheckInReservation)
+			r.Post("/checkout/{stayId}", h.ConfirmCheckOutReservation)
+
 			r.Put("/{reservationID}", h.UpdateReservation)
 			r.Delete("/{reservationID}", h.DeleteReservationByID)
 			r.Get("/{reservationID}", h.GetReservationByID)
+
 			r.Get("/user/userID", h.GetAllReservationsByUser)
 		})
 	})
@@ -54,6 +60,15 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
+	if !ok {
+		h.Log.Error("user ID not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logged in")))
+		return
+	}
+
+	h.Log.Info(userID)
+
 	var reserv reservation.ReservationEntity
 
 	err := render.DecodeJSON(r.Body, &reserv)
@@ -63,7 +78,14 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Svc.CreateReservation(context.Background(), &reserv)
+	err = h.Svc.CheckReservation(context.Background(), &reserv, userID)
+	if err != nil {
+		h.Log.Error("failed to check reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.CreateReservation(context.Background(), &reserv, userID)
 	if err != nil {
 		h.Log.Error("failed to create reservation", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -71,6 +93,96 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created reservation")
+}
+
+// ConfirmCheckInReservation godoc
+//
+//	@Summary		Confirm Check-In Reservation
+//	@Description	Confirm check-in for a reservation by stay ID
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			stayId	path		string		true	"ID of the stay to confirm check-in"
+//	@Param			request	body		reservation.ReservationCheckInEntity	true	"Check-in details"
+//	@Success		200		{string}	string	"successfully confirmed reservation"
+//	@Failure		400		{object}	response.ResponseError	"Error"
+//	@Failure		401		{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500		{object}	response.ResponseError	"Error"
+//	@Router			/reservation/checkin/{stayId} [post]
+func (h *Handler) ConfirmCheckInReservation(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.ConfirmCheckInReservation"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
+	if !ok {
+		h.Log.Error("user ID not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logged in")))
+		return
+	}
+
+	var reserv reservation.ReservationCheckInEntity
+
+	err := render.DecodeJSON(r.Body, &reserv)
+	if err != nil {
+		h.Log.Error("failed to decode JSON", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	err = h.Svc.ConfirmCheckInReservation(context.Background(), userID, stayId, reserv)
+	if err != nil {
+		h.Log.Error("failed to confirm reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "successfully confirmed reservation")
+}
+
+// ConfirmCheckOutReservation godoc
+//
+//	@Summary		Confirm Check-Out Reservation
+//	@Description	Confirm check-out for a reservation by stay ID
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			stayId	path		string		true	"ID of the stay to confirm check-out"
+//	@Success		200		{string}	string	"successfully confirmed checkout reservation"
+//	@Failure		400		{object}	response.ResponseError	"Error"
+//	@Failure		401		{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500		{object}	response.ResponseError	"Error"
+//	@Router			/reservation/checkout/{stayId} [post]
+func (h *Handler) ConfirmCheckOutReservation(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.ConfirmCheckOutReservation"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	stayId := chi.URLParam(r, "stayId")
+
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
+	if !ok {
+		h.Log.Error("user ID not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, slogError.Err(errors.New("unauthorized: user not logged in")))
+		return
+	}
+
+	err := h.Svc.ConfirmCheckOutReservation(context.Background(), userID, stayId)
+	if err != nil {
+		h.Log.Error("failed to confirm reservation", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "successfully confirmed checkout reservation")
 }
 
 // UpdateReservation godoc

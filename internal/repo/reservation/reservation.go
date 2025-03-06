@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -14,7 +16,98 @@ type Repo struct {
 	Db *sql.DB
 }
 
-func (r *Repo) CreateReservation(ctx context.Context, reservation *reservation.ReservationEntity) error {
+func (r *Repo) ConfirmCheckOutReservation(ctx context.Context, userID string, stayID string) error {
+	const op = "repo.reservation.ConfirmCheckOutReservation"
+
+	query := `
+		UPDATE reservations 
+		SET check_out = TRUE 
+		WHERE stay_id = $1 AND user_id = $2;
+	`
+
+	_, err := r.Db.ExecContext(ctx, query, stayID, userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *Repo) CheckTimeForCheckOutReservation(ctx context.Context, userID string, stayID string) (bool, error) {
+	const op = "repo.reservation.CheckTimeForCheckOutReservation"
+
+	var departure time.Time
+
+	query := `
+       SELECT arrived 
+       FROM reservations 
+       WHERE user_id = $1 AND stay_id = $2 
+       LIMIT 1;
+    `
+
+	err := r.Db.QueryRowContext(ctx, query, userID, stayID).Scan(&departure)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, fmt.Errorf("%s: reservation not found: %w", op, err)
+		}
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	now := time.Now().Truncate(24 * time.Hour)
+	departureDate := departure.Truncate(24 * time.Hour)
+
+	result := departureDate.After(now)
+
+	if result {
+		return true, fmt.Errorf("%s: checkout time not yet reached. Current date: %v, Departure date: %v",
+			op, now, departureDate)
+	}
+
+	return false, nil
+}
+
+func (r *Repo) CheckIfUserIsOwner(ctx context.Context, userID uuid.UUID, stayID uuid.UUID) (bool, error) {
+	const op = "repo.reservation.CheckIfUserIsOwner"
+
+	query := `SELECT COUNT(*) FROM stays WHERE id = $1 AND user_id = $2`
+
+	var count int
+	err := r.Db.QueryRowContext(ctx, query, stayID, userID).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	if count == 0 {
+		return false, fmt.Errorf("%s: %w", op, service.ErrUserNotOwner)
+	}
+
+	return true, nil
+}
+
+func (r *Repo) CheckReservationIsFree(ctx context.Context, reservationObject *reservation.ReservationEntity) error {
+	const op = "repo.reservation.CheckReservationIsFree"
+
+	query := `
+        SELECT COUNT(*) 
+        FROM reservations 
+        WHERE stay_id = $1 
+          AND (arrived, departure) OVERLAPS ($2, $3)
+    `
+
+	var count int
+	err := r.Db.QueryRowContext(ctx, query, reservationObject.StayID, reservationObject.Arrived, reservationObject.Departure).Scan(&count)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("%s: %w", op, service.ErrAlreadyReservedDate)
+	}
+
+	return nil
+}
+
+func (r *Repo) CreateReservation(ctx context.Context, reservation *reservation.ReservationEntity, userID string) error {
 	const op = "repo.reservation.CreateReservation"
 
 	stmt, err := r.Db.PrepareContext(ctx, "INSERT INTO reservations (stay_id, user_id, arrived, departure, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)")
@@ -24,7 +117,7 @@ func (r *Repo) CreateReservation(ctx context.Context, reservation *reservation.R
 
 	defer stmt.Close()
 
-	_, err = stmt.ExecContext(ctx, reservation.StayID, reservation.UserID, reservation.Arrived, reservation.Departure, time.Now(), time.Now())
+	_, err = stmt.ExecContext(ctx, reservation.StayID, userID, reservation.Arrived, reservation.Departure, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -75,8 +168,28 @@ func (r *Repo) DeleteReservationByID(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *Repo) CheckReservationIfExists(ctx context.Context, id uuid.UUID) (bool, error) {
+func (r *Repo) CheckReservationIfExistsByUserId(ctx context.Context, id uuid.UUID) (bool, error) {
 	const op = "repo.reservation.CheckReservationIfExists"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS(SELECT 1 FROM reservations WHERE user_id = $1 and check_out = false)")
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	var exists bool
+
+	err = stmt.QueryRowContext(ctx, id).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exists, nil
+}
+
+func (r *Repo) CheckIfReservationExists(ctx context.Context, id uuid.UUID) (bool, error) {
+	const op = "repo.reservation.CheckIfReservationExists"
 
 	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS(SELECT 1 FROM reservations WHERE id = $1)")
 	if err != nil {
@@ -94,6 +207,86 @@ func (r *Repo) CheckReservationIfExists(ctx context.Context, id uuid.UUID) (bool
 
 	return exists, nil
 }
+
+func (r *Repo) CheckIfArrivalIsCorrect(ctx context.Context, userID uuid.UUID, stayID uuid.UUID, reserv reservation.ReservationCheckInEntity) (bool, error) {
+	const op = "repo.reservation.CheckIfArrivalIsCorrect"
+
+	var arrived time.Time
+
+	query := `
+       SELECT arrived 
+       FROM reservations 
+       WHERE user_id = $1 AND stay_id = $2 
+       LIMIT 1;
+    `
+
+	err := r.Db.QueryRowContext(ctx, query, reserv.UserID, stayID).Scan(&arrived)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	now := time.Now().Truncate(24 * time.Hour)
+	arrivedDate := arrived.Truncate(24 * time.Hour)
+
+	result := now.After(arrivedDate) || now.Equal(arrivedDate)
+
+	if !result {
+		return false, fmt.Errorf("%s: date check failed. Now: %v, Arrived: %v, Now(truncated): %v, Arrived(truncated): %v",
+			op, time.Now(), arrived, now, arrivedDate)
+	}
+
+	return true, nil
+}
+
+func (r *Repo) CheckInApproval(ctx context.Context, stayID uuid.UUID, reservationUser reservation.ReservationCheckInEntity) error {
+	const op = "repo.reservation.CheckInApproval"
+
+	query := `
+		UPDATE reservations 
+		SET check_in = TRUE 
+		WHERE stay_id = $1 AND user_id = $2;
+	`
+
+	result, err := r.Db.ExecContext(ctx, query, stayID, reservationUser.UserID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, service.ErrReservationNotFound)
+	}
+
+	return nil
+}
+
+func (r *Repo) CheckIfReservationExistsByStayID(ctx context.Context, stayID uuid.UUID) (bool, error) {
+	const op = "repo.reservation.CheckIfReservationExistsByStayID"
+
+	stmt, err := r.Db.PrepareContext(ctx, "SELECT EXISTS(SELECT 1 FROM reservations WHERE stay_id = $1)")
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	defer stmt.Close()
+
+	var exists bool
+
+	err = stmt.QueryRowContext(ctx, stayID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return exists, nil
+}
+
 func (r *Repo) GetReservationByID(ctx context.Context, id uuid.UUID) (*reservation.Reservation, error) {
 	const op = "repo.reservation.GetReservationByID"
 

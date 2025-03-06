@@ -7,16 +7,117 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
+	"time"
 )
 
 type Service struct {
 	Repo interfaces.ReservationRepo
 }
 
-func (s *Service) CreateReservation(ctx context.Context, reserv *reservation.ReservationEntity) error {
+func (s *Service) ConfirmCheckOutReservation(ctx context.Context, userID string, stayID string) error {
+	const op = "service.reservation.ConfirmCheckOutReservation"
+
+	timeExist, err := s.Repo.CheckTimeForCheckOutReservation(ctx, userID, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if timeExist {
+		return fmt.Errorf("%s: %w", op, service.ErrTimeHasNotCome)
+	}
+
+	err = s.Repo.ConfirmCheckOutReservation(ctx, userID, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) ConfirmCheckInReservation(ctx context.Context, userID string, stayID string, reserv reservation.ReservationCheckInEntity) error {
+	const op = "service.reservation.ConfirmCheckInReservation"
+
+	userUUID, err := uuid.FromString(userID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	stayUUID, err := uuid.FromString(stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	owner, err := s.Repo.CheckIfUserIsOwner(ctx, userUUID, stayUUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if !owner {
+		return fmt.Errorf("%s: %w", op, service.ErrUserNotOwner)
+	}
+
+	exists, err := s.Repo.CheckIfReservationExistsByStayID(ctx, stayUUID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if !exists {
+		return fmt.Errorf("%s: %w", op, service.ErrNoReservations)
+	}
+
+	dateErr, err := s.Repo.CheckIfArrivalIsCorrect(ctx, userUUID, stayUUID, reserv)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if !dateErr {
+		return fmt.Errorf("%s: %w", op, service.ErrTimeNotCome)
+	}
+
+	err = s.Repo.CheckInApproval(ctx, stayUUID, reserv)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CheckReservation(ctx context.Context, reservationObj *reservation.ReservationEntity, userID string) error {
+	const op = "service.reservation.CheckReservation"
+
+	now := time.Now().Truncate(24 * time.Hour)
+
+	if reservationObj.Arrived.Before(now) {
+		return fmt.Errorf("%s: %w", op, service.ErrInvalidArrivalDate)
+	}
+
+	if !reservationObj.Departure.After(reservationObj.Arrived.Add(24*time.Hour - time.Nanosecond)) {
+		return fmt.Errorf("%s: %w", op, service.ErrInvalidDepartureDate)
+	}
+
+	uuidUserId := uuid.FromStringOrNil(userID)
+
+	exists, err := s.Repo.CheckReservationIfExistsByUserId(ctx, uuidUserId)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if exists {
+		return fmt.Errorf("%s: %w", op, service.ErrAlreadyReserved)
+	}
+
+	err = s.Repo.CheckReservationIsFree(ctx, reservationObj)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (s *Service) CreateReservation(ctx context.Context, reserv *reservation.ReservationEntity, userID string) error {
 	const op = "service.reservation.CreateReservation"
 
-	err := s.Repo.CreateReservation(ctx, reserv)
+	err := s.Repo.CreateReservation(ctx, reserv, userID)
 	if err != nil {
 		return err
 	}
@@ -47,7 +148,7 @@ func (s *Service) UpdateReservation(ctx context.Context, reserv *reservation.Res
 func (s *Service) DeleteReservationByID(ctx context.Context, id uuid.UUID) error {
 	const op = "service.reservation.DeleteReservationByID"
 
-	isExists, err := s.Repo.CheckReservationIfExists(ctx, id)
+	isExists, err := s.Repo.CheckIfReservationExists(ctx, id)
 	if err != nil {
 		return err
 	}

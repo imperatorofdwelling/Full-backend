@@ -1,7 +1,6 @@
 package stays
 
 import (
-	"errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -9,6 +8,8 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
 	model "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/amenity"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/sort"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -45,52 +46,11 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
 			r.Get("/images/main/{stayId}", h.GetMainImageByStayID)
 			r.Get("/location/{locationId}", h.GetStaysByLocationID)
-			r.Get("/search", h.Search)
+			r.Get("/filtration", h.Filtration)
+			r.Get("/filtration/amenities", h.GetAmenities)
+			r.Get("/filtration/sort", h.GetSorts)
 		})
 	})
-}
-
-// Search
-//
-//	@Summary		Search
-//	@Description	Search stay by filtration
-//	@Tags			stays
-//	@Accept			application/json
-//	@Produce		json
-//	@Param	request body model.Search	true	"request search data"
-//	@Success		201	{string}		[]model.stay		"created"
-//	@Failure		400		{object}	response.ResponseError			"Error"
-//	@Failure		500		{object}	response.ResponseError			"Error"
-//	@Router			/stays/search [get]
-func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
-	const op = "h.stays.SearchStays"
-
-	h.Log = h.Log.With(
-		slog.String("op", op),
-		slog.String("request_id", middleware.GetReqID(r.Context())),
-	)
-
-	var searchValues model.Search
-
-	err := render.DecodeJSON(r.Body, &searchValues)
-	if err != nil {
-		h.Log.Error("failed to decode form", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
-		return
-	}
-	if len(searchValues.Rating) < 2 {
-		h.Log.Error("rating must be greater than 2")
-		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("rating must be greater than 2")))
-		return
-	}
-
-	result, err := h.Svc.Search(r.Context(), searchValues)
-	if err != nil {
-		h.Log.Error("failed to search", slogError.Err(err))
-		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
-		return
-	}
-	responseApi.WriteJson(w, r, 201, result)
 }
 
 // CreateStay godoc
@@ -576,4 +536,93 @@ func (h *Handler) GetStaysByLocationID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, stays)
+}
+
+// Filtration
+//
+//	@Summary		Filtration
+//	@Description	Filtration stay by filtration
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param	request body model.Filtration	true	"request filtration data"
+//	@Success		201	{string}		[]model.stay		"created"
+//	@Failure		400		{object}	response.ResponseError			"Error"
+//	@Failure		500		{object}	response.ResponseError			"Error"
+//	@Router			/stays/filtration [get]
+func (h *Handler) Filtration(w http.ResponseWriter, r *http.Request) {
+	const op = "h.stays.SearchStays"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var searchValues model.Filtration
+
+	err := render.DecodeJSON(r.Body, &searchValues)
+	if err != nil {
+		h.Log.Error("failed to decode form", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+	searchValues.SetDefaults()
+
+	result, err := h.Svc.Filtration(r.Context(), searchValues)
+	if err != nil {
+		h.Log.Error("failed to search", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+	responseApi.WriteJson(w, r, 201, result)
+}
+
+// GetAmenities
+//
+//	@Summary		Get stay Amenities
+//	@Description	Possible amenities values
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			locationId	path		string		true	"stay id"
+//	@Success		200	{object}		[]string		"ok"
+//	@Router			/stays/filtration/amenities [get]
+func (h *Handler) GetAmenities(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetAmenities"
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var result []string
+	for i := amenity.Wifi; i <= amenity.TouchControlPanels; i++ {
+		result = append(result, i.String())
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, result)
+}
+
+// GetSorts
+//
+//	@Summary		Get stay filtration sort values
+//	@Description	Possible filtration SORT values
+//	@Tags			stays
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			locationId	path		string		true	"stay id"
+//	@Success		200	{object}		[]string		"ok"
+//	@Router			/stays/filtration/sort [get]
+func (h *Handler) GetSorts(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetAmenities"
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	var result []string
+	for i := sort.Nil; i <= sort.LowlyRecommended; i++ {
+		result = append(result, i.String())
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, result)
 }

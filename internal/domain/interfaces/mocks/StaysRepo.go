@@ -323,20 +323,20 @@ func (_m *StaysRepo) GetStaysByUserID(_a0 context.Context, _a1 uuid.UUID) ([]*st
 	return r0, r1
 }
 
-// Search provides a mock function with given fields: ctx, search
-func (_m *StaysRepo) Search(ctx context.Context, search stays.Search) ([]stays.Stay, error) {
+// Filtration provides a mock function with given fields: ctx, search
+func (_m *StaysRepo) Filtration(ctx context.Context, search stays.Filtration) ([]stays.Stay, error) {
 	ret := _m.Called(ctx, search)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Search")
+		panic("no return value specified for Filtration")
 	}
 
 	var r0 []stays.Stay
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, stays.Search) ([]stays.Stay, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, stays.Filtration) ([]stays.Stay, error)); ok {
 		return rf(ctx, search)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, stays.Search) []stays.Stay); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, stays.Filtration) []stays.Stay); ok {
 		r0 = rf(ctx, search)
 	} else {
 		if ret.Get(0) != nil {
@@ -344,7 +344,7 @@ func (_m *StaysRepo) Search(ctx context.Context, search stays.Search) ([]stays.S
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, stays.Search) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, stays.Filtration) error); ok {
 		r1 = rf(ctx, search)
 	} else {
 		r1 = ret.Error(1)

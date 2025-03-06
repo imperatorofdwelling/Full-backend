@@ -65,6 +65,31 @@ definitions:
         example: "2023-01-01T00:00:00Z"
         type: string
     type: object
+  Filtration:
+    properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        type: object
+      locationName:
+        type: string
+      number_of_bedrooms:
+        items:
+          type: integer
+        type: array
+      price_max:
+        type: number
+      price_min:
+        type: number
+      rating:
+        items:
+          type: number
+        type: array
+      sort_by:
+        type: integer
+    required:
+    - locationName
+    type: object
   Location:
     properties:
       city:
@@ -601,33 +626,6 @@ definitions:
         type: string
       user_name:
         type: string
-    type: object
-  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search:
-    properties:
-      amenities:
-        additionalProperties:
-          type: boolean
-        type: object
-      number_of_bedrooms:
-        items:
-          type: integer
-        type: array
-      price_max:
-        type: number
-      price_min:
-        type: number
-      rating:
-        items:
-          type: integer
-        type: array
-      type:
-        type: string
-    required:
-    - number_of_bedrooms
-    - price_max
-    - price_min
-    - rating
-    - type
     type: object
   sql.NullTime:
     properties:
@@ -1841,7 +1839,7 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ResponseError'
-      summary: Get Search History
+      summary: Get Filtration History
       tags:
       - searchHistory
     post:
@@ -1874,7 +1872,7 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ResponseError'
-      summary: Create Search History
+      summary: Create Filtration History
       tags:
       - searchHistory
   /locations:
@@ -2949,14 +2947,14 @@ paths:
     get:
       consumes:
       - application/json
-      description: Search stay by filtration
+      description: Filtration stay by filtration
       parameters:
       - description: request search data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search'
+          $ref: '#/definitions/Filtration'
       produces:
       - application/json
       responses:
@@ -2972,7 +2970,7 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ResponseError'
-      summary: Search
+      summary: Filtration
       tags:
       - stays
   /stays/user/{userId}:

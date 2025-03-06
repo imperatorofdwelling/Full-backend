@@ -921,7 +921,7 @@ const docTemplate = `{
                 "tags": [
                     "searchHistory"
                 ],
-                "summary": "Get Search History",
+                "summary": "Get Filtration History",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -957,7 +957,7 @@ const docTemplate = `{
                 "tags": [
                     "searchHistory"
                 ],
-                "summary": "Create Search History",
+                "summary": "Create Filtration History",
                 "parameters": [
                     {
                         "description": "Name of the search history entry",
@@ -2471,7 +2471,7 @@ const docTemplate = `{
         },
         "/stays/search": {
             "get": {
-                "description": "Search stay by filtration",
+                "description": "Filtration stay by filtration",
                 "consumes": [
                     "application/json"
                 ],
@@ -2481,7 +2481,7 @@ const docTemplate = `{
                 "tags": [
                     "stays"
                 ],
-                "summary": "Search",
+                "summary": "Filtration",
                 "parameters": [
                     {
                         "description": "request search data",
@@ -2489,7 +2489,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search"
+                            "$ref": "#/definitions/Filtration"
                         }
                     }
                 ],
@@ -3892,6 +3892,44 @@ const docTemplate = `{
                 }
             }
         },
+        "Filtration": {
+            "type": "object",
+            "required": [
+                "locationName"
+            ],
+            "properties": {
+                "amenities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "locationName": {
+                    "type": "string"
+                },
+                "number_of_bedrooms": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "price_max": {
+                    "type": "number"
+                },
+                "price_min": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "sort_by": {
+                    "type": "integer"
+                }
+            }
+        },
         "Location": {
             "type": "object",
             "properties": {
@@ -4685,45 +4723,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search": {
-            "type": "object",
-            "required": [
-                "number_of_bedrooms",
-                "price_max",
-                "price_min",
-                "rating",
-                "type"
-            ],
-            "properties": {
-                "amenities": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
-                    }
-                },
-                "number_of_bedrooms": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "price_max": {
-                    "type": "number"
-                },
-                "price_min": {
-                    "type": "number"
-                },
-                "rating": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "type": {
                     "type": "string"
                 }
             }

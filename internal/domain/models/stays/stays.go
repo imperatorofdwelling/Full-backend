@@ -2,6 +2,8 @@ package stays
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/amenity"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/sort"
 	"time"
 )
 
@@ -32,11 +34,6 @@ type (
 		Room                string          `json:"room,omitempty"`
 		Price               float32         `json:"price" validate:"required"`
 	} // @name StayEntity
-
-	//Amenity struct {
-	//	Name      string `json:"name" validate:"required"`
-	//	Available bool   `json:"available" validate:"omitempty"`
-	//} // @name Amenity
 
 	StayEntityFav struct {
 		ID                  uuid.UUID       `json:"id"`
@@ -103,12 +100,22 @@ type (
 		Images []StayImage `json:"images"`
 	} // @name StayResponse
 
-	Search struct {
-		Type             StayType        `json:"type" validate:"required"`
-		PriceMin         float32         `json:"price_min" validate:"required"`
-		PriceMax         float32         `json:"price_max" validate:"required"`
-		NumberOfBedrooms []int32         `json:"number_of_bedrooms" validate:"required"`
-		Amenities        map[string]bool `json:"amenities" validate:"omitempty"`
-		Rating           []int32         `json:"rating" validate:"required"`
-	}
+	Filtration struct {
+		Location         string                   `json:"locationName" validate:"required"`
+		SortBy           sort.Sort                `json:"sort_by" validate:"omitempty"`
+		PriceMin         float32                  `json:"price_min" validate:"omitempty"`
+		PriceMax         float32                  `json:"price_max" validate:"omitempty"`
+		NumberOfBedrooms []int32                  `json:"number_of_bedrooms" validate:"omitempty"`
+		Amenities        map[amenity.Amenity]bool `json:"amenities" validate:"omitempty"`
+		Rating           []float64                `json:"rating" validate:"omitempty"`
+	} // @name Filtration
 )
+
+func (f *Filtration) SetDefaults() {
+	if f.PriceMin == 0 {
+		f.PriceMin = -1
+	}
+	if f.PriceMax == 0 {
+		f.PriceMax = -1
+	}
+}

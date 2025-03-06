@@ -321,11 +321,24 @@ func (s *Service) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]st
 	return foundStays, nil
 }
 
-func (this *Service) Search(ctx context.Context, search stays.Search) ([]stays.Stay, error) {
-	const op = "service.stays.Search"
-	stays, err := this.Repo.Search(ctx, search)
+func (s *Service) Filtration(ctx context.Context, search stays.Filtration) ([]stays.Stay, error) {
+	const op = "service.stays.Filtration"
+
+	match, err := s.LocSvc.FindByNameMatch(ctx, search.Location)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return stays, nil
+	if len(*match) == 0 {
+		return nil, fmt.Errorf("%s: %w", op, service.ErrLocationNotFound)
+	}
+	var locationIDS []uuid.UUID
+	for _, v := range *match {
+		locationIDS = append(locationIDS, v.ID)
+	}
+
+	result, err := s.Repo.Filtration(ctx, search, locationIDS)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return result, nil
 }

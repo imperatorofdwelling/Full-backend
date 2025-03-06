@@ -95,6 +95,20 @@ func (h *Handler) CreateReservation(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusCreated, "successfully created reservation")
 }
 
+// ConfirmCheckInReservation godoc
+//
+//	@Summary		Confirm Check-In Reservation
+//	@Description	Confirm check-in for a reservation by stay ID
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			stayId	path		string		true	"ID of the stay to confirm check-in"
+//	@Param			request	body		reservation.ReservationCheckInEntity	true	"Check-in details"
+//	@Success		200		{string}	string	"successfully confirmed reservation"
+//	@Failure		400		{object}	response.ResponseError	"Error"
+//	@Failure		401		{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500		{object}	response.ResponseError	"Error"
+//	@Router			/reservation/checkin/{stayId} [post]
 func (h *Handler) ConfirmCheckInReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.ConfirmCheckInReservation"
 
@@ -131,6 +145,19 @@ func (h *Handler) ConfirmCheckInReservation(w http.ResponseWriter, r *http.Reque
 	responseApi.WriteJson(w, r, http.StatusOK, "successfully confirmed reservation")
 }
 
+// ConfirmCheckOutReservation godoc
+//
+//	@Summary		Confirm Check-Out Reservation
+//	@Description	Confirm check-out for a reservation by stay ID
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			stayId	path		string		true	"ID of the stay to confirm check-out"
+//	@Success		200		{string}	string	"successfully confirmed checkout reservation"
+//	@Failure		400		{object}	response.ResponseError	"Error"
+//	@Failure		401		{object}	response.ResponseError	"Unauthorized"
+//	@Failure		500		{object}	response.ResponseError	"Error"
+//	@Router			/reservation/checkout/{stayId} [post]
 func (h *Handler) ConfirmCheckOutReservation(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.reservation.ConfirmCheckOutReservation"
 

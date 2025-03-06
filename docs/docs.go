@@ -1641,6 +1641,115 @@ const docTemplate = `{
                 }
             }
         },
+        "/reservation/checkin/{stayId}": {
+            "post": {
+                "description": "Confirm check-in for a reservation by stay ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Confirm Check-In Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the stay to confirm check-in",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Check-in details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ReservationEntity"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully confirmed reservation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/reservation/checkout/{stayId}": {
+            "post": {
+                "description": "Confirm check-out for a reservation by stay ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reservations"
+                ],
+                "summary": "Confirm Check-Out Reservation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID of the stay to confirm check-out",
+                        "name": "stayId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successfully confirmed checkout reservation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/reservation/user/{userID}": {
             "get": {
                 "description": "Get reservation by user id",
@@ -4128,15 +4237,6 @@ const docTemplate = `{
         "ReservationEntity": {
             "type": "object",
             "properties": {
-                "arrived": {
-                    "type": "string"
-                },
-                "departure": {
-                    "type": "string"
-                },
-                "stay_id": {
-                    "type": "string"
-                },
                 "user_id": {
                     "type": "string"
                 }

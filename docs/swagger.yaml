@@ -71,7 +71,7 @@ definitions:
         additionalProperties:
           type: boolean
         type: object
-      locationName:
+      location_id:
         type: string
       number_of_bedrooms:
         items:
@@ -86,9 +86,9 @@ definitions:
           type: number
         type: array
       sort_by:
-        type: integer
+        $ref: '#/definitions/Sort'
     required:
-    - locationName
+    - location_id
     type: object
   Location:
     properties:
@@ -281,6 +281,20 @@ definitions:
       name:
         type: string
     type: object
+  Sort:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - Nil
+    - Old
+    - New
+    - HighlyRecommended
+    - LowlyRecommended
   Stay:
     properties:
       amenities:
@@ -1839,7 +1853,7 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ResponseError'
-      summary: Get Filtration History
+      summary: Get Search History
       tags:
       - searchHistory
     post:
@@ -1872,7 +1886,7 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ResponseError'
-      summary: Create Filtration History
+      summary: Create Search History
       tags:
       - searchHistory
   /locations:
@@ -1917,7 +1931,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/Location'
+            type: string
         "400":
           description: Error
           schema:
@@ -1979,7 +1993,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/Location'
+            type: string
         "400":
           description: Error
           schema:
@@ -2009,7 +2023,7 @@ paths:
           description: ok
           schema:
             items:
-              $ref: '#/definitions/Location'
+              type: string
             type: array
         "400":
           description: Error
@@ -2570,6 +2584,82 @@ paths:
       summary: Update Stay
       tags:
       - stays
+  /stays/filtration:
+    get:
+      consumes:
+      - application/json
+      description: Filtration stay by filtration
+      parameters:
+      - description: request filtration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Filtration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Filtration
+      tags:
+      - stays
+  /stays/filtration/amenities:
+    get:
+      consumes:
+      - application/json
+      description: Possible amenities values
+      parameters:
+      - description: stay id
+        in: path
+        name: locationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get stay Amenities
+      tags:
+      - stays
+  /stays/filtration/sort:
+    get:
+      consumes:
+      - application/json
+      description: Possible filtration SORT values
+      parameters:
+      - description: stay id
+        in: path
+        name: locationId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get stay filtration sort values
+      tags:
+      - stays
   /stays/images:
     post:
       consumes:
@@ -2943,36 +3033,6 @@ paths:
       summary: Create a new stay report
       tags:
       - staysReports
-  /stays/search:
-    get:
-      consumes:
-      - application/json
-      description: Filtration stay by filtration
-      parameters:
-      - description: request search data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/Filtration'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Filtration
-      tags:
-      - stays
   /stays/user/{userId}:
     get:
       consumes:

@@ -566,7 +566,18 @@ func (h *Handler) Filtration(w http.ResponseWriter, r *http.Request) {
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
-	searchValues.SetDefaults()
+	err = searchValues.SetDefaults()
+	if err != nil {
+		h.Log.Error("%s: %v", op, err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	if len(searchValues.Rating) < 2 && len(searchValues.Rating) != 0 {
+		h.Log.Error("rating should be at least two characters")
+		responseApi.WriteError(w, r, http.StatusBadRequest, "rating should be at least two characters")
+		return
+	}
 
 	result, err := h.Svc.Filtration(r.Context(), searchValues)
 	if err != nil {
@@ -594,9 +605,13 @@ func (h *Handler) GetAmenities(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	// Get all amenities using the AllAmenities function
+	amenities := amenity.AllAmenities()
+
+	// Convert amenities to a slice of strings for the response
 	var result []string
-	for i := amenity.Wifi; i <= amenity.TouchControlPanels; i++ {
-		result = append(result, i.String())
+	for _, a := range amenities {
+		result = append(result, a.String())
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, result)
@@ -619,9 +634,13 @@ func (h *Handler) GetSorts(w http.ResponseWriter, r *http.Request) {
 		slog.String("request_id", middleware.GetReqID(r.Context())),
 	)
 
+	// Get all amenities using the AllAmenities function
+	sorts := sort.AllSorts()
+
+	// Convert amenities to a slice of strings for the response
 	var result []string
-	for i := sort.Nil; i <= sort.LowlyRecommended; i++ {
-		result = append(result, i.String())
+	for _, a := range sorts {
+		result = append(result, a.String())
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, result)

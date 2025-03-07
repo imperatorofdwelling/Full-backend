@@ -23,7 +23,7 @@ type StaysRepo interface {
 	CreateStayImage(ctx context.Context, fileName string, isMain bool, stayID uuid.UUID) error
 	DeleteStayImage(context.Context, uuid.UUID) error
 	GetStaysByLocationID(context.Context, uuid.UUID) (*[]stays.Stay, error)
-	Filtration(ctx context.Context, search stays.Filtration, locationIDS []uuid.UUID) ([]stays.Stay, error)
+	Filtration(ctx context.Context, search stays.Filtration) ([]stays.Stay, error)
 }
 
 //go:generate mockery --name StaysService

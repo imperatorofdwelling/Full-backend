@@ -921,7 +921,7 @@ const docTemplate = `{
                 "tags": [
                     "searchHistory"
                 ],
-                "summary": "Get Filtration History",
+                "summary": "Get Search History",
                 "responses": {
                     "200": {
                         "description": "ok",
@@ -957,7 +957,7 @@ const docTemplate = `{
                 "tags": [
                     "searchHistory"
                 ],
-                "summary": "Create Filtration History",
+                "summary": "Create Search History",
                 "parameters": [
                     {
                         "description": "Name of the search history entry",
@@ -1112,7 +1112,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/Location"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -1154,7 +1154,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/Location"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -1200,7 +1200,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Location"
+                                "type": "string"
                             }
                         }
                     },
@@ -1916,6 +1916,122 @@ const docTemplate = `{
                 }
             }
         },
+        "/stays/filtration": {
+            "get": {
+                "description": "Filtration stay by filtration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Filtration",
+                "parameters": [
+                    {
+                        "description": "request filtration data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Filtration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/filtration/amenities": {
+            "get": {
+                "description": "Possible amenities values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get stay Amenities",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "locationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/filtration/sort": {
+            "get": {
+                "description": "Possible filtration SORT values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get stay filtration sort values",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "stay id",
+                        "name": "locationId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/stays/images": {
             "post": {
                 "description": "Create images (IMPORTANT: not main image). Form data with two rows: stay_id, images in array",
@@ -2464,52 +2580,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/stays/search": {
-            "get": {
-                "description": "Filtration stay by filtration",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stays"
-                ],
-                "summary": "Filtration",
-                "parameters": [
-                    {
-                        "description": "request search data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Filtration"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "created",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3895,7 +3965,7 @@ const docTemplate = `{
         "Filtration": {
             "type": "object",
             "required": [
-                "locationName"
+                "location_id"
             ],
             "properties": {
                 "amenities": {
@@ -3904,7 +3974,7 @@ const docTemplate = `{
                         "type": "boolean"
                     }
                 },
-                "locationName": {
+                "location_id": {
                     "type": "string"
                 },
                 "number_of_bedrooms": {
@@ -3926,7 +3996,7 @@ const docTemplate = `{
                     }
                 },
                 "sort_by": {
-                    "type": "integer"
+                    "$ref": "#/definitions/Sort"
                 }
             }
         },
@@ -4215,6 +4285,23 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "Sort": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "Nil",
+                "Old",
+                "New",
+                "HighlyRecommended",
+                "LowlyRecommended"
+            ]
         },
         "Stay": {
             "type": "object",

@@ -46,7 +46,7 @@ func (h *Handler) NewLocationHandler(r chi.Router) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			locationName	path		string		true	"location name match"
-//	@Success		200	{object}		[]location.Location	"ok"
+//	@Success		200	{object}		[]string	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{locationName} [get]
@@ -127,14 +127,14 @@ func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	location, err := h.Svc.GetByID(r.Context(), idUUID)
+	result, err := h.Svc.GetByID(r.Context(), idUUID)
 	if err != nil {
 		h.Log.Error("failed to find location", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}
 
-	responseApi.WriteJson(w, r, http.StatusOK, location)
+	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 
 // DeleteByID godoc
@@ -145,7 +145,7 @@ func (h *Handler) GetOneByID(w http.ResponseWriter, r *http.Request) {
 //	@Accept			application/json
 //	@Produce		json
 //	@Param			id	path		string		true	"location id"
-//	@Success		200	{object}		location.Location	"ok"
+//	@Success		200	{object}		string	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{id} [delete]
@@ -184,7 +184,7 @@ func (h *Handler) DeleteByID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id	path		string		true	"location id"
 //	@Param			request	body		location.LocationEntity		true	"location request"
-//	@Success		200	{object}		location.Location	"ok"
+//	@Success		200	{object}		string	"ok"
 //	@Failure		400		{object}	response.ResponseError			"Error"
 //	@Failure		default		{object}	response.ResponseError			"Error"
 //	@Router			/locations/{id} [put]

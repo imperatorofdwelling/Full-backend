@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	filtrationSort "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/sort"
 	"github.com/lib/pq"
 	"sort"
 	"strings"
@@ -420,7 +421,7 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	return &stays, nil
 }
 
-func (this *Repo) Filtration(ctx context.Context, search models.Filtration, locationIDS []uuid.UUID) ([]models.Stay, error) {
+func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]models.Stay, error) {
 	const op = "repo.stays.Filtration"
 
 	sort.Float64s(search.Rating)
@@ -442,11 +443,11 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration, loca
 
 	query := `
 		SELECT * FROM stays
-		WHERE location_id = ANY($1) 
+		WHERE location_id = $1
 	`
 
 	args := []interface{}{
-		pq.Array(locationIDS),
+		search.LocationID,
 	}
 	count := 1
 	if search.PriceMin != -1 && search.PriceMax != -1 {
@@ -479,6 +480,23 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration, loca
 		}
 		// Объединяем условия с помощью AND
 		query += " AND (" + strings.Join(conditions, " AND ") + ")"
+	}
+
+	switch search.SortBy {
+	case filtrationSort.Old:
+		query += " ORDER BY created_at ASC"
+		break
+	case filtrationSort.New:
+		query += " ORDER BY created_at DESC"
+		break
+	case filtrationSort.HighlyRecommended:
+		query += " ORDER BY rating DESC, updated_at DESC"
+		break
+	case filtrationSort.LowlyRecommended:
+		query += " ORDER BY rating ASC, updated_at ASC"
+		break
+	default:
+		// No sorting applied
 	}
 
 	stmt, err := this.Db.PrepareContext(ctx, query)

@@ -595,7 +595,6 @@ func (h *Handler) Filtration(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Param			locationId	path		string		true	"stay id"
 //	@Success		200	{object}		[]string		"ok"
 //	@Router			/stays/filtration/amenities [get]
 func (h *Handler) GetAmenities(w http.ResponseWriter, r *http.Request) {
@@ -624,7 +623,6 @@ func (h *Handler) GetAmenities(w http.ResponseWriter, r *http.Request) {
 //	@Tags			stays
 //	@Accept			application/json
 //	@Produce		json
-//	@Param			locationId	path		string		true	"stay id"
 //	@Success		200	{object}		[]string		"ok"
 //	@Router			/stays/filtration/sort [get]
 func (h *Handler) GetSorts(w http.ResponseWriter, r *http.Request) {

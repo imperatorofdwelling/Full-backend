@@ -103,32 +103,36 @@ type (
 
 	// Filtration represents the filtering options for stays.
 	Filtration struct {
-		// LocationID is the UUID of the location to filter stays by. Required value
-		// @Param location_id query string true "Location ID"
+		// LocationID is the UUID of the location to filter stays by. Required value.
+		// @Param location_id query string true "Location ID" Example: "550e8400-e29b-41d4-a716-446655440001"
 		LocationID uuid.UUID `json:"location_id" validate:"required"`
 
-		// SortBy specifies the sorting order for the results. Omitempty value
-		// @Param sort_by query string false "Sort by options: Nil, Old, New, Highly Recommended, Lowly Recommended"
+		// SortBy specifies the sorting order for the results. Omitempty value.
+		// @Param sort_by query string false "Sort by options: Nil, Old, New, Highly Recommended, Lowly Recommended" Example: "New"
 		SortBy sort.Sort `json:"sort_by" validate:"omitempty"`
 
-		// PriceMin is the minimum price for filtering stays. Omitempty value. Need both of min_max values if you use it
-		// @Param price_min query float true "Minimum price"
+		// PriceMin is the minimum price for filtering stays. Omitempty value.
+		// Need both min and max values if you use it.
+		// @Param price_min query float true "Minimum price" Example: 50.0
 		PriceMin float32 `json:"price_min" validate:"omitempty"`
 
-		// PriceMax is the maximum price for filtering stays. Omitempty value. Need both of min_max values if you use it
-		// @Param price_max query float true "Maximum price"
+		// PriceMax is the maximum price for filtering stays. Omitempty value.
+		// Need both min and max values if you use it.
+		// @Param price_max query float true "Maximum price" Example: 200.0
 		PriceMax float32 `json:"price_max" validate:"omitempty"`
 
 		// NumberOfBedrooms specifies the number of bedrooms to filter stays. Omitempty value.
-		// @Param number_of_bedrooms query int32 false "Number of bedrooms"
+		// @Param number_of_bedrooms query int32 false "Number of bedrooms" Example: [1, 2]
 		NumberOfBedrooms []int32 `json:"number_of_bedrooms" validate:"omitempty"`
 
 		// Amenities is a map of amenities to filter stays by. Omitempty value.
-		// @Param amenities query map[string]bool false "Amenities filter"
+		// Example: "amenities": {"Wi-fi": true, "Air conditioner": false}
+		// @Param amenities query map[string]bool false "Amenities filter" Example: {"Wi-fi": true, "Air conditioner": false}
 		Amenities map[amenity.Amenity]bool `json:"amenities" validate:"omitempty"`
 
-		// Rating specifies the rating range for filtering stays. Omitempty value. Need array with min length 2. Example [5,4,3] or [5,4]
-		// @Param rating query float false "Rating range"
+		// Rating specifies the rating range for filtering stays. Omitempty value.
+		// Need an array with a minimum length of 2. Example: [5, 4] or [5, 4, 3]
+		// @Param rating query float false "Rating range" Example: [5, 4]
 		Rating []float64 `json:"rating" validate:"omitempty"`
 	} // @name Filtration
 )

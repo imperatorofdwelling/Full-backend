@@ -70,23 +70,49 @@ definitions:
       amenities:
         additionalProperties:
           type: boolean
+        description: |-
+          Amenities is a map of amenities to filter stays by. Omitempty value.
+          Example: "amenities": {"Wi-fi": true, "Air conditioner": false}
+          @Param amenities query map[string]bool false "Amenities filter" Example: {"Wi-fi": true, "Air conditioner": false}
         type: object
       location_id:
+        description: |-
+          LocationID is the UUID of the location to filter stays by. Required value.
+          @Param location_id query string true "Location ID" Example: "550e8400-e29b-41d4-a716-446655440001"
         type: string
       number_of_bedrooms:
+        description: |-
+          NumberOfBedrooms specifies the number of bedrooms to filter stays. Omitempty value.
+          @Param number_of_bedrooms query int32 false "Number of bedrooms" Example: [1, 2]
         items:
           type: integer
         type: array
       price_max:
+        description: |-
+          PriceMax is the maximum price for filtering stays. Omitempty value.
+          Need both min and max values if you use it.
+          @Param price_max query float true "Maximum price" Example: 200.0
         type: number
       price_min:
+        description: |-
+          PriceMin is the minimum price for filtering stays. Omitempty value.
+          Need both min and max values if you use it.
+          @Param price_min query float true "Minimum price" Example: 50.0
         type: number
       rating:
+        description: |-
+          Rating specifies the rating range for filtering stays. Omitempty value.
+          Need an array with a minimum length of 2. Example: [5, 4] or [5, 4, 3]
+          @Param rating query float false "Rating range" Example: [5, 4]
         items:
           type: number
         type: array
       sort_by:
-        $ref: '#/definitions/Sort'
+        allOf:
+        - $ref: '#/definitions/Sort'
+        description: |-
+          SortBy specifies the sorting order for the results. Omitempty value.
+          @Param sort_by query string false "Sort by options: Nil, Old, New, Highly Recommended, Lowly Recommended" Example: "New"
     required:
     - location_id
     type: object
@@ -283,12 +309,12 @@ definitions:
     type: object
   Sort:
     enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    type: integer
+    - Nil
+    - Old
+    - New
+    - Highly Recommended
+    - Lowly Recommended
+    type: string
     x-enum-varnames:
     - Nil
     - Old
@@ -2619,12 +2645,6 @@ paths:
       consumes:
       - application/json
       description: Possible amenities values
-      parameters:
-      - description: stay id
-        in: path
-        name: locationId
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -2642,12 +2662,6 @@ paths:
       consumes:
       - application/json
       description: Possible filtration SORT values
-      parameters:
-      - description: stay id
-        in: path
-        name: locationId
-        required: true
-        type: string
       produces:
       - application/json
       responses:

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS role_object;
+-- DROP TABLE IF EXISTS role_object;

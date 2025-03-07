@@ -65,6 +65,57 @@ definitions:
         example: "2023-01-01T00:00:00Z"
         type: string
     type: object
+  Filtration:
+    properties:
+      amenities:
+        additionalProperties:
+          type: boolean
+        description: |-
+          Amenities is a map of amenities to filter stays by. Omitempty value.
+          Example: "amenities": {"Wi-fi": true, "Air conditioner": false}
+          @Param amenities query map[string]bool false "Amenities filter" Example: {"Wi-fi": true, "Air conditioner": false}
+        type: object
+      location_id:
+        description: |-
+          LocationID is the UUID of the location to filter stays by. Required value.
+          @Param location_id query string true "Location ID" Example: "550e8400-e29b-41d4-a716-446655440001"
+        type: string
+      number_of_bedrooms:
+        description: |-
+          NumberOfBedrooms specifies the number of bedrooms to filter stays. Omitempty value.
+          @Param number_of_bedrooms query int32 false "Number of bedrooms" Example: [1, 2]
+        items:
+          type: integer
+        type: array
+      price_max:
+        description: |-
+          PriceMax is the maximum price for filtering stays. Omitempty value.
+          Need both min and max values if you use it.
+          @Param price_max query float true "Maximum price" Example: 200.0
+        type: number
+      price_min:
+        description: |-
+          PriceMin is the minimum price for filtering stays. Omitempty value.
+          Need both min and max values if you use it.
+          @Param price_min query float true "Minimum price" Example: 50.0
+        type: number
+      rating:
+        description: |-
+          Rating specifies the rating range for filtering stays. Omitempty value.
+          Need an array with a minimum length of 2. Example: [5, 4] or [5, 4, 3]
+          @Param rating query float false "Rating range" Example: [5, 4]
+        items:
+          type: number
+        type: array
+      sort_by:
+        allOf:
+        - $ref: '#/definitions/Sort'
+        description: |-
+          SortBy specifies the sorting order for the results. Omitempty value.
+          @Param sort_by query string false "Sort by options: Nil, Old, New, Highly Recommended, Lowly Recommended" Example: "New"
+    required:
+    - location_id
+    type: object
   Location:
     properties:
       city:
@@ -256,6 +307,20 @@ definitions:
       name:
         type: string
     type: object
+  Sort:
+    enum:
+    - Nil
+    - Old
+    - New
+    - Highly Recommended
+    - Lowly Recommended
+    type: string
+    x-enum-varnames:
+    - Nil
+    - Old
+    - New
+    - HighlyRecommended
+    - LowlyRecommended
   Stay:
     properties:
       amenities:
@@ -601,33 +666,6 @@ definitions:
         type: string
       user_name:
         type: string
-    type: object
-  github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search:
-    properties:
-      amenities:
-        additionalProperties:
-          type: boolean
-        type: object
-      number_of_bedrooms:
-        items:
-          type: integer
-        type: array
-      price_max:
-        type: number
-      price_min:
-        type: number
-      rating:
-        items:
-          type: integer
-        type: array
-      type:
-        type: string
-    required:
-    - number_of_bedrooms
-    - price_max
-    - price_min
-    - rating
-    - type
     type: object
   sql.NullTime:
     properties:
@@ -1919,7 +1957,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/Location'
+            type: string
         "400":
           description: Error
           schema:
@@ -1981,7 +2019,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/Location'
+            type: string
         "400":
           description: Error
           schema:
@@ -2011,7 +2049,7 @@ paths:
           description: ok
           schema:
             items:
-              $ref: '#/definitions/Location'
+              type: string
             type: array
         "400":
           description: Error
@@ -2572,6 +2610,70 @@ paths:
       summary: Update Stay
       tags:
       - stays
+  /stays/filtration:
+    get:
+      consumes:
+      - application/json
+      description: Filtration stay by filtration
+      parameters:
+      - description: request filtration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Filtration'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Filtration
+      tags:
+      - stays
+  /stays/filtration/amenities:
+    get:
+      consumes:
+      - application/json
+      description: Possible amenities values
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get stay Amenities
+      tags:
+      - stays
+  /stays/filtration/sort:
+    get:
+      consumes:
+      - application/json
+      description: Possible filtration SORT values
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+      summary: Get stay filtration sort values
+      tags:
+      - stays
   /stays/images:
     post:
       consumes:
@@ -2945,36 +3047,6 @@ paths:
       summary: Create a new stay report
       tags:
       - staysReports
-  /stays/search:
-    get:
-      consumes:
-      - application/json
-      description: Search stay by filtration
-      parameters:
-      - description: request search data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: created
-          schema:
-            type: string
-        "400":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-        "500":
-          description: Error
-          schema:
-            $ref: '#/definitions/ResponseError'
-      summary: Search
-      tags:
-      - stays
   /stays/user/{userId}:
     get:
       consumes:

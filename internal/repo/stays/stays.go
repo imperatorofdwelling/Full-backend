@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"github.com/gofrs/uuid"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
+	filtrationSort "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/sort"
 	"github.com/lib/pq"
+	"sort"
 	"strings"
 	"time"
 )
@@ -419,21 +421,17 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	return &stays, nil
 }
 
-func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.Stay, error) {
-	const op = "repo.stays.Search"
+func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]models.Stay, error) {
+	const op = "repo.stays.Filtration"
 
-	// Создаем временный срез для хранения значений рейтинга в float64
-	var ratingsFloat64 []float64
-	for _, r := range search.Rating {
-		ratingsFloat64 = append(ratingsFloat64, float64(r))
-	}
+	sort.Float64s(search.Rating)
 
 	// Находим минимальный и максимальный рейтинг
 	var minRating, maxRating float64
-	if len(ratingsFloat64) > 0 {
-		minRating = ratingsFloat64[0]
-		maxRating = ratingsFloat64[0]
-		for _, r := range ratingsFloat64 {
+	if len(search.Rating) > 0 {
+		minRating = search.Rating[0]
+		maxRating = search.Rating[0]
+		for _, r := range search.Rating {
 			if r < minRating {
 				minRating = r
 			}
@@ -445,20 +443,31 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 
 	query := `
 		SELECT * FROM stays
-		WHERE type = $1 
-		AND price BETWEEN $2 AND $3
-		AND number_of_bedrooms = ANY($4)
-		AND rating BETWEEN $5 AND $6
+		WHERE location_id = $1
 	`
-	numberOfBedroomsArray := pq.Array(search.NumberOfBedrooms)
 
 	args := []interface{}{
-		search.Type,
-		search.PriceMin,
-		search.PriceMax,
-		numberOfBedroomsArray,
-		minRating,
-		maxRating,
+		search.LocationID,
+	}
+	count := 1
+	if search.PriceMin != -1 && search.PriceMax != -1 {
+		count++
+		nextCount := count + 1
+		query += fmt.Sprintf(" AND price BETWEEN $%d AND $%d", count, nextCount)
+		args = append(args, fmt.Sprintf("%f", search.PriceMin), fmt.Sprintf("%f", search.PriceMax))
+		count++
+	}
+	if len(search.NumberOfBedrooms) > 0 {
+		count++
+		query += fmt.Sprintf(" AND number_of_bedrooms = ANY($%d)", count)
+		args = append(args, pq.Array(search.NumberOfBedrooms))
+	}
+	if len(search.Rating) > 0 {
+		count++
+		nextCount := count + 1
+		query += fmt.Sprintf(" AND rating BETWEEN $%d AND $%d", count, nextCount)
+		args = append(args, fmt.Sprintf("%f", search.Rating[0]), fmt.Sprintf("%f", search.Rating[1]))
+		count++
 	}
 
 	if len(search.Amenities) > 0 {
@@ -471,6 +480,23 @@ func (this *Repo) Search(ctx context.Context, search models.Search) ([]models.St
 		}
 		// Объединяем условия с помощью AND
 		query += " AND (" + strings.Join(conditions, " AND ") + ")"
+	}
+
+	switch search.SortBy {
+	case filtrationSort.Old:
+		query += " ORDER BY created_at ASC"
+		break
+	case filtrationSort.New:
+		query += " ORDER BY created_at DESC"
+		break
+	case filtrationSort.HighlyRecommended:
+		query += " ORDER BY rating DESC, updated_at DESC"
+		break
+	case filtrationSort.LowlyRecommended:
+		query += " ORDER BY rating ASC, updated_at ASC"
+		break
+	default:
+		// No sorting applied
 	}
 
 	stmt, err := this.Db.PrepareContext(ctx, query)

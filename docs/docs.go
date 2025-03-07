@@ -1112,7 +1112,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/Location"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -1154,7 +1154,7 @@ const docTemplate = `{
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/Location"
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -1200,7 +1200,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Location"
+                                "type": "string"
                             }
                         }
                     },
@@ -1916,6 +1916,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/stays/filtration": {
+            "get": {
+                "description": "Filtration stay by filtration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Filtration",
+                "parameters": [
+                    {
+                        "description": "request filtration data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Filtration"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/filtration/amenities": {
+            "get": {
+                "description": "Possible amenities values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get stay Amenities",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stays/filtration/sort": {
+            "get": {
+                "description": "Possible filtration SORT values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get stay filtration sort values",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/stays/images": {
             "post": {
                 "description": "Create images (IMPORTANT: not main image). Form data with two rows: stay_id, images in array",
@@ -2464,52 +2562,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
-                        }
-                    }
-                }
-            }
-        },
-        "/stays/search": {
-            "get": {
-                "description": "Search stay by filtration",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "stays"
-                ],
-                "summary": "Search",
-                "parameters": [
-                    {
-                        "description": "request search data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "created",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
-                        }
-                    },
-                    "500": {
-                        "description": "Error",
-                        "schema": {
-                            "$ref": "#/definitions/ResponseError"
                         }
                     }
                 }
@@ -3892,6 +3944,55 @@ const docTemplate = `{
                 }
             }
         },
+        "Filtration": {
+            "type": "object",
+            "required": [
+                "location_id"
+            ],
+            "properties": {
+                "amenities": {
+                    "description": "Amenities is a map of amenities to filter stays by. Omitempty value.\nExample: \"amenities\": {\"Wi-fi\": true, \"Air conditioner\": false}\n@Param amenities query map[string]bool false \"Amenities filter\" Example: {\"Wi-fi\": true, \"Air conditioner\": false}",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "boolean"
+                    }
+                },
+                "location_id": {
+                    "description": "LocationID is the UUID of the location to filter stays by. Required value.\n@Param location_id query string true \"Location ID\" Example: \"550e8400-e29b-41d4-a716-446655440001\"",
+                    "type": "string"
+                },
+                "number_of_bedrooms": {
+                    "description": "NumberOfBedrooms specifies the number of bedrooms to filter stays. Omitempty value.\n@Param number_of_bedrooms query int32 false \"Number of bedrooms\" Example: [1, 2]",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "price_max": {
+                    "description": "PriceMax is the maximum price for filtering stays. Omitempty value.\nNeed both min and max values if you use it.\n@Param price_max query float true \"Maximum price\" Example: 200.0",
+                    "type": "number"
+                },
+                "price_min": {
+                    "description": "PriceMin is the minimum price for filtering stays. Omitempty value.\nNeed both min and max values if you use it.\n@Param price_min query float true \"Minimum price\" Example: 50.0",
+                    "type": "number"
+                },
+                "rating": {
+                    "description": "Rating specifies the rating range for filtering stays. Omitempty value.\nNeed an array with a minimum length of 2. Example: [5, 4] or [5, 4, 3]\n@Param rating query float false \"Rating range\" Example: [5, 4]",
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "sort_by": {
+                    "description": "SortBy specifies the sorting order for the results. Omitempty value.\n@Param sort_by query string false \"Sort by options: Nil, Old, New, Highly Recommended, Lowly Recommended\" Example: \"New\"",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/Sort"
+                        }
+                    ]
+                }
+            }
+        },
         "Location": {
             "type": "object",
             "properties": {
@@ -4177,6 +4278,23 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "Sort": {
+            "type": "string",
+            "enum": [
+                "Nil",
+                "Old",
+                "New",
+                "Highly Recommended",
+                "Lowly Recommended"
+            ],
+            "x-enum-varnames": [
+                "Nil",
+                "Old",
+                "New",
+                "HighlyRecommended",
+                "LowlyRecommended"
+            ]
         },
         "Stay": {
             "type": "object",
@@ -4685,45 +4803,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_imperatorofdwelling_Full-backend_internal_domain_models_stays.Search": {
-            "type": "object",
-            "required": [
-                "number_of_bedrooms",
-                "price_max",
-                "price_min",
-                "rating",
-                "type"
-            ],
-            "properties": {
-                "amenities": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "boolean"
-                    }
-                },
-                "number_of_bedrooms": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "price_max": {
-                    "type": "number"
-                },
-                "price_min": {
-                    "type": "number"
-                },
-                "rating": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "type": {
                     "type": "string"
                 }
             }

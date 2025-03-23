@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"time"
 )
@@ -186,6 +187,28 @@ func (s *Service) GetAllReservationsByUser(ctx context.Context, id uuid.UUID) (*
 	// TODO Check user if exists
 
 	reserv, err := s.Repo.GetAllReservationsByUserID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return reserv, nil
+}
+
+func (s *Service) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "service.reservation.GetFreeReservationsByUserID"
+
+	reserv, err := s.Repo.GetFreeReservationsByUserID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return reserv, nil
+}
+
+func (s *Service) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "service.reservation.GetOccupiedReservationsByUserID"
+
+	reserv, err := s.Repo.GetOccupiedReservationsByUserID(ctx, id)
 	if err != nil {
 		return nil, err
 	}

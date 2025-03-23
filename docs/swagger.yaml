@@ -2505,6 +2505,68 @@ paths:
       summary: Confirm Check-Out Reservation
       tags:
       - reservations
+  /reservation/free/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: Get free reservations by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of free reservations
+          schema:
+            items:
+              $ref: '#/definitions/Stay'
+            type: array
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Failed to fetch reservations
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get free reservations
+      tags:
+      - reservations
+  /reservation/occupied/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: Get reservations by user ID where check-out is false
+      parameters:
+      - description: user id
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/Stay'
+            type: array
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get occupied reservations
+      tags:
+      - reservations
   /reservation/user/{userID}:
     get:
       consumes:

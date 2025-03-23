@@ -3,9 +3,11 @@ package reservation
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"github.com/imperatorofdwelling/Full-backend/internal/service"
 	"github.com/imperatorofdwelling/Full-backend/pkg/checkers"
 	"github.com/pkg/errors"
@@ -340,6 +342,109 @@ func (r *Repo) GetAllReservationsByUserID(ctx context.Context, id uuid.UUID) (*[
 	}
 
 	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &reservations, nil
+}
+
+func (r *Repo) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "repo.reservation.GetFreeReservationsByUserID"
+
+	query := `
+		SELECT 
+			id, user_id, location_id, name, type, number_of_bedrooms, 
+			number_of_beds, number_of_bathrooms, guests, rating, 
+			amenities, is_smoking_prohibited, square, street, house, 
+			entrance, floor, room, price, created_at, updated_at
+		FROM stays 
+		WHERE user_id = $1 
+		AND id NOT IN (SELECT stay_id FROM reservations WHERE check_out = false)`
+
+	rows, err := r.Db.QueryContext(ctx, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	var reservations []stays.Stay
+
+	for rows.Next() {
+		var reserv stays.Stay
+		var amenitiesJSON []byte
+
+		err = rows.Scan(
+			&reserv.ID, &reserv.UserID, &reserv.LocationID, &reserv.Name, &reserv.Type,
+			&reserv.NumberOfBedrooms, &reserv.NumberOfBeds, &reserv.NumberOfBathrooms,
+			&reserv.Guests, &reserv.Rating, &amenitiesJSON, &reserv.IsSmokingProhibited,
+			&reserv.Square, &reserv.Street, &reserv.House, &reserv.Entrance,
+			&reserv.Floor, &reserv.Room, &reserv.Price, &reserv.CreatedAt, &reserv.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = json.Unmarshal(amenitiesJSON, &reserv.Amenities)
+		if err != nil {
+			return nil, fmt.Errorf("%s: failed to parse amenities JSON: %w", op, err)
+		}
+
+		reservations = append(reservations, reserv)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &reservations, nil
+}
+
+func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+	const op = "repo.reservation.GetOccupiedReservationsByUserID"
+
+	query := `
+		SELECT 
+			id, user_id, location_id, name, type, number_of_bedrooms, 
+			number_of_beds, number_of_bathrooms, guests, rating, 
+			amenities, is_smoking_prohibited, square, street, house, 
+			entrance, floor, room, price, created_at, updated_at
+		FROM stays 
+		WHERE user_id = $1 
+		AND id IN (SELECT stay_id FROM reservations WHERE check_out = false)
+`
+
+	rows, err := r.Db.QueryContext(ctx, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	defer rows.Close()
+
+	var reservations []stays.Stay
+
+	for rows.Next() {
+		var reserv stays.Stay
+		var amenitiesJSON []byte
+
+		err = rows.Scan(
+			&reserv.ID, &reserv.UserID, &reserv.LocationID, &reserv.Name, &reserv.Type,
+			&reserv.NumberOfBedrooms, &reserv.NumberOfBeds, &reserv.NumberOfBathrooms,
+			&reserv.Guests, &reserv.Rating, &amenitiesJSON, &reserv.IsSmokingProhibited,
+			&reserv.Square, &reserv.Street, &reserv.House, &reserv.Entrance,
+			&reserv.Floor, &reserv.Room, &reserv.Price, &reserv.CreatedAt, &reserv.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+
+		err = json.Unmarshal(amenitiesJSON, &reserv.Amenities)
+		if err != nil {
+			return nil, fmt.Errorf("%s: failed to parse amenities JSON: %w", op, err)
+		}
+
+		reservations = append(reservations, reserv)
+	}
+
+	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 

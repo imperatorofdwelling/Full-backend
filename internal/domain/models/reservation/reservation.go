@@ -14,9 +14,12 @@ type (
 
 	ReservationEntity struct {
 		StayID    uuid.UUID `json:"stay_id"`
-		UserID    uuid.UUID `json:"user_id"`
 		Arrived   time.Time `json:"arrived"`
 		Departure time.Time `json:"departure"`
+	} // @name ReservationEntity
+
+	ReservationCheckInEntity struct {
+		UserID uuid.UUID `json:"user_id"`
 	} // @name ReservationEntity
 
 	Reservation struct {

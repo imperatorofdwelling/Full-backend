@@ -275,12 +275,6 @@ definitions:
     type: object
   ReservationEntity:
     properties:
-      arrived:
-        type: string
-      departure:
-        type: string
-      stay_id:
-        type: string
       user_id:
         type: string
     type: object
@@ -2437,6 +2431,78 @@ paths:
           schema:
             $ref: '#/definitions/ResponseError'
       summary: Update Reservation
+      tags:
+      - reservations
+  /reservation/checkin/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Confirm check-in for a reservation by stay ID
+      parameters:
+      - description: ID of the stay to confirm check-in
+        in: path
+        name: stayId
+        required: true
+        type: string
+      - description: Check-in details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ReservationEntity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully confirmed reservation
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Confirm Check-In Reservation
+      tags:
+      - reservations
+  /reservation/checkout/{stayId}:
+    post:
+      consumes:
+      - application/json
+      description: Confirm check-out for a reservation by stay ID
+      parameters:
+      - description: ID of the stay to confirm check-out
+        in: path
+        name: stayId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: successfully confirmed checkout reservation
+          schema:
+            type: string
+        "400":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Confirm Check-Out Reservation
       tags:
       - reservations
   /reservation/user/{userID}:

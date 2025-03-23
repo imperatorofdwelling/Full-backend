@@ -399,19 +399,21 @@ func (r *Repo) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*
 	return &reservations, nil
 }
 
-func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.StayOccupied, error) {
 	const op = "repo.reservation.GetOccupiedReservationsByUserID"
 
 	query := `
 		SELECT 
-			id, user_id, location_id, name, type, number_of_bedrooms, 
-			number_of_beds, number_of_bathrooms, guests, rating, 
-			amenities, is_smoking_prohibited, square, street, house, 
-			entrance, floor, room, price, created_at, updated_at
-		FROM stays 
-		WHERE user_id = $1 
-		AND id IN (SELECT stay_id FROM reservations WHERE check_out = false)
-`
+			s.id, s.user_id, s.location_id, s.name, s.type, s.number_of_bedrooms, 
+			s.number_of_beds, s.number_of_bathrooms, s.guests, s.rating, 
+			s.amenities, s.is_smoking_prohibited, s.square, s.street, s.house, 
+			s.entrance, s.floor, s.room, s.price, s.created_at, s.updated_at,
+			r.arrived, r.departure
+		FROM stays s
+		JOIN reservations r ON s.id = r.stay_id
+		WHERE s.user_id = $1 
+		AND r.check_out = false
+	`
 
 	rows, err := r.Db.QueryContext(ctx, query, id)
 	if err != nil {
@@ -419,10 +421,10 @@ func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID
 	}
 	defer rows.Close()
 
-	var reservations []stays.Stay
+	var reservations []stays.StayOccupied
 
 	for rows.Next() {
-		var reserv stays.Stay
+		var reserv stays.StayOccupied
 		var amenitiesJSON []byte
 
 		err = rows.Scan(
@@ -431,6 +433,7 @@ func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID
 			&reserv.Guests, &reserv.Rating, &amenitiesJSON, &reserv.IsSmokingProhibited,
 			&reserv.Square, &reserv.Street, &reserv.House, &reserv.Entrance,
 			&reserv.Floor, &reserv.Room, &reserv.Price, &reserv.CreatedAt, &reserv.UpdatedAt,
+			&reserv.ArrivedAt, &reserv.DepartureAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)

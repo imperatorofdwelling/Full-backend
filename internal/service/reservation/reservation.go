@@ -205,7 +205,7 @@ func (s *Service) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID)
 	return reserv, nil
 }
 
-func (s *Service) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error) {
+func (s *Service) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.StayOccupied, error) {
 	const op = "service.reservation.GetOccupiedReservationsByUserID"
 
 	reserv, err := s.Repo.GetOccupiedReservationsByUserID(ctx, id)

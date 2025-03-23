@@ -25,7 +25,7 @@ type ReservationRepo interface {
 	ConfirmCheckOutReservation(context.Context, string, string) error
 	CheckTimeForCheckOutReservation(context.Context, string, string) (bool, error)
 	GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
-	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
+	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.StayOccupied, error)
 }
 
 //go:generate mockery --name ReservationService
@@ -39,7 +39,7 @@ type ReservationService interface {
 	ConfirmCheckInReservation(context.Context, string, string, reservation.ReservationCheckInEntity) error
 	ConfirmCheckOutReservation(context.Context, string, string) error
 	GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
-	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
+	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.StayOccupied, error)
 }
 
 type ReservationHandler interface {

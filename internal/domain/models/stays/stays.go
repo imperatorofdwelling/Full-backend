@@ -82,6 +82,32 @@ type (
 		UpdatedAt           time.Time                `json:"updated_at"`
 	} // @name Stay
 
+	StayOccupied struct {
+		ID                  uuid.UUID       `json:"id"`
+		UserID              uuid.UUID       `json:"user_id"`
+		LocationID          uuid.UUID       `json:"location_id"`
+		Name                string          `json:"name"`
+		Type                StayType        `json:"type"`
+		NumberOfBedrooms    int             `json:"number_of_bedrooms"`
+		NumberOfBeds        int             `json:"number_of_beds"`
+		NumberOfBathrooms   int             `json:"number_of_bathrooms"`
+		Guests              int             `json:"guests"`
+		Rating              float64         `json:"rating"`
+		Amenities           map[string]bool `json:"amenities" validate:"required"`
+		IsSmokingProhibited bool            `json:"is_smoking_prohibited"`
+		Square              float32         `json:"square"`
+		Street              string          `json:"street"`
+		House               string          `json:"house"`
+		Entrance            string          `json:"entrance"`
+		Floor               string          `json:"floor"`
+		Room                string          `json:"room"`
+		Price               float32         `json:"price"`
+		CreatedAt           time.Time       `json:"created_at"`
+		UpdatedAt           time.Time       `json:"updated_at"`
+		ArrivedAt           time.Time       `json:"arrived_at"`
+		DepartureAt         time.Time       `json:"departure_at"`
+	} // @name StayOccupied
+
 	StayImagesEntity struct {
 		Images []byte    `json:"images"`
 		StayID uuid.UUID `json:"stay_id"`

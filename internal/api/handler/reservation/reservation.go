@@ -9,6 +9,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
 	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/response"
+	_ "github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
@@ -33,9 +34,13 @@ func (h *Handler) NewReservationHandler(r chi.Router) {
 
 			r.Put("/{reservationID}", h.UpdateReservation)
 			r.Delete("/{reservationID}", h.DeleteReservationByID)
+
 			r.Get("/{reservationID}", h.GetReservationByID)
 
 			r.Get("/user/userID", h.GetAllReservationsByUser)
+
+			r.Get("/free/{userID}", h.GetFreeReservationsByUserID)
+			r.Get("/occupied/{userID}", h.GetOccupiedReservationsByUserID)
 		})
 	})
 }
@@ -355,4 +360,80 @@ func (h *Handler) GetAllReservationsByUser(w http.ResponseWriter, r *http.Reques
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, reservs)
+}
+
+// GetFreeReservationsByUserID godoc
+//
+//	@Summary		Get free reservations
+//	@Description	Get free reservations by user ID
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			userID	path		string		true	"User ID"
+//	@Success		200	{object}		[]stays.Stay	"List of free reservations"
+//	@Failure		400	{object}		response.ResponseError	"Invalid user ID"
+//	@Failure		500	{object}		response.ResponseError	"Failed to fetch reservations"
+//	@Router			/reservation/free/{userID} [get]
+func (h *Handler) GetFreeReservationsByUserID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.GetFreeReservationsByUserID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	id := chi.URLParam(r, "userID")
+	uuID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	freeReservations, err := h.Svc.GetFreeReservationsByUserID(context.Background(), uuID)
+	if err != nil {
+		h.Log.Error("failed to get free reservations", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, freeReservations)
+}
+
+// GetOccupiedReservationsByUserID godoc
+//
+//	@Summary		Get occupied reservations
+//	@Description	Get reservations by user ID where check-out is false
+//	@Tags			reservations
+//	@Accept			application/json
+//	@Produce		json
+//	@Param			userID	path		string		true	"user id"
+//	@Success		200	{object}		[]stays.Stay	"ok"
+//	@Failure		400	{object}		response.ResponseError	"Error"
+//	@Failure		500	{object}		response.ResponseError	"Error"
+//	@Router			/reservation/occupied/{userID} [get]
+func (h *Handler) GetOccupiedReservationsByUserID(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.reservation.GetOccupiedReservationsByUserID"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	id := chi.URLParam(r, "userID")
+	uuID, err := uuid.FromString(id)
+	if err != nil {
+		h.Log.Error("failed to parse UUID", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
+		return
+	}
+
+	occupiedReservations, err := h.Svc.GetOccupiedReservationsByUserID(context.Background(), uuID)
+	if err != nil {
+		h.Log.Error("failed to get occupied reservations", slogError.Err(err))
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, occupiedReservations)
 }

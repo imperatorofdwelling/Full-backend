@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/reservation"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
 	"net/http"
 )
 
@@ -23,6 +24,8 @@ type ReservationRepo interface {
 	CheckIfUserIsOwner(context.Context, uuid.UUID, uuid.UUID) (bool, error)
 	ConfirmCheckOutReservation(context.Context, string, string) error
 	CheckTimeForCheckOutReservation(context.Context, string, string) (bool, error)
+	GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
+	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
 }
 
 //go:generate mockery --name ReservationService
@@ -35,6 +38,8 @@ type ReservationService interface {
 	GetAllReservationsByUser(context.Context, uuid.UUID) (*[]reservation.Reservation, error)
 	ConfirmCheckInReservation(context.Context, string, string, reservation.ReservationCheckInEntity) error
 	ConfirmCheckOutReservation(context.Context, string, string) error
+	GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
+	GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID) (*[]stays.Stay, error)
 }
 
 type ReservationHandler interface {
@@ -45,4 +50,6 @@ type ReservationHandler interface {
 	GetAllReservationsByUser(http.ResponseWriter, *http.Request)
 	ConfirmCheckInReservation(http.ResponseWriter, *http.Request)
 	ConfirmCheckOutReservation(http.ResponseWriter, *http.Request)
+	GetFreeReservationsByUserID(http.ResponseWriter, *http.Request)
+	GetOccupiedReservationsByUserID(http.ResponseWriter, *http.Request)
 }

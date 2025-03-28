@@ -13,6 +13,7 @@ import (
 	mw "github.com/imperatorofdwelling/Full-backend/internal/middleware"
 	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger/slogError"
+	"golang.org/x/net/context"
 	"log/slog"
 	"net/http"
 )
@@ -41,6 +42,7 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 
 		r.Group(func(r chi.Router) {
 			r.Get("/", h.GetStays)
+			r.Get("/statistics/{userId}", h.GetStatistics)
 			r.Get("/{stayId}", h.GetStayByID)
 			r.Get("/user/{userId}", h.GetStaysByUserID)
 			r.Get("/images/{stayId}", h.GetStayImagesByStayID)
@@ -51,6 +53,38 @@ func (h *Handler) NewStaysHandler(r chi.Router) {
 			r.Get("/filtration/sort", h.GetSorts)
 		})
 	})
+}
+
+// GetStatistics godoc
+//
+//	@Summary		Get Statistics
+//	@Description	Retrieve statistics for a specific user based on their userId
+//	@Tags			stays
+//	@Accept			json
+//	@Produce		json
+//	@Param			userId	path		string	true	"User ID to retrieve statistics"
+//	@Success		200		{object}	model.Statistics	"Successfully retrieved statistics"
+//	@Failure		400		{object}	response.ResponseError		"Invalid request or missing userId"
+//	@Failure		500		{object}	response.ResponseError		"Internal server error"
+//	@Router			/stays/statistics/{userId} [get]
+func (h *Handler) GetStatistics(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.stays.GetStatistics"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID := chi.URLParam(r, "userId")
+
+	statistics, err := h.Svc.GetStatistics(context.Background(), userID)
+	if err != nil {
+		h.Log.Error("Failed to get statistics", err.Error())
+		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, statistics)
 }
 
 // CreateStay godoc

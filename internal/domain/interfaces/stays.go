@@ -24,6 +24,7 @@ type StaysRepo interface {
 	DeleteStayImage(context.Context, uuid.UUID) error
 	GetStaysByLocationID(context.Context, uuid.UUID) (*[]stays.Stay, error)
 	Filtration(ctx context.Context, search stays.Filtration) ([]stays.Stay, error)
+	GetStatistics(ctx context.Context, userID string) (*stays.Statistics, error)
 }
 
 //go:generate mockery --name StaysService
@@ -41,6 +42,7 @@ type StaysService interface {
 	DeleteStayImage(context.Context, uuid.UUID) error
 	GetStaysByLocationID(context.Context, uuid.UUID) (*[]stays.Stay, error)
 	Filtration(ctx context.Context, search stays.Filtration) ([]stays.Stay, error)
+	GetStatistics(ctx context.Context, userID string) (*stays.Statistics, error)
 }
 
 type StaysHandler interface {
@@ -57,4 +59,5 @@ type StaysHandler interface {
 	DeleteStayImage(http.ResponseWriter, *http.Request)
 	GetStaysByLocationID(http.ResponseWriter, *http.Request)
 	Filtration(http.ResponseWriter, *http.Request)
+	GetStatistics(http.ResponseWriter, *http.Request)
 }

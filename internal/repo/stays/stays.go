@@ -35,6 +35,39 @@ func (r *Repo) CreateStay(ctx context.Context, stay *models.StayEntity) error {
 	return nil
 }
 
+func (r *Repo) GetStatistics(ctx context.Context, userId string) (*models.Statistics, error) {
+	const op = "repo.stays.GetStatistics"
+
+	query := `SELECT 
+				COUNT(*) AS total_stays,
+				COUNT(*) FILTER (WHERE NOT EXISTS (
+					SELECT 1 FROM reservations r 
+					WHERE r.stay_id = s.id 
+					AND r.arrived <= NOW() 
+					AND r.departure > NOW()
+				)) AS stay_free,
+				COUNT(*) FILTER (WHERE EXISTS (
+					SELECT 1 FROM reservations r 
+					WHERE r.stay_id = s.id 
+					AND r.arrived <= NOW() 
+					AND r.departure > NOW()
+				)) AS stay_occupied
+			FROM stays s
+			WHERE s.user_id = $1;
+			`
+
+	row := r.Db.QueryRowContext(ctx, query, userId)
+
+	var statistics models.Statistics
+
+	err := row.Scan(&statistics.StayTotal, &statistics.StayFree, &statistics.StayOccupied)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &statistics, nil
+}
+
 func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, error) {
 	const op = "repo.stays.getStayByID"
 

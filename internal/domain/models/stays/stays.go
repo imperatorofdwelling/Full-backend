@@ -36,6 +36,12 @@ type (
 		Price               float32                  `json:"price" validate:"required"`
 	} // @name StayEntity
 
+	Statistics struct {
+		StayTotal    int `json:"total_stays"`
+		StayFree     int `json:"stay_free"`
+		StayOccupied int `json:"stay_occupied"`
+	} // @name StayStatistics
+
 	StayEntityFav struct {
 		ID                  uuid.UUID                `json:"id"`
 		UserID              uuid.UUID                `json:"user_id" validate:"required,uuid"`

@@ -571,6 +571,15 @@ definitions:
     required:
     - amenities
     type: object
+  StayStatistics:
+    properties:
+      stay_free:
+        type: integer
+      stay_occupied:
+        type: integer
+      total_stays:
+        type: integer
+    type: object
   StaysReportEntity:
     properties:
       description:
@@ -3175,6 +3184,35 @@ paths:
       summary: Create a new stay report
       tags:
       - staysReports
+  /stays/statistics/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve statistics for a specific user based on their userId
+      parameters:
+      - description: User ID to retrieve statistics
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved statistics
+          schema:
+            $ref: '#/definitions/StayStatistics'
+        "400":
+          description: Invalid request or missing userId
+          schema:
+            $ref: '#/definitions/ResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/ResponseError'
+      summary: Get Statistics
+      tags:
+      - stays
   /stays/user/{userId}:
     get:
       consumes:

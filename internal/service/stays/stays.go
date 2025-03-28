@@ -48,6 +48,17 @@ func (s *Service) CreateStay(ctx context.Context, stay *stays.StayEntity) error 
 	return nil
 }
 
+func (s *Service) GetStatistics(ctx context.Context, userID string) (*stays.Statistics, error) {
+	const op = "service.stays.GetStatistics"
+
+	statistics, err := s.Repo.GetStatistics(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return statistics, nil
+}
+
 func (s *Service) GetStayByID(ctx context.Context, id uuid.UUID) (*stays.Stay, error) {
 	const op = "service.stays.GetStayByID"
 

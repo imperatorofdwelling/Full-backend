@@ -2770,6 +2770,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/stays/statistics/{userId}": {
+            "get": {
+                "description": "Retrieve statistics for a specific user based on their userId",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stays"
+                ],
+                "summary": "Get Statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID to retrieve statistics",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved statistics",
+                        "schema": {
+                            "$ref": "#/definitions/StayStatistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or missing userId",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ResponseError"
+                        }
+                    }
+                }
+            }
+        },
         "/stays/user/{userId}": {
             "get": {
                 "description": "Get stays by user id",
@@ -4861,6 +4905,20 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "StayStatistics": {
+            "type": "object",
+            "properties": {
+                "stay_free": {
+                    "type": "integer"
+                },
+                "stay_occupied": {
+                    "type": "integer"
+                },
+                "total_stays": {
+                    "type": "integer"
                 }
             }
         },

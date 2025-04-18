@@ -11,7 +11,9 @@ const (
 	PayoutReqTopic  = "payout"
 )
 
-var ServerAddr = []string{"kafka-1:9090", "kafka-2:9090", "kafka-3:9090"}
+var ServerAddr = []string{"kafka-1:9090"}
+//"kafka-2:9090",
+//"kafka-3:9090",
 
 type Producer struct {
 	sync sarama.SyncProducer

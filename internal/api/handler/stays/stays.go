@@ -79,7 +79,7 @@ func (h *Handler) GetStatistics(w http.ResponseWriter, r *http.Request) {
 
 	statistics, err := h.Svc.GetStatistics(context.Background(), userID)
 	if err != nil {
-		h.Log.Error("Failed to get statistics", err.Error())
+		h.Log.Error("Failed to get statistics", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
 		return
 	}

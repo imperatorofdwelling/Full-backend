@@ -7,9 +7,6 @@ CREATE TABLE IF NOT EXISTS stays
     location_id UUID NOT NULL,
     name VARCHAR(255) DEFAULT '',
     type STAYS_TYPE NOT NULL DEFAULT 'apartment',
-    number_of_bedrooms INTEGER DEFAULT 0,
-    number_of_beds INTEGER DEFAULT 0,
-    number_of_bathrooms INTEGER DEFAULT 0,
     guests INTEGER DEFAULT 1,
     rating FLOAT DEFAULT 0.0,
     amenities JSONB DEFAULT JSONB_BUILD_OBJECT(
@@ -26,16 +23,19 @@ CREATE TABLE IF NOT EXISTS stays
                                                   'Voice assistant', false,
                                                   'Touch control panels', false
                                               ),
-    is_smoking_prohibited BOOLEAN DEFAULT false,
-    square FLOAT NOT NULL,
-    street VARCHAR(255) DEFAULT '',
+
     house VARCHAR(255) DEFAULT '',
     entrance VARCHAR(255) DEFAULT '',
-    floor VARCHAR(255) DEFAULT '',
-    room VARCHAR(255) DEFAULT '',
-    price DECIMAL(15, 2) DEFAULT 0.0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    address TEXT NOT NULL DEFAULT '',
+    rooms_count TEXT NOT NULL DEFAULT '',
+    beds_count TEXT NOT NULL DEFAULT '',
+    price TEXT NOT NULL DEFAULT '',
+    period TEXT NOT NULL DEFAULT '',
+    owners_rules TEXT NOT NULL DEFAULT '',
+    cancellation_policy TEXT NOT NULL DEFAULT '',
+    describe_property TEXT NOT NULL DEFAULT '',
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE NO ACTION,
     FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE NO ACTION

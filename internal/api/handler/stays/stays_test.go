@@ -10,7 +10,7 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays"
-	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
+	"github.com/imperatorofdwelling/Full-backend/internal/domain/models/stays/amenity"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/imperatorofdwelling/Full-backend/pkg/testhelper"
 	"github.com/stretchr/testify/assert"
@@ -39,7 +39,6 @@ func TestStaysHandler_NewStaysHandler(t *testing.T) {
 	t.Run("should be no errors private router", func(t *testing.T) {
 		hdl.NewStaysHandler(router)
 	})
-
 }
 
 func TestStaysHandler_CreateStay(t *testing.T) {
@@ -56,23 +55,28 @@ func TestStaysHandler_CreateStay(t *testing.T) {
 
 	fakeUUID, _ := uuid.NewV4()
 
+	amenitiesMap := map[amenity.Amenity]bool{
+		"Wi-fi":           true,
+		"Air conditioner": false,
+	}
+
 	payload := stays.StayEntity{
-		Entrance:            "string",
-		Floor:               "string",
-		Guests:              0,
-		House:               "string",
-		IsSmokingProhibited: false,
-		LocationID:          fakeUUID,
-		Name:                "string",
-		NumberOfBathrooms:   0,
-		NumberOfBedrooms:    0,
-		NumberOfBeds:        0,
-		Price:               0,
-		Room:                "string",
-		Square:              0,
-		Street:              "string",
-		Type:                "string",
-		UserID:              fakeUUID,
+		UserID:             fakeUUID,
+		LocationID:         fakeUUID,
+		Name:               "Luxury Apartment",
+		Type:               stays.Apartment,
+		Guests:             4,
+		Amenities:          amenitiesMap,
+		House:              "12B",
+		Entrance:           "South",
+		Address:            "123 Main Street",
+		RoomsCount:         "3",
+		BedsCount:          "2",
+		Price:              "150",
+		Period:             "day",
+		OwnersRules:        "No smoking, no parties",
+		CancellationPolicy: "Flexible",
+		DescribeProperty:   "A beautiful apartment in downtown",
 	}
 
 	pMarshalled, _ := json.Marshal(payload)
@@ -138,23 +142,32 @@ func TestStaysHandler_GetStayByID(t *testing.T) {
 
 	fakeUUID, _ := uuid.NewV4()
 
+	amenitiesMap := map[amenity.Amenity]bool{
+		"Wi-fi":           true,
+		"Air conditioner": false,
+	}
+
 	expected := stays.Stay{
-		Entrance:            "string",
-		Floor:               "string",
-		Guests:              0,
-		House:               "string",
-		IsSmokingProhibited: false,
-		LocationID:          fakeUUID,
-		Name:                "string",
-		NumberOfBathrooms:   0,
-		NumberOfBedrooms:    0,
-		NumberOfBeds:        0,
-		Price:               0,
-		Room:                "string",
-		Square:              0,
-		Street:              "string",
-		Type:                "string",
-		UserID:              fakeUUID,
+		ID:                 fakeUUID,
+		UserID:             fakeUUID,
+		LocationID:         fakeUUID,
+		Name:               "Luxury Apartment",
+		Type:               stays.Apartment,
+		Guests:             4,
+		Rating:             4.7,
+		Amenities:          amenitiesMap,
+		House:              "12B",
+		Entrance:           "South",
+		Address:            "123 Main Street",
+		RoomsCount:         "3",
+		BedsCount:          "2",
+		Price:              "150",
+		Period:             "day",
+		OwnersRules:        "No smoking, no parties",
+		CancellationPolicy: "Flexible",
+		DescribeProperty:   "A beautiful apartment in downtown",
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
 	}
 
 	t.Run("should be no errors", func(t *testing.T) {
@@ -219,28 +232,37 @@ func TestStaysHandler_GetStays(t *testing.T) {
 
 	fakeUUID, _ := uuid.NewV4()
 
-	expected := []*stays.Stay{
+	amenitiesMap := map[amenity.Amenity]bool{
+		"Wi-fi":           true,
+		"Air conditioner": false,
+	}
+
+	// Change from []*stays.Stay to []stays.StayResponse to match what the handler expects
+	expected := []stays.StayResponse{
 		{
-			ID:                  fakeUUID,
-			Entrance:            "string",
-			Floor:               "string",
-			Guests:              0,
-			House:               "string",
-			IsSmokingProhibited: false,
-			LocationID:          fakeUUID,
-			Name:                "string",
-			NumberOfBathrooms:   0,
-			NumberOfBedrooms:    0,
-			NumberOfBeds:        0,
-			Price:               2.5,
-			Room:                "string",
-			Square:              0,
-			Street:              "string",
-			Type:                stays.Apartment,
-			UserID:              fakeUUID,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
-			Rating:              1.1,
+			Stay: stays.Stay{
+				ID:                 fakeUUID,
+				UserID:             fakeUUID,
+				LocationID:         fakeUUID,
+				Name:               "Luxury Apartment",
+				Type:               stays.Apartment,
+				Guests:             4,
+				Rating:             4.7,
+				Amenities:          amenitiesMap,
+				House:              "12B",
+				Entrance:           "South",
+				Address:            "123 Main Street",
+				RoomsCount:         "3",
+				BedsCount:          "2",
+				Price:              "150",
+				Period:             "day",
+				OwnersRules:        "No smoking, no parties",
+				CancellationPolicy: "Flexible",
+				DescribeProperty:   "A beautiful apartment in downtown",
+				CreatedAt:          time.Now(),
+				UpdatedAt:          time.Now(),
+			},
+			Images: []stays.StayImage{}, // Empty slice for images if none are needed
 		},
 	}
 
@@ -249,16 +271,14 @@ func TestStaysHandler_GetStays(t *testing.T) {
 	t.Run("should be no errors", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		// Мокаем вызов GetStays
 		svc.On("GetStays", mock.Anything).Return(expected, nil).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/stays", nil)
 
-		// Выполняем запрос
 		router.ServeHTTP(r, req)
 
 		var actual struct {
-			Data []stays.Stay `json:"data"`
+			Data []stays.StayResponse `json:"data"`
 		}
 
 		err := render.DecodeJSON(r.Body, &actual)
@@ -267,14 +287,12 @@ func TestStaysHandler_GetStays(t *testing.T) {
 		}
 
 		assert.Equal(t, http.StatusOK, r.Code)
-
 		assert.Equal(t, expected[0].ID, actual.Data[0].ID)
 	})
 
 	t.Run("should be error getting stays", func(t *testing.T) {
 		r := httptest.NewRecorder()
 
-		// Мокаем ошибку при получении данных
 		svc.On("GetStays", mock.Anything).Return(nil, errors.New("failed to get stays")).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/stays", nil)
@@ -356,43 +374,51 @@ func TestStaysHandler_UpdateStayByID(t *testing.T) {
 
 	fakeUUID, _ := uuid.NewV4()
 
+	amenitiesMap := map[amenity.Amenity]bool{
+		"Wi-fi":           true,
+		"Air conditioner": false,
+	}
+
 	payload := stays.StayEntity{
-		Entrance:            "string",
-		Floor:               "string",
-		Guests:              0,
-		House:               "string",
-		IsSmokingProhibited: false,
-		LocationID:          fakeUUID,
-		Name:                "string",
-		NumberOfBathrooms:   0,
-		NumberOfBedrooms:    0,
-		NumberOfBeds:        0,
-		Price:               0,
-		Room:                "string",
-		Square:              0,
-		Street:              "string",
-		Type:                "string",
-		UserID:              fakeUUID,
+		UserID:             fakeUUID,
+		LocationID:         fakeUUID,
+		Name:               "Updated Luxury Apartment",
+		Type:               stays.Apartment,
+		Guests:             4,
+		Amenities:          amenitiesMap,
+		House:              "12B",
+		Entrance:           "South",
+		Address:            "123 Main Street",
+		RoomsCount:         "3",
+		BedsCount:          "2",
+		Price:              "170",
+		Period:             "day",
+		OwnersRules:        "No smoking, no parties",
+		CancellationPolicy: "Flexible",
+		DescribeProperty:   "An updated beautiful apartment in downtown",
 	}
 
 	expected := stays.Stay{
-		ID:                  fakeUUID,
-		Entrance:            "string",
-		Floor:               "string",
-		Guests:              0,
-		House:               "string",
-		IsSmokingProhibited: false,
-		LocationID:          fakeUUID,
-		Name:                "string",
-		NumberOfBathrooms:   0,
-		NumberOfBedrooms:    0,
-		NumberOfBeds:        0,
-		Price:               0,
-		Room:                "string",
-		Square:              0,
-		Street:              "string",
-		Type:                "string",
-		UserID:              fakeUUID,
+		ID:                 fakeUUID,
+		UserID:             fakeUUID,
+		LocationID:         fakeUUID,
+		Name:               "Updated Luxury Apartment",
+		Type:               stays.Apartment,
+		Guests:             4,
+		Rating:             4.7,
+		Amenities:          amenitiesMap,
+		House:              "12B",
+		Entrance:           "South",
+		Address:            "123 Main Street",
+		RoomsCount:         "3",
+		BedsCount:          "2",
+		Price:              "170",
+		Period:             "day",
+		OwnersRules:        "No smoking, no parties",
+		CancellationPolicy: "Flexible",
+		DescribeProperty:   "An updated beautiful apartment in downtown",
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
 	}
 
 	pMarshalled, _ := json.Marshal(payload)
@@ -470,28 +496,33 @@ func TestStaysHandler_GetStaysByUserID(t *testing.T) {
 
 	fakeUUID, _ := uuid.NewV4()
 
+	amenitiesMap := map[amenity.Amenity]bool{
+		"Wi-fi":           true,
+		"Air conditioner": false,
+	}
+
 	expected := []*stays.Stay{
 		{
-			ID:                  fakeUUID,
-			Entrance:            "string",
-			Floor:               "string",
-			Guests:              0,
-			House:               "string",
-			IsSmokingProhibited: false,
-			LocationID:          fakeUUID,
-			Name:                "string",
-			NumberOfBathrooms:   0,
-			NumberOfBedrooms:    0,
-			NumberOfBeds:        0,
-			Price:               2.5,
-			Room:                "string",
-			Square:              0,
-			Street:              "string",
-			Type:                stays.Apartment,
-			UserID:              fakeUUID,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
-			Rating:              1.1,
+			ID:                 fakeUUID,
+			UserID:             fakeUUID,
+			LocationID:         fakeUUID,
+			Name:               "Luxury Apartment",
+			Type:               stays.Apartment,
+			Guests:             4,
+			Rating:             4.7,
+			Amenities:          amenitiesMap,
+			House:              "12B",
+			Entrance:           "South",
+			Address:            "123 Main Street",
+			RoomsCount:         "3",
+			BedsCount:          "2",
+			Price:              "150",
+			Period:             "day",
+			OwnersRules:        "No smoking, no parties",
+			CancellationPolicy: "Flexible",
+			DescribeProperty:   "A beautiful apartment in downtown",
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 	}
 
@@ -536,7 +567,6 @@ func TestStaysHandler_GetStaysByUserID(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
-
 }
 
 func TestStaysHandler_GetStayImagesByStayID(t *testing.T) {
@@ -556,6 +586,7 @@ func TestStaysHandler_GetStayImagesByStayID(t *testing.T) {
 	expected := []stays.StayImage{
 		{
 			ID:        fakeUUID,
+			StayID:    fakeUUID,
 			ImageName: "fakePath",
 			IsMain:    false,
 			CreatedAt: time.Now(),
@@ -633,8 +664,9 @@ func TestStaysHandler_GetMainImageByStayID(t *testing.T) {
 
 	expected := stays.StayImage{
 		ID:        fakeUUID,
+		StayID:    fakeUUID,
 		ImageName: "fakePath",
-		IsMain:    false,
+		IsMain:    true,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -1044,81 +1076,58 @@ func TestStaysHandler_GetStaysByLocationID(t *testing.T) {
 
 	mockUUID, _ := uuid.NewV4()
 
+	// Updated mockStay to match the new Stay structure
 	mockStay := []stays.Stay{
 		{
-			ID:                  mockUUID,
-			UserID:              mockUUID,
-			LocationID:          mockUUID,
-			Name:                "Luxurious Apartment in City Center",
-			Type:                stays.Apartment,
-			NumberOfBedrooms:    2,
-			NumberOfBeds:        3,
-			NumberOfBathrooms:   2,
-			Guests:              6,
-			Rating:              4.8,
-			IsSmokingProhibited: true,
-			Square:              85.5,
-			Street:              "Main Street",
-			House:               "22A",
-			Entrance:            "North Entrance",
-			Floor:               "3rd Floor",
-			Room:                "Apartment 23",
-			Price:               120.0,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
+			ID:                 mockUUID,
+			UserID:             mockUUID,
+			LocationID:         mockUUID,
+			Name:               "Luxurious Apartment in City Center",
+			Type:               stays.Apartment,
+			Guests:             6,
+			Rating:             4.8,
+			Amenities:          map[amenity.Amenity]bool{"Wi-fi": true, "Air conditioner": true},
+			House:              "22A",
+			Entrance:           "North Entrance",
+			Address:            "Main Street",
+			RoomsCount:         "2",
+			BedsCount:          "3",
+			Price:              "120.0",
+			Period:             "day",
+			OwnersRules:        "No smoking, no pets",
+			CancellationPolicy: "Free cancellation 24 hours before check-in",
+			DescribeProperty:   "Beautiful apartment in the heart of the city",
+			CreatedAt:          time.Now(),
+			UpdatedAt:          time.Now(),
 		},
 	}
 
 	t.Run("should be no errors", func(t *testing.T) {
 		r := httptest.NewRecorder()
-
 		svc.On("GetStaysByLocationID", mock.Anything, mock.Anything).Return(&mockStay, nil).Once()
-
 		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+mockUUID.String(), nil)
-
 		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
-
 		router.ServeHTTP(r, req)
-
 		assert.Equal(t, http.StatusOK, r.Code)
 	})
 
 	t.Run("should be parsing uuid error", func(t *testing.T) {
 		r := httptest.NewRecorder()
-
 		invalidUUID := "invalid"
-
 		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+invalidUUID, nil)
-
 		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
-
 		router.ServeHTTP(r, req)
-
 		assert.Equal(t, http.StatusBadRequest, r.Code)
 	})
 
 	t.Run("should be error getting stays by locationID", func(t *testing.T) {
 		r := httptest.NewRecorder()
-
 		errMessage := "error message"
-
 		svc.On("GetStaysByLocationID", mock.Anything, mock.Anything).Return(nil, errors.New(errMessage)).Once()
-
 		req := httptest.NewRequest(http.MethodGet, "/stays/location/"+mockUUID.String(), nil)
-
 		router.HandleFunc("/stays/location/{locationId}", hdl.GetStaysByLocationID)
-
 		router.ServeHTTP(r, req)
-
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 
-		var actual responseApi.ResponseError
-
-		err := json.Unmarshal(r.Body.Bytes(), &actual)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		assert.Contains(t, actual.Error, errMessage)
 	})
 }

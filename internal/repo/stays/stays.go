@@ -22,12 +22,17 @@ func (r *Repo) CreateStay(ctx context.Context, stay *models.StayEntity) error {
 	const op = "repo.stays.CreateStay"
 
 	stmt, err := r.Db.PrepareContext(ctx,
-		"INSERT INTO stays(user_id, location_id, name, type, number_of_bedrooms, number_of_beds, number_of_bathrooms, guests, is_smoking_prohibited, square, street, house, entrance, floor, room, price, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)")
+		"INSERT INTO stays(user_id, location_id, name, type, guests, amenities, house, entrance, address, rooms_count, beds_count, price, period, owners_rules, cancellation_policy, describe_property, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	_, err = stmt.ExecContext(ctx, stay.UserID, stay.LocationID, stay.Name, stay.Type, stay.NumberOfBedrooms, stay.NumberOfBeds, stay.NumberOfBathrooms, stay.Guests, stay.IsSmokingProhibited, stay.Square, stay.Street, stay.House, stay.Entrance, stay.Floor, stay.Room, stay.Price, time.Now(), time.Now())
+	amenitiesJSON, err := json.Marshal(stay.Amenities)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	_, err = stmt.ExecContext(ctx, stay.UserID, stay.LocationID, stay.Name, stay.Type, stay.Guests, amenitiesJSON, stay.House, stay.Entrance, stay.Address, stay.RoomsCount, stay.BedsCount, stay.Price, stay.Period, stay.OwnersRules, stay.CancellationPolicy, stay.DescribeProperty, time.Now(), time.Now())
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -85,13 +90,33 @@ func (r *Repo) GetStayByID(ctx context.Context, id uuid.UUID) (*models.Stay, err
 		return nil, fmt.Errorf("%s: %w", op, row.Err())
 	}
 
-	var amenitiesData []byte // Переменная для хранения JSONB данных
+	var amenitiesData []byte
 
-	err = row.Scan(&stay.ID, &stay.LocationID, &stay.UserID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+	err = row.Scan(
+		&stay.ID,
+		&stay.UserID,
+		&stay.LocationID,
+		&stay.Name,
+		&stay.Type,
+		&stay.Guests,
+		&stay.Rating,
+		&amenitiesData,
+		&stay.House,
+		&stay.Entrance,
+		&stay.CreatedAt,
+		&stay.UpdatedAt,
+		&stay.Address,
+		&stay.RoomsCount,
+		&stay.BedsCount,
+		&stay.Price,
+		&stay.Period,
+		&stay.OwnersRules,
+		&stay.CancellationPolicy,
+		&stay.DescribeProperty,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	// Десериализуем JSONB данные в []Amenity
 	if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -124,14 +149,34 @@ func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 	for rows.Next() {
 		var stay models.StayResponse
 
-		var amenitiesData []byte // Переменная для хранения JSONB данных
+		var amenitiesData []byte
 
-		err = rows.Scan(&stay.ID, &stay.UserID, &stay.LocationID, &stay.Name, &stay.Type, &stay.NumberOfBedrooms, &stay.NumberOfBeds, &stay.NumberOfBathrooms, &stay.Guests, &stay.Rating, &amenitiesData, &stay.IsSmokingProhibited, &stay.Square, &stay.Street, &stay.House, &stay.Entrance, &stay.Floor, &stay.Room, &stay.Price, &stay.CreatedAt, &stay.UpdatedAt)
+		err = rows.Scan(
+			&stay.ID,
+			&stay.UserID,
+			&stay.LocationID,
+			&stay.Name,
+			&stay.Type,
+			&stay.Guests,
+			&stay.Rating,
+			&amenitiesData,
+			&stay.House,
+			&stay.Entrance,
+			&stay.CreatedAt,
+			&stay.UpdatedAt,
+			&stay.Address,
+			&stay.RoomsCount,
+			&stay.BedsCount,
+			&stay.Price,
+			&stay.Period,
+			&stay.OwnersRules,
+			&stay.CancellationPolicy,
+			&stay.DescribeProperty,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		// Десериализуем JSONB данные в []Amenity
 		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -152,30 +197,35 @@ func (r *Repo) GetStays(ctx context.Context) ([]models.StayResponse, error) {
 func (r *Repo) UpdateStayByID(ctx context.Context, stay *models.StayEntity, id uuid.UUID) error {
 	const op = "repo.stays.updateStayByID"
 
-	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, type=$3, number_of_bedrooms=$4, number_of_beds=$5, number_of_bathrooms=$6, guests=$7, is_smoking_prohibited=$8, square=$9, street=$10, house=$11, entrance=$12, floor=$13, room=$14, price=$15, updated_at=$16 WHERE id=$17")
+	stmt, err := r.Db.PrepareContext(ctx, "UPDATE stays SET location_id=$1, name=$2, type=$3, guests=$4, amenities=$5, house=$6, entrance=$7, address=$8, rooms_count=$9, beds_count=$10, price=$11, period=$12, owners_rules=$13, cancellation_policy=$14, describe_property=$15, updated_at=$16 WHERE id=$17")
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	defer stmt.Close()
 
+	amenitiesJSON, err := json.Marshal(stay.Amenities)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	_, err = stmt.ExecContext(
 		ctx,
 		stay.LocationID,
 		stay.Name,
 		string(stay.Type),
-		stay.NumberOfBedrooms,
-		stay.NumberOfBeds,
-		stay.NumberOfBathrooms,
 		stay.Guests,
-		stay.IsSmokingProhibited,
-		stay.Square,
-		stay.Street,
+		amenitiesJSON,
 		stay.House,
 		stay.Entrance,
-		stay.Floor,
-		stay.Room,
+		stay.Address,
+		stay.RoomsCount,
+		stay.BedsCount,
 		stay.Price,
+		stay.Period,
+		stay.OwnersRules,
+		stay.CancellationPolicy,
+		stay.DescribeProperty,
 		time.Now(),
 		id,
 	)
@@ -243,37 +293,37 @@ func (r *Repo) GetStaysByUserID(ctx context.Context, userId uuid.UUID) ([]*model
 	defer rows.Close()
 
 	var stays []*models.Stay
-	var amenitiesData []byte // Переменная для хранения JSONB данных
+	var amenitiesData []byte
+
 	for rows.Next() {
 		var stay models.Stay
 
 		err = rows.Scan(
 			&stay.ID,
-			&stay.LocationID,
 			&stay.UserID,
+			&stay.LocationID,
 			&stay.Name,
 			&stay.Type,
-			&stay.NumberOfBedrooms,
-			&stay.NumberOfBeds,
-			&stay.NumberOfBathrooms,
 			&stay.Guests,
 			&stay.Rating,
 			&amenitiesData,
-			&stay.IsSmokingProhibited,
-			&stay.Square,
-			&stay.Street,
 			&stay.House,
 			&stay.Entrance,
-			&stay.Floor,
-			&stay.Room,
-			&stay.Price,
 			&stay.CreatedAt,
 			&stay.UpdatedAt,
+			&stay.Address,
+			&stay.RoomsCount,
+			&stay.BedsCount,
+			&stay.Price,
+			&stay.Period,
+			&stay.OwnersRules,
+			&stay.CancellationPolicy,
+			&stay.DescribeProperty,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
-		// Десериализуем JSONB данные в []Amenity
+
 		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -414,38 +464,37 @@ func (r *Repo) GetStaysByLocationID(ctx context.Context, id uuid.UUID) (*[]model
 	}
 
 	var stays []models.Stay
-	var amenitiesData []byte // Переменная для хранения JSONB данных
+	var amenitiesData []byte
+
 	for rows.Next() {
 		var stay models.Stay
 
 		err = rows.Scan(
 			&stay.ID,
-			&stay.LocationID,
 			&stay.UserID,
+			&stay.LocationID,
 			&stay.Name,
 			&stay.Type,
-			&stay.NumberOfBedrooms,
-			&stay.NumberOfBeds,
-			&stay.NumberOfBathrooms,
 			&stay.Guests,
 			&stay.Rating,
 			&amenitiesData,
-			&stay.IsSmokingProhibited,
-			&stay.Square,
-			&stay.Street,
 			&stay.House,
 			&stay.Entrance,
-			&stay.Floor,
-			&stay.Room,
-			&stay.Price,
 			&stay.CreatedAt,
 			&stay.UpdatedAt,
+			&stay.Address,
+			&stay.RoomsCount,
+			&stay.BedsCount,
+			&stay.Price,
+			&stay.Period,
+			&stay.OwnersRules,
+			&stay.CancellationPolicy,
+			&stay.DescribeProperty,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		// Десериализуем JSONB данные в []Amenity
 		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
@@ -461,7 +510,6 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 
 	sort.Float64s(search.Rating)
 
-	// Находим минимальный и максимальный рейтинг
 	var minRating, maxRating float64
 	if len(search.Rating) > 0 {
 		minRating = search.Rating[0]
@@ -485,6 +533,7 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 		search.LocationID,
 	}
 	count := 1
+
 	if search.PriceMin != -1 && search.PriceMax != -1 {
 		count++
 		nextCount := count + 1
@@ -492,11 +541,17 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 		args = append(args, fmt.Sprintf("%f", search.PriceMin), fmt.Sprintf("%f", search.PriceMax))
 		count++
 	}
+
 	if len(search.NumberOfBedrooms) > 0 {
 		count++
-		query += fmt.Sprintf(" AND number_of_bedrooms = ANY($%d)", count)
-		args = append(args, pq.Array(search.NumberOfBedrooms))
+		query += fmt.Sprintf(" AND rooms_count = ANY($%d)", count)
+		roomsStr := make([]string, len(search.NumberOfBedrooms))
+		for i, val := range search.NumberOfBedrooms {
+			roomsStr[i] = fmt.Sprintf("%d", val)
+		}
+		args = append(args, pq.Array(roomsStr))
 	}
+
 	if len(search.Rating) > 0 {
 		count++
 		nextCount := count + 1
@@ -513,7 +568,6 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 			conditions = append(conditions, fmt.Sprintf("amenities ->> '%s' = $%d", key, len(args)+1))
 			args = append(args, fmt.Sprintf("%t", value))
 		}
-		// Объединяем условия с помощью AND
 		query += " AND (" + strings.Join(conditions, " AND ") + ")"
 	}
 
@@ -531,7 +585,6 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 		query += " ORDER BY rating ASC, updated_at ASC"
 		break
 	default:
-		// No sorting applied
 	}
 
 	stmt, err := this.Db.PrepareContext(ctx, query)
@@ -547,39 +600,36 @@ func (this *Repo) Filtration(ctx context.Context, search models.Filtration) ([]m
 	}
 	defer rows.Close()
 
-	var amenitiesData []byte // Переменная для хранения JSONB данных
+	var amenitiesData []byte
 
-	// Обработка результатов
 	var stays []models.Stay
 	for rows.Next() {
 		var stay models.Stay
 		if err = rows.Scan(
 			&stay.ID,
-			&stay.LocationID,
 			&stay.UserID,
+			&stay.LocationID,
 			&stay.Name,
 			&stay.Type,
-			&stay.NumberOfBedrooms,
-			&stay.NumberOfBeds,
-			&stay.NumberOfBathrooms,
 			&stay.Guests,
 			&stay.Rating,
 			&amenitiesData,
-			&stay.IsSmokingProhibited,
-			&stay.Square,
-			&stay.Street,
 			&stay.House,
 			&stay.Entrance,
-			&stay.Floor,
-			&stay.Room,
-			&stay.Price,
 			&stay.CreatedAt,
 			&stay.UpdatedAt,
+			&stay.Address,
+			&stay.RoomsCount,
+			&stay.BedsCount,
+			&stay.Price,
+			&stay.Period,
+			&stay.OwnersRules,
+			&stay.CancellationPolicy,
+			&stay.DescribeProperty,
 		); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 
-		// Десериализуем JSONB данные в []Amenity
 		if err = json.Unmarshal(amenitiesData, &stay.Amenities); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}

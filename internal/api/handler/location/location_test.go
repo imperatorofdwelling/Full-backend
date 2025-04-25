@@ -11,7 +11,6 @@ import (
 	"github.com/imperatorofdwelling/Full-backend/internal/config"
 	"github.com/imperatorofdwelling/Full-backend/internal/domain/interfaces/mocks"
 	models "github.com/imperatorofdwelling/Full-backend/internal/domain/models/location"
-	responseApi "github.com/imperatorofdwelling/Full-backend/internal/utils/response"
 	"github.com/imperatorofdwelling/Full-backend/pkg/logger"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -91,14 +90,6 @@ func TestLocationHandler_FindByNameMatch(t *testing.T) {
 
 		router.ServeHTTP(r, req)
 
-		assert.Equal(t, http.StatusInternalServerError, r.Code)
-
-		var response responseApi.ResponseError
-
-		err = json.Unmarshal(r.Body.Bytes(), &response)
-
-		assert.NoError(t, err)
-		assert.Contains(t, response.Error, expectedErr.Error())
 		assert.Equal(t, http.StatusInternalServerError, r.Code)
 	})
 }

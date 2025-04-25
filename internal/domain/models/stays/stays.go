@@ -17,23 +17,24 @@ var (
 type (
 	StayType   string
 	StayEntity struct {
-		UserID              uuid.UUID                `json:"user_id" validate:"required,uuid"`
-		LocationID          uuid.UUID                `json:"location_id" validate:"required,uuid"`
-		Name                string                   `json:"name" validate:"required"`
-		Type                StayType                 `json:"type" validate:"required"`
-		NumberOfBedrooms    int                      `json:"number_of_bedrooms" validate:"required"`
-		NumberOfBeds        int                      `json:"number_of_beds" validate:"required"`
-		NumberOfBathrooms   int                      `json:"number_of_bathrooms" validate:"required"`
-		Guests              int                      `json:"guests" validate:"required"`
-		Amenities           map[amenity.Amenity]bool `json:"amenities" validate:"required"`
-		IsSmokingProhibited bool                     `json:"is_smoking_prohibited,omitempty" default:"false"`
-		Square              float32                  `json:"square" validate:"required"`
-		Street              string                   `json:"street" validate:"required"`
-		House               string                   `json:"house" validate:"required"`
-		Entrance            string                   `json:"entrance,omitempty"`
-		Floor               string                   `json:"floor,omitempty"`
-		Room                string                   `json:"room,omitempty"`
-		Price               float32                  `json:"price" validate:"required"`
+		UserID             uuid.UUID                `json:"user_id" validate:"required,uuid"`
+		LocationID         uuid.UUID                `json:"location_id" validate:"required,uuid"`
+		Name               string                   `json:"name" validate:"required"`
+		Type               StayType                 `json:"type" validate:"required"`
+		Guests             int                      `json:"guests" validate:"required"`
+		Amenities          map[amenity.Amenity]bool `json:"amenities" validate:"required"`
+		House              string                   `json:"house" validate:"required"`
+		Entrance           string                   `json:"entrance,omitempty"`
+		Address            string                   `json:"address" validate:"required"`
+		RoomsCount         string                   `json:"rooms_count" validate:"required"`
+		BedsCount          string                   `json:"beds_count" validate:"required"`
+		Price              string                   `json:"price" validate:"required"`
+		Period             string                   `json:"period" validate:"required"`
+		OwnersRules        string                   `json:"owners_rules" validate:"required"`
+		CancellationPolicy string                   `json:"cancellation_policy" validate:"required"`
+		DescribeProperty   string                   `json:"describe_property" validate:"required"`
+		CreatedAt          time.Time                `json:"created_at"`
+		UpdatedAt          time.Time                `json:"updated_at"`
 	} // @name StayEntity
 
 	Statistics struct {
@@ -43,75 +44,74 @@ type (
 	} // @name StayStatistics
 
 	StayEntityFav struct {
-		ID                  uuid.UUID                `json:"id"`
-		UserID              uuid.UUID                `json:"user_id" validate:"required,uuid"`
-		LocationID          uuid.UUID                `json:"location_id" validate:"required,uuid"`
-		Name                string                   `json:"name" validate:"required"`
-		Type                StayType                 `json:"type" validate:"required"`
-		NumberOfBedrooms    int                      `json:"number_of_bedrooms" validate:"required"`
-		NumberOfBeds        int                      `json:"number_of_beds" validate:"required"`
-		NumberOfBathrooms   int                      `json:"number_of_bathrooms" validate:"required"`
-		Guests              int                      `json:"guests" validate:"required"`
-		Amenities           map[amenity.Amenity]bool `json:"amenities" validate:"required"`
-		IsSmokingProhibited bool                     `json:"is_smoking_prohibited,omitempty" default:"false"`
-		Square              float32                  `json:"square" validate:"required"`
-		Street              string                   `json:"street" validate:"required"`
-		House               string                   `json:"house" validate:"required"`
-		Entrance            string                   `json:"entrance,omitempty"`
-		Floor               string                   `json:"floor,omitempty"`
-		Room                string                   `json:"room,omitempty"`
-		Price               float32                  `json:"price" validate:"required"`
-		City                string                   `json:"city" validate:"required"`
+		ID                 uuid.UUID                `json:"id"`
+		UserID             uuid.UUID                `json:"user_id" validate:"required,uuid"`
+		LocationID         uuid.UUID                `json:"location_id" validate:"required,uuid"`
+		Name               string                   `json:"name" validate:"required"`
+		Type               StayType                 `json:"type" validate:"required"`
+		Guests             int                      `json:"guests" validate:"required"`
+		Rating             float64                  `json:"rating"`
+		Amenities          map[amenity.Amenity]bool `json:"amenities" validate:"required"`
+		House              string                   `json:"house" validate:"required"`
+		Entrance           string                   `json:"entrance,omitempty"`
+		Address            string                   `json:"address" validate:"required"`
+		RoomsCount         string                   `json:"rooms_count" validate:"required"`
+		BedsCount          string                   `json:"beds_count" validate:"required"`
+		Price              string                   `json:"price" validate:"required"`
+		Period             string                   `json:"period" validate:"required"`
+		OwnersRules        string                   `json:"owners_rules" validate:"required"`
+		CancellationPolicy string                   `json:"cancellation_policy" validate:"required"`
+		DescribeProperty   string                   `json:"describe_property" validate:"required"`
+		CreatedAt          time.Time                `json:"created_at"`
+		UpdatedAt          time.Time                `json:"updated_at"`
 	} // @name StayEntityFav
 
 	Stay struct {
-		ID                  uuid.UUID                `json:"id"`
-		UserID              uuid.UUID                `json:"user_id"`
-		LocationID          uuid.UUID                `json:"location_id"`
-		Name                string                   `json:"name"`
-		Type                StayType                 `json:"type"`
-		NumberOfBedrooms    int                      `json:"number_of_bedrooms"`
-		NumberOfBeds        int                      `json:"number_of_beds"`
-		NumberOfBathrooms   int                      `json:"number_of_bathrooms"`
-		Guests              int                      `json:"guests"`
-		Rating              float64                  `json:"rating"`
-		Amenities           map[amenity.Amenity]bool `json:"amenities" validate:"required"`
-		IsSmokingProhibited bool                     `json:"is_smoking_prohibited"`
-		Square              float32                  `json:"square"`
-		Street              string                   `json:"street"`
-		House               string                   `json:"house"`
-		Entrance            string                   `json:"entrance"`
-		Floor               string                   `json:"floor"`
-		Room                string                   `json:"room"`
-		Price               float32                  `json:"price"`
-		CreatedAt           time.Time                `json:"created_at"`
-		UpdatedAt           time.Time                `json:"updated_at"`
+		ID                 uuid.UUID                `json:"id"`
+		UserID             uuid.UUID                `json:"user_id"`
+		LocationID         uuid.UUID                `json:"location_id"`
+		Name               string                   `json:"name"`
+		Type               StayType                 `json:"type"`
+		Guests             int                      `json:"guests"`
+		Rating             float64                  `json:"rating"`
+		Amenities          map[amenity.Amenity]bool `json:"amenities"`
+		House              string                   `json:"house"`
+		Entrance           string                   `json:"entrance"`
+		Address            string                   `json:"address"`
+		RoomsCount         string                   `json:"rooms_count"`
+		BedsCount          string                   `json:"beds_count"`
+		Price              string                   `json:"price"`
+		Period             string                   `json:"period"`
+		OwnersRules        string                   `json:"owners_rules"`
+		CancellationPolicy string                   `json:"cancellation_policy"`
+		DescribeProperty   string                   `json:"describe_property"`
+		CreatedAt          time.Time                `json:"created_at"`
+		UpdatedAt          time.Time                `json:"updated_at"`
 	} // @name Stay
 
 	StayOccupied struct {
-		ID                  uuid.UUID       `json:"id"`
-		UserID              uuid.UUID       `json:"user_id"`
-		LocationID          uuid.UUID       `json:"location_id"`
-		Name                string          `json:"name"`
-		Type                StayType        `json:"type"`
-		NumberOfBedrooms    int             `json:"number_of_bedrooms"`
-		NumberOfBeds        int             `json:"number_of_beds"`
-		NumberOfBathrooms   int             `json:"number_of_bathrooms"`
-		Guests              int             `json:"guests"`
-		Rating              float64         `json:"rating"`
-		Amenities           map[string]bool `json:"amenities" validate:"required"`
-		IsSmokingProhibited bool            `json:"is_smoking_prohibited"`
-		Square              float32         `json:"square"`
-		Street              string          `json:"street"`
-		House               string          `json:"house"`
-		Entrance            string          `json:"entrance"`
-		Floor               string          `json:"floor"`
-		Room                string          `json:"room"`
-		Price               float32         `json:"price"`
-		CreatedAt           time.Time       `json:"created_at"`
-		UpdatedAt           time.Time       `json:"updated_at"`
-		ArrivedAt           time.Time       `json:"arrived_at"`
-		DepartureAt         time.Time       `json:"departure_at"`
+		ID                 uuid.UUID                `json:"id"`
+		UserID             uuid.UUID                `json:"user_id"`
+		LocationID         uuid.UUID                `json:"location_id"`
+		Name               string                   `json:"name"`
+		Type               StayType                 `json:"type"`
+		Guests             int                      `json:"guests"`
+		Rating             float64                  `json:"rating"`
+		Amenities          map[amenity.Amenity]bool `json:"amenities" validate:"required"`
+		House              string                   `json:"house"`
+		Entrance           string                   `json:"entrance"`
+		Address            string                   `json:"address"`
+		RoomsCount         string                   `json:"rooms_count"`
+		BedsCount          string                   `json:"beds_count"`
+		Price              string                   `json:"price"`
+		Period             string                   `json:"period"`
+		OwnersRules        string                   `json:"owners_rules"`
+		CancellationPolicy string                   `json:"cancellation_policy"`
+		DescribeProperty   string                   `json:"describe_property"`
+		CreatedAt          time.Time                `json:"created_at"`
+		UpdatedAt          time.Time                `json:"updated_at"`
+		ArrivedAt          time.Time                `json:"arrived_at"`
+		DepartureAt        time.Time                `json:"departure_at"`
 	} // @name StayOccupied
 
 	StayImagesEntity struct {

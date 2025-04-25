@@ -50,7 +50,6 @@ func TestReservationHandler_CreateReservation(t *testing.T) {
 
 	payload := reservation.ReservationEntity{
 		StayID:    fakeUUID,
-		UserID:    fakeUUID,
 		Arrived:   time.Now(),
 		Departure: time.Now(),
 	}
@@ -117,7 +116,6 @@ func TestReservationHandler_UpdateReservation(t *testing.T) {
 
 	payload := reservation.ReservationEntity{
 		StayID:    fakeUUID,
-		UserID:    fakeUUID,
 		Arrived:   time.Now(),
 		Departure: time.Now(),
 	}
@@ -374,7 +372,6 @@ func TestReservationHandler_UpdateReservation_2(t *testing.T) {
 
 	payload := reservation.ReservationEntity{
 		StayID:    fakeUUID,
-		UserID:    fakeUUID,
 		Arrived:   time.Now(),
 		Departure: time.Now().Add(24 * time.Hour),
 	}

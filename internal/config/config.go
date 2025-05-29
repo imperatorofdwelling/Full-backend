@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/imperatorofdwelling/Full-backend/docs"
 	configDb "github.com/imperatorofdwelling/Full-backend/internal/config/db"
+	configEnc "github.com/imperatorofdwelling/Full-backend/internal/config/encryption"
 	configSrv "github.com/imperatorofdwelling/Full-backend/internal/config/server"
 	"github.com/joho/godotenv"
 	"log"
@@ -20,7 +21,10 @@ const (
 	ProdEnv  Environment = "prod"
 )
 
-var GlobalEnv Environment
+var (
+	GlobalEnv     Environment
+	EncryptionKey []byte
+)
 
 type Config struct {
 	DB     configDb.Database
@@ -41,6 +45,9 @@ func LoadConfig() *Config {
 	srv := configSrv.InitServerConfig()
 
 	db := configDb.InitDbConfig()
+
+	enc := configEnc.InitEncryption()
+	EncryptionKey = []byte(enc.EncryptionKey)
 
 	return &Config{
 		DB:     db,

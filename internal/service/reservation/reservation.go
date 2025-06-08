@@ -13,6 +13,8 @@ import (
 
 type Service struct {
 	Repo interfaces.ReservationRepo
+	// TODO Добавить provide на notify
+	Notify interfaces.NotificationService
 }
 
 func (s *Service) ConfirmCheckOutReservation(ctx context.Context, userID string, stayID string) error {
@@ -28,6 +30,16 @@ func (s *Service) ConfirmCheckOutReservation(ctx context.Context, userID string,
 	}
 
 	err = s.Repo.ConfirmCheckOutReservation(ctx, userID, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	ownerId, err := s.Repo.GetOwnerByStayID(ctx, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.Notify.SendNotificationToUser(ctx, ownerId.String(), "Successfully confirmed out of stay: "+stayID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -76,6 +88,15 @@ func (s *Service) ConfirmCheckInReservation(ctx context.Context, userID string, 
 	}
 
 	err = s.Repo.CheckInApproval(ctx, stayUUID, reserv)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	ownerId, err := s.Repo.GetOwnerByStayID(ctx, stayID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	err = s.Notify.SendNotificationToUser(ctx, ownerId.String(), "Successfully confirmed IN of stay: "+stayID)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -143,6 +164,16 @@ func (s *Service) UpdateReservation(ctx context.Context, reserv *reservation.Res
 		return err
 	}
 
+	ownerId, err := s.Repo.GetOwnerByStayID(ctx, reserv.ID.String())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.Notify.SendNotificationToUser(ctx, ownerId.String(), "Changed date of reservation: "+reserv.ID.String())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	return nil
 }
 
@@ -161,6 +192,16 @@ func (s *Service) DeleteReservationByID(ctx context.Context, id uuid.UUID) error
 	err = s.Repo.DeleteReservationByID(ctx, id)
 	if err != nil {
 		return err
+	}
+
+	ownerId, err := s.Repo.GetOwnerByStayID(ctx, id.String())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.Notify.SendNotificationToUser(ctx, ownerId.String(), "Reservation was cancelled: "+id.String())
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	return nil

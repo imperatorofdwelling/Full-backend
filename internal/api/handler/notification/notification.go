@@ -44,23 +44,22 @@ func (h *Handler) SetDeviceToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Парсим тело запроса
-	request := notification.SetRequest{Token: r.URL.Query().Get("token")}
-
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	var deviceInfo notification.DeviceInfo
+	if err := json.NewDecoder(r.Body).Decode(&deviceInfo); err != nil {
 		h.Log.Error("failed to decode request body", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(err))
 		return
 	}
+	defer r.Body.Close()
 
 	// Базовая валидация токена
-	if request.Token == "" {
+	if deviceInfo.Token == "" {
 		h.Log.Error("empty device token")
 		responseApi.WriteError(w, r, http.StatusBadRequest, slogError.Err(errors.New("device token cannot be empty")))
 		return
 	}
 
-	updatedToken, err := h.Svc.SetDeviceTokenToUser(context.Background(), request.Token, userID)
+	updatedToken, err := h.Svc.SetDeviceTokenToUser(context.Background(), deviceInfo, userID)
 	if err != nil {
 		h.Log.Error("failed to get messages by user id", slogError.Err(err))
 		responseApi.WriteError(w, r, http.StatusInternalServerError, slogError.Err(err))
@@ -68,4 +67,37 @@ func (h *Handler) SetDeviceToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseApi.WriteJson(w, r, http.StatusOK, updatedToken)
+}
+
+func (h *Handler) SendNotification(w http.ResponseWriter, r *http.Request) {
+	const op = "handler.notification.SendNotification"
+
+	h.Log = h.Log.With(
+		slog.String("op", op),
+		slog.String("request_id", middleware.GetReqID(r.Context())),
+	)
+
+	userID, ok := r.Context().Value(mw.UserIdKey).(string)
+	if !ok {
+		h.Log.Error("user ID not found in context")
+		responseApi.WriteError(w, r, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	var request struct {
+		Message string `json:"message"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		h.Log.Error("failed to decode request", "error", err)
+		responseApi.WriteError(w, r, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.Svc.SendNotificationToUser(r.Context(), userID, request.Message); err != nil {
+		h.Log.Error("failed to send notification", "error", err)
+		responseApi.WriteError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	responseApi.WriteJson(w, r, http.StatusOK, "Notification sent")
 }

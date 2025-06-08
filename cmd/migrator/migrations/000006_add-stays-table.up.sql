@@ -1,4 +1,5 @@
 CREATE TYPE STAYS_TYPE AS ENUM ('apartment', 'house', 'hotel');
+CREATE INDEX IF NOT EXISTS idx_stays_id ON stays(id);
 
 CREATE TABLE IF NOT EXISTS stays
 (

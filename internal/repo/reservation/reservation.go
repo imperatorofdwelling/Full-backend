@@ -35,6 +35,30 @@ func (r *Repo) ConfirmCheckOutReservation(ctx context.Context, userID string, st
 	return nil
 }
 
+func (r *Repo) GetOwnerByStayID(ctx context.Context, stayID string) (uuid.UUID, error) {
+	const op = "repo.reservation.GetOwnerByStayID"
+
+	// Парсим строку stayID в UUID (используем FromString вместо Parse)
+	stayUUID, err := uuid.FromString(stayID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("%s: invalid stay ID format: %w", op, err)
+	}
+
+	query := `SELECT user_id FROM stays WHERE id = $1;`
+
+	var ownerID uuid.UUID
+	err = r.Db.QueryRowContext(ctx, query, stayUUID).Scan(&ownerID)
+
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return uuid.Nil, fmt.Errorf("%s: stay not found: %w", op, err)
+	case err != nil:
+		return uuid.Nil, fmt.Errorf("%s: database error: %w", op, err)
+	}
+
+	return ownerID, nil
+}
+
 func (r *Repo) CheckTimeForCheckOutReservation(ctx context.Context, userID string, stayID string) (bool, error) {
 	const op = "repo.reservation.CheckTimeForCheckOutReservation"
 
@@ -353,10 +377,10 @@ func (r *Repo) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*
 
 	query := `
 		SELECT 
-			id, user_id, location_id, name, type, number_of_bedrooms, 
-			number_of_beds, number_of_bathrooms, guests, rating, 
-			amenities, is_smoking_prohibited, square, street, house, 
-			entrance, floor, room, price, created_at, updated_at
+			id, user_id, location_id, name, type, 
+			guests, rating, amenities, house, 
+			entrance, created_at, updated_at, address, room_count, beds_count, price, period,
+			owners_rules, cancellation_policy, describe_property
 		FROM stays 
 		WHERE user_id = $1 
 		AND id NOT IN (SELECT stay_id FROM reservations WHERE check_out = false)`
@@ -375,10 +399,11 @@ func (r *Repo) GetFreeReservationsByUserID(ctx context.Context, id uuid.UUID) (*
 
 		err = rows.Scan(
 			&reserv.ID, &reserv.UserID, &reserv.LocationID, &reserv.Name, &reserv.Type,
-			&reserv.NumberOfBedrooms, &reserv.NumberOfBeds, &reserv.NumberOfBathrooms,
-			&reserv.Guests, &reserv.Rating, &amenitiesJSON, &reserv.IsSmokingProhibited,
-			&reserv.Square, &reserv.Street, &reserv.House, &reserv.Entrance,
-			&reserv.Floor, &reserv.Room, &reserv.Price, &reserv.CreatedAt, &reserv.UpdatedAt,
+			&reserv.Guests, &reserv.Rating, &amenitiesJSON,
+			&reserv.House, &reserv.Entrance, reserv.CreatedAt, &reserv.UpdatedAt,
+			&reserv.Address, &reserv.RoomsCount,
+			&reserv.BedsCount, &reserv.Price, &reserv.Period, &reserv.OwnersRules,
+			&reserv.CancellationPolicy, &reserv.DescribeProperty,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
@@ -404,10 +429,9 @@ func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID
 
 	query := `
 		SELECT 
-			s.id, s.user_id, s.location_id, s.name, s.type, s.number_of_bedrooms, 
-			s.number_of_beds, s.number_of_bathrooms, s.guests, s.rating, 
-			s.amenities, s.is_smoking_prohibited, s.square, s.street, s.house, 
-			s.entrance, s.floor, s.room, s.price, s.created_at, s.updated_at,
+			s.id, s.user_id, s.location_id, s.name, s.type, s.guests, 
+			s.rating, s.amenities, s.house,
+			s.entrance,  s.address, s.room_count, s.beds_count, s.price, s.created_at, s.updated_at,
 			r.arrived, r.departure
 		FROM stays s
 		JOIN reservations r ON s.id = r.stay_id
@@ -429,11 +453,10 @@ func (r *Repo) GetOccupiedReservationsByUserID(ctx context.Context, id uuid.UUID
 
 		err = rows.Scan(
 			&reserv.ID, &reserv.UserID, &reserv.LocationID, &reserv.Name, &reserv.Type,
-			&reserv.NumberOfBedrooms, &reserv.NumberOfBeds, &reserv.NumberOfBathrooms,
-			&reserv.Guests, &reserv.Rating, &amenitiesJSON, &reserv.IsSmokingProhibited,
-			&reserv.Square, &reserv.Street, &reserv.House, &reserv.Entrance,
-			&reserv.Floor, &reserv.Room, &reserv.Price, &reserv.CreatedAt, &reserv.UpdatedAt,
-			&reserv.ArrivedAt, &reserv.DepartureAt,
+			&reserv.Guests, &reserv.Rating, &amenitiesJSON,
+			&reserv.House, &reserv.Entrance, &reserv.CreatedAt, &reserv.UpdatedAt, &reserv.Address, &reserv.RoomsCount,
+			&reserv.BedsCount, &reserv.Price, &reserv.Period, &reserv.OwnersRules,
+			&reserv.CancellationPolicy, &reserv.DescribeProperty,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)

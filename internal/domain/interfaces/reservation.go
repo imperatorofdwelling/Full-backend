@@ -11,6 +11,7 @@ import (
 //go:generate mockery --name ReservationRepo
 type ReservationRepo interface {
 	CheckReservationIsFree(context.Context, *reservation.ReservationEntity) error
+	GetOwnerByStayID(ctx context.Context, stayID string) (uuid.UUID, error)
 	CreateReservation(context.Context, *reservation.ReservationEntity, string) error
 	UpdateReservationByID(context.Context, *reservation.ReservationUpdateEntity) error
 	DeleteReservationByID(context.Context, uuid.UUID) error

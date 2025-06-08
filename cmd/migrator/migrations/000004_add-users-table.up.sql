@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS users
     "city" varchar(255) DEFAULT '',
     "role_id" INTEGER DEFAULT 1 REFERENCES role(id) ON DELETE CASCADE,
     "device_token" varchar(255) DEFAULT '',
+    -- 1 IOS, 2 ANDROID
+    "device_platform" integer DEFAULT 2,
     "created_at" timestamp DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp DEFAULT CURRENT_TIMESTAMP
 );
